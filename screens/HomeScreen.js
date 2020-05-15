@@ -1,56 +1,152 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
-
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dimensions } from 'react-native';
+import { BorderlessButton, ScrollView } from 'react-native-gesture-handler';
+import {NavigationContainer } from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faUserCircle, faSearch} from '@fortawesome/free-solid-svg-icons';
+import { fromBottom } from 'react-navigation-transitions';
 import { MonoText } from '../components/StyledText';
+import {WebView} from 'react-native-webview';
+import { connect } from 'react-redux';
+import moment from 'moment'
 
-export default function HomeScreen() {
+// Screens imported
+import SoberietyTime from '../components/SoberietyTime'
+import SettingsScreen from './SettingsScreen';
+import MeetingSearchScreen from './MeetingSearchScreen';
+import DailyReading from '../components/DailyReading';
+const {
+  width: SCREEN_WIDTH, 
+  height: SCREEN_HEIGHT
+} = Dimensions.get('window')
+const fontScale = SCREEN_WIDTH / 320;
+
+// assets imported
+import Logo from '../assets/images/LogoComponent'
+import SplashScreen  from './SplashScreen'
+const HomeStack = createStackNavigator();
+
+export default function HomeScreenStack(){
+  return (
+    <HomeStack.Navigator >
+      <HomeStack.Screen 
+        name="Crystal Meth Anonymous" 
+        component={HomeScreen} 
+        options={({navigation, route})=>({
+
+          headerStyle: {
+            backgroundColor: '#1f6e21',
+            
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontFamily: 'merriweather',
+            fontSize:  18 * fontScale
+          },
+          headerLeft: ()=>{ 
+            return (
+              <CustomButton icon={faUserCircle} 
+                callback={() => navigation.navigate('Settings')} 
+                style={{color: 'white', marginLeft: 10}}  
+                size={25} />
+            )},
+          headerRight: ()=>{ 
+              return (
+                <CustomButton icon={faSearch} 
+                  callback={() => navigation.navigate('Search')} 
+                  style={{color: 'white', marginRight: 10}}  
+                  size={25} />
+              )},
+        })}
+        />
+      <HomeStack.Screen
+        name="Settings"
+        component={SettingsScreen} 
+        options={({navigation, route})=>({
+
+          headerStyle: {
+            backgroundColor: '#1f6e21',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          }
+        })}/>
+      <HomeStack.Screen
+        name="Search"
+        component={MeetingSearchScreen} 
+        options={({navigation, route})=>({
+
+          headerStyle: {
+            backgroundColor: '#1f6e21',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          }
+        })}/>
+    </HomeStack.Navigator>
+  )
+}
+
+function CustomButton({icon, callback, ...rest}){
+  console.log(`${JSON.stringify(icon)}`)
+  return (
+      <BorderlessButton style={[styles.button]} onPress={()=>{callback()}}>
+
+          <FontAwesomeIcon icon={icon} style={styles.icon} {...rest}/>
+
+      </BorderlessButton>
+  )
+}
+
+
+function HomeScreen({navigation, ...props}) {
+  let twentyFour = props.general.dailyReaders.twentyFour;
+  let men = props.general.dailyReaders.men;
+  let women = props.general.dailyReaders.women;
+  let readerDate = moment(props.general.readerDate)
+  const holder =         <View style={styles.helpContainer}>
+  <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
+    <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
+  </TouchableOpacity>
+</View>
+  console.log(`reader date is ${readerDate} and original is ${props.general.readerDate.toISOString()}`)
   return (
     <View style={styles.container}>
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.welcomeContainer}>
-          <Image
-            source={
-              __DEV__
-                ? require('../assets/images/robot-dev.png')
-                : require('../assets/images/robot-prod.png')
-            }
-            style={styles.welcomeImage}
-          />
+        <Text style={styles.readingTitle}>Daily Reading {readerDate.format("MM/DD")}</Text>
+        <DailyReading subtitle={twentyFour.subtitle} reading={{...twentyFour[readerDate.format('MM-DD')], ...men[readerDate.format('MM-DD')], ...women[readerDate.format('MM-DD')]}} />
+
+        
+        <View style={styles.meetings}>
+          <Text>Meeting section</Text>
         </View>
-
-        <View style={styles.getStartedContainer}>
-          <DevelopmentModeNotice />
-
-          <Text style={styles.getStartedText}>Open up the code for this screen:</Text>
-
-          <View style={[styles.codeHighlightContainer, styles.homeScreenFilename]}>
-            <MonoText>screens/HomeScreen.js</MonoText>
-          </View>
-
-          <Text style={styles.getStartedText}>
-            Change any of the text, save the file, and your app will automatically reload.
-          </Text>
-        </View>
-
-        <View style={styles.helpContainer}>
-          <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
-            <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
-          </TouchableOpacity>
+        <View style={styles.gratitude}>
+          <Text>Gratitude section</Text>
         </View>
       </ScrollView>
 
-      <View style={styles.tabBarInfoContainer}>
-        <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
-
-        <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-          <MonoText style={styles.codeHighlightText}>navigation/BottomTabNavigator.js</MonoText>
-        </View>
-      </View>
+      <SoberietyTime />
     </View>
   );
 }
+
+HomeScreen = connect(
+    function mapStateToProps(state, ownProps){
+        return state;
+      }, 
+      function mapDispatchToProps(dispatch){
+        return {
+          testFunction: (testInput) => {
+            console.log("dispatching test function with input " + testInput)
+          }
+        }
+      }
+)(HomeScreen)
 
 HomeScreen.navigationOptions = {
   header: null,
@@ -89,36 +185,42 @@ function handleHelpPress() {
   );
 }
 
+
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#D4DAD4',
   },
-  developmentModeText: {
-    marginBottom: 20,
-    color: 'rgba(0,0,0,0.4)',
-    fontSize: 14,
-    lineHeight: 19,
-    textAlign: 'center',
+  readingTitle: {
+    fontSize: 18 * fontScale,
+    paddingLeft: 7* fontScale,
+
+  },
+  meetings:{
+    height: '30%',
+    borderColor: '#fff',
+    borderBottomWidth: 3,
+    height: '30%'
+  },
+  gratitude:{
+    height: '30%',
+    borderColor: '#fff',
+    height: '30%'
   },
   contentContainer: {
-    paddingTop: 30,
+    flex: 1,
+    justifyContent: "flex-start"
   },
   welcomeContainer: {
     alignItems: 'center',
     marginTop: 10,
     marginBottom: 20,
   },
-  welcomeImage: {
-    width: 100,
-    height: 80,
-    resizeMode: 'contain',
-    marginTop: 3,
-    marginLeft: -10,
-  },
+
   getStartedContainer: {
-    alignItems: 'center',
-    marginHorizontal: 50,
+    marginHorizontal: 20,
   },
   homeScreenFilename: {
     marginVertical: 7,
@@ -131,49 +233,12 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     paddingHorizontal: 4,
   },
-  getStartedText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    lineHeight: 24,
-    textAlign: 'center',
-  },
-  tabBarInfoContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    ...Platform.select({
-      ios: {
-        shadowColor: 'black',
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 20,
-      },
-    }),
-    alignItems: 'center',
-    backgroundColor: '#fbfbfb',
-    paddingVertical: 20,
-  },
-  tabBarInfoText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    textAlign: 'center',
-  },
-  navigationFilename: {
-    marginTop: 5,
-  },
+
   helpContainer: {
-    marginTop: 15,
     alignItems: 'center',
   },
   helpLink: {
     paddingVertical: 15,
   },
-  helpLinkText: {
-    fontSize: 14,
-    color: '#2e78b7',
-  },
+
 });

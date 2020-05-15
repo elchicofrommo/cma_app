@@ -16,6 +16,9 @@ export default function useCachedResources() {
         await Font.loadAsync({
           ...Ionicons.font,
           'space-mono': require('../assets/fonts/SpaceMono-Regular.ttf'),
+          'merriweather': require('../assets/fonts/Merriweather/Merriweather-Regular.ttf'),
+          'merriweather-bold': require('../assets/fonts/Merriweather/Merriweather-Bold.ttf'),
+          'merriweather-italic': require('../assets/fonts/Merriweather/Merriweather-Italic.ttf'),
         });
       } catch (e) {
         // We might want to provide this error information to an error reporting service

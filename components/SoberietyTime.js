@@ -1,0 +1,113 @@
+import * as React from 'react';
+import { Text, View , StyleSheet, Dimensions} from 'react-native';
+import { MonoText } from '../components/StyledText';
+import { connect } from 'react-redux';
+import moment from "moment";
+
+
+function SoberietyTime(props){
+    let message = "Enter Date in settings"
+    if(props.general.dos){
+        console.log(`building date from ${props.general.dos} ${typeof props.general.dos}`)
+        const dos = new Date(props.general.dos);
+        const current = new Date();
+        message = calcDate(current, dos);
+    }
+
+    return(
+     <View style={styles.tabBarInfoContainer}>
+
+        <Text style={styles.timeLabel}>Clean Time:</Text>
+        <Text  style={[styles.timeText]}>{message}</Text>
+
+      </View>
+    )
+}
+const {
+  width: SCREEN_WIDTH, 
+  height: SCREEN_HEIGHT
+} = Dimensions.get('window')
+const fontScale = SCREEN_WIDTH / 320;
+
+function calcDate(date1, date2) {
+    console.log(`calculating date from ${date1} and ${date2}`)
+
+    const dateDiff ={
+        years: date1.getFullYear() - date2.getFullYear(),
+        months: date1.getMonth() - date2.getMonth(),
+        days: date1.getDate() - date2.getDate()
+    }
+    
+    var years = dateDiff.years == 0 ? "" : dateDiff.years == 1 ? `${dateDiff.years} year ` : `${dateDiff.years} years `
+    var months = dateDiff.months == 0 ? "" : dateDiff.months == 1 ? `${dateDiff.months} month ` : `${dateDiff.years} months `
+    var days = dateDiff.days == 0 ? "" : dateDiff.days == 1 ? `${dateDiff.days} day ` : `${dateDiff.days} days `
+    var message = "";
+    if(months == days ){
+        message = `🎉🎉🎉 ${years} 🎉🎉🎉`
+    }
+    else if(years == days){
+        message = `🎉🎉🎉 ${months} 🎉🎉🎉`
+    }else {
+        message = `${years}${months}${days}`
+    }
+
+    return message
+
+}
+
+export default connect(
+    function mapStateToProps(state, ownProps){
+        return state;
+      }, 
+      function mapDispatchToProps(dispatch){
+        return {
+          testFunction: (testInput) => {
+            console.log("dispatching test function with input " + testInput)
+          }
+        }
+      }
+)(SoberietyTime)
+
+const styles = StyleSheet.create({
+    
+
+    codeHighlightText: {
+      color: 'rgba(96,100,109, 0.8)',
+    },
+    timeText: {
+      
+        fontSize: 20 * fontScale,
+        fontStyle: 'italic',
+        textAlign: 'center',
+        flex: 1
+
+    },
+    timeLabel: {
+      fontSize: 20 * fontScale,
+      paddingLeft: '3%',
+      paddingRight: '1%',
+    },
+    tabBarInfoContainer: {
+      position: 'absolute',
+      bottom: 0, 
+      left: 0,
+      right: 0,
+      ...Platform.select({
+        ios: {
+          shadowColor: 'black',
+          shadowOffset: { width: 0, height: -3 },
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+        },
+        android: {
+          elevation: 20,
+        },
+      }),
+      alignItems: 'center',
+      backgroundColor: '#fbfbfb',
+      paddingVertical: 15,
+      flex: 1,
+      flexDirection: 'row'
+    },
+
+  });
