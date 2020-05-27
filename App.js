@@ -8,16 +8,35 @@ import BottomTabNavigator from './navigation/BottomTabNavigator';
 import LinkingConfiguration from './navigation/LinkingConfiguration';
 import reducers from './reducers/CombinedReducers';
 
+import { DataStore, Predicates } from "@aws-amplify/datastore";
+import { Preferences, AuthDetail } from "./models/index";
+
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import { AppLoading, SplashScreen } from 'expo';
-
+import { Auth, auth0SignInButton } from 'aws-amplify'
 import MySplashScreen from './screens/SplashScreen'
 
 const Stack = createStackNavigator();
 const store = createStore(reducers)
 
-function getNetworkResources(){
+
+async function signIn(email, password){
+  console.log(`signing in with userName: ${email} password: ${password}`)
+
+  try{
+    const result = await Auth.signIn(email, password  )
+    console.log(`successful sign in, now dispatching save auth ${JSON.stringify(result.username)}`)
+    return result.username;
+  }catch(err){
+    console.log(`error signing in ${err}`)
+    return undefined
+  }
+
+  
+}
+
+async function getNetworkResources(){
   axios.get("https://api.bit-word.com/queryS3Directory")
     .then( response => {
       console.log(`got network resources `)
@@ -44,7 +63,7 @@ function getNetworkResources(){
   axios.get(CMA_DETAILS)
     .then( response => {
       //response.data
-      console.log(`got CMA soundcloud details ${JSON.stringify(response.data)}`)
+      console.log(`got CMA soundcloud details ${response.data}`)
       let filtered = {
         avatar: response.data.avatar_url,
         description: response.data.description,
@@ -76,6 +95,40 @@ function getNetworkResources(){
 
   const readerDate = new Date();
   store.dispatch({type: "READER_DATE", data: readerDate})
+
+  DataStore.query(AuthDetail, Predicates.ALL)
+    .then(async (result)=>{
+      console.log(`authDetail out of datastore are ${JSON.stringify(result)}`)
+      if(result.length >0){ // if there are auth details to retrieve
+        store.dispatch({type: "SYNC_AUTH", data: result[0]})
+        // try to sign in
+        console.log(`going to authenticate with email: ${result[0].email}`)
+        const userName = await signIn(result[0].email, result[0].password)
+        console.log(`done authenticating: ${userName}`)
+        if(userName){
+
+          console.log(`auth successful, user name is ${JSON.stringify(userName)}`)
+          store.dispatch({type: "SAVE_AUTH", data: userName})
+
+          DataStore.query(Preferences, Predicates.ALL)
+          .then((result)=>{
+            console.log(`preferences out of datastore are ${JSON.stringify(result)}`)
+            if(result.length >0)
+              store.dispatch({type: "SYNC_PREFRENCES", data: result[0]})
+          })
+          .catch((err)=> {
+            console.log(`err out of datastore are ${JSON.stringify(err)}`)
+          })
+        }else{
+          console.log(`signin failed `)
+        }
+
+      }
+    })
+    .catch((err)=> {
+      console.log(`err out of datastore are ${JSON.stringify(err)}`)
+    })
+  
   
 }
 

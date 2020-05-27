@@ -1,0 +1,11 @@
+{
+    "AppSyncApiName": "cmaapp",
+    "DynamoDBBillingMode": "PAY_PER_REQUEST",
+    "DynamoDBEnableServerSideEncryption": "false",
+    "AuthCognitoUserPoolId": {
+        "Fn::GetAtt": [
+            "authcmaapp1086fc12",
+            "Outputs.UserPoolId"
+        ]
+    }
+}

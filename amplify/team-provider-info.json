@@ -1,0 +1,20 @@
+{
+    "dev": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-cmaapp-dev-150321-authRole",
+            "UnauthRoleArn": "arn:aws:iam::811501017593:role/amplify-cmaapp-dev-150321-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::811501017593:role/amplify-cmaapp-dev-150321-authRole",
+            "Region": "us-west-2",
+            "DeploymentBucketName": "amplify-cmaapp-dev-150321-deployment",
+            "UnauthRoleName": "amplify-cmaapp-dev-150321-unauthRole",
+            "StackName": "amplify-cmaapp-dev-150321",
+            "StackId": "arn:aws:cloudformation:us-west-2:811501017593:stack/amplify-cmaapp-dev-150321/6ed66f70-9e0a-11ea-9ab8-02b80ff4b548",
+            "AmplifyAppId": "d2obh0bhxrwk5z"
+        },
+        "categories": {
+            "auth": {
+                "cmaapp1086fc12": {}
+            }
+        }
+    }
+}

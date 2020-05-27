@@ -8,12 +8,14 @@ import AudioScreen from '../screens/AudioScreen';
 import DocumentScreen from '../screens/DocumentScreen';
 import GratitudeScreen from '../screens/GratitudeScreen';
 import HomeScreen from '../screens/HomeScreen';
+import MeetingSearchScreen from '../screens/MeetingSearchScreen';
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Meeting';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faHeadphones, faHome, faBook} from '@fortawesome/free-solid-svg-icons'
+import { faHeadphones, faHome, faBook, faHandsHelping} from '@fortawesome/free-solid-svg-icons'
 import { faPagelines} from '@fortawesome/free-brands-svg-icons'
+
 
 export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the
@@ -43,6 +45,14 @@ export default function BottomTabNavigator({ navigation, route }) {
         }}
       />
       <BottomTab.Screen
+        name="Meeting"
+        component={MeetingSearchScreen}
+        options={{
+          tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faHandsHelping} style={{color: color}}  size={25}/>,
+
+        }}
+      />
+      <BottomTab.Screen
         name="Audio"
         component={AudioScreen}
         options={{
@@ -68,20 +78,7 @@ export default function BottomTabNavigator({ navigation, route }) {
   );
 }
 
-function getHeaderTitle(route) {
-  const routeName = route.state?.routes[route.state.index]?.name ?? INITIAL_ROUTE_NAME;
 
-  switch (routeName) {
-    case 'Meeting':
-      return 'Meetings';
-    case 'Audio':
-      return 'Speakers Shares';
-    case 'Gratitude':
-      return 'Growing Gratitude';
-    case 'Document':
-      return 'Meeting Formats and more';
-  }
-}
 
 const styles = StyleSheet.create({
   bottomNav: {

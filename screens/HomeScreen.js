@@ -5,17 +5,18 @@ import { BorderlessButton, ScrollView } from 'react-native-gesture-handler';
 import {NavigationContainer } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faUserCircle, faSearch} from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faGripLinesVertical} from '@fortawesome/free-solid-svg-icons';
 import { fromBottom } from 'react-navigation-transitions';
 import { MonoText } from '../components/StyledText';
 import {WebView} from 'react-native-webview';
 import { connect } from 'react-redux';
 import moment from 'moment'
+import { SwipeListView } from 'react-native-swipe-list-view';
 
 // Screens imported
 import SoberietyTime from '../components/SoberietyTime'
 import SettingsScreen from './SettingsScreen';
-import MeetingSearchScreen from './MeetingSearchScreen';
+
 import DailyReading from '../components/DailyReading';
 const {
   width: SCREEN_WIDTH, 
@@ -34,6 +35,7 @@ export default function HomeScreenStack(){
       <HomeStack.Screen 
         name="Crystal Meth Anonymous" 
         component={HomeScreen} 
+        title="Crystal Meth Anonymous"
         options={({navigation, route})=>({
 
           headerStyle: {
@@ -53,47 +55,34 @@ export default function HomeScreenStack(){
                 style={{color: 'white', marginLeft: 10}}  
                 size={25} />
             )},
-          headerRight: ()=>{ 
-              return (
-                <CustomButton icon={faSearch} 
-                  callback={() => navigation.navigate('Search')} 
-                  style={{color: 'white', marginRight: 10}}  
-                  size={25} />
-              )},
+
         })}
         />
       <HomeStack.Screen
         name="Settings"
         component={SettingsScreen} 
+        title="Settings"
         options={({navigation, route})=>({
 
           headerStyle: {
             backgroundColor: '#1f6e21',
+            
           },
+          title: 'Settings',
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontWeight: 'bold',
-          }
-        })}/>
-      <HomeStack.Screen
-        name="Search"
-        component={MeetingSearchScreen} 
-        options={({navigation, route})=>({
-
-          headerStyle: {
-            backgroundColor: '#1f6e21',
+            fontFamily: 'merriweather',
+            fontSize:  18 * fontScale
           },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          }
         })}/>
+      
     </HomeStack.Navigator>
   )
 }
 
 function CustomButton({icon, callback, ...rest}){
-  console.log(`${JSON.stringify(icon)}`)
+
   return (
       <BorderlessButton style={[styles.button]} onPress={()=>{callback()}}>
 
@@ -103,32 +92,73 @@ function CustomButton({icon, callback, ...rest}){
   )
 }
 
+const MeetingComponent = ({item: meeting, rowMap})=>{
+
+  //console.log("building MeetingComponent " + JSON.stringify(meeting))
+             // object is [{name, active, category, start_time (as string), weekday, street, city,state, zip, dist.calculated}
+     return(
+         <View key={meeting._id}
+           style={{ 
+             flexDirection: 'column',  
+             backgroundColor: '#FFF', 
+             borderBottomWidth: 1, 
+             paddingLeft: 10 * fontScale, 
+             paddingVertical: 10* fontScale,
+             justifyContent: "space-between",
+             flexDirection: "row"
+           }}>
+ 
+             <View style={{flex: 15 }}>
+               <View style={{flexDirection: 'row', }}>
+                 <Text style={[styles.title, {fontSize: 14* fontScale, fontWeight: 'bold'}]}>{meeting.name}</Text>
+               </View>
+               <Text style={[styles.title,]}>{meeting.weekday + " " + meeting.start_time}</Text>
+               <Text style={styles.title}>{meeting.street}</Text>
+               <Text style={styles.title}>{meeting.city}, {meeting.state} {meeting.zip}</Text>
+
+             </View>
+             <View style={{flexDirection: 'column', flex: 1, justifyContent: 'center', }}>
+               <FontAwesomeIcon icon={faGripLinesVertical} style={styles.icon} size={23 * fontScale}/>
+             </View>
+         </View>
+     )
+ }
 
 function HomeScreen({navigation, ...props}) {
   let twentyFour = props.general.dailyReaders.twentyFour;
   let men = props.general.dailyReaders.men;
   let women = props.general.dailyReaders.women;
   let readerDate = moment(props.general.readerDate)
-  const holder =         <View style={styles.helpContainer}>
-  <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
-    <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
-  </TouchableOpacity>
-</View>
-  console.log(`reader date is ${readerDate} and original is ${props.general.readerDate.toISOString()}`)
+
+  console.log(`meeting list is: ${props.general.meetings}`)
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+
         <Text style={styles.readingTitle}>Daily Reading {readerDate.format("MM/DD")}</Text>
         <DailyReading subtitle={twentyFour.subtitle} reading={{...twentyFour[readerDate.format('MM-DD')], ...men[readerDate.format('MM-DD')], ...women[readerDate.format('MM-DD')]}} />
 
-        
-        <View style={styles.meetings}>
-          <Text>Meeting section</Text>
-        </View>
-        <View style={styles.gratitude}>
-          <Text>Gratitude section</Text>
-        </View>
-      </ScrollView>
+
+        <SwipeListView
+            data={props.general.meetings}
+            renderItem={ (data, rowMap) => { return MeetingComponent(data, rowMap)}}
+            keyExtractor={(data)=>{return data._id}}
+            renderHiddenItem={ (data, rowMap) => (
+
+                <TouchableOpacity style={[styles.rowBack, styles.rowBackRemove]} key={data._id}
+                onPress={(rowPress)=>{
+                  console.log(`I am removing meeting ${JSON.stringify(data.item)}`)
+                  rowMap[data.item._id].closeRow()
+                  props.dispatchRemoveMeeting(data.item)
+                }}>
+                <Text style={styles.rowBackText}>Remove</Text>
+              </TouchableOpacity>  
+            )}
+            rightOpenValue={-75 * fontScale}
+            leftOpenValue={0}
+            disableRightSwipe={true}
+        />
+
+
 
       <SoberietyTime />
     </View>
@@ -143,49 +173,19 @@ HomeScreen = connect(
         return {
           testFunction: (testInput) => {
             console.log("dispatching test function with input " + testInput)
+          },
+          dispatchRemoveMeeting: (data) => {
+            console.log("dispatching remove meeting " + JSON.stringify(data))
+            dispatch({type: "REMOVE_MEETING", data})
           }
         }
+
       }
 )(HomeScreen)
 
 HomeScreen.navigationOptions = {
   header: null,
 };
-
-function DevelopmentModeNotice() {
-  if (__DEV__) {
-    const learnMoreButton = (
-      <Text onPress={handleLearnMorePress} style={styles.helpLinkText}>
-        Learn more
-      </Text>
-    );
-
-    return (
-      <Text style={styles.developmentModeText}>
-        Development mode is enabled: your app will be slower but you can use useful development
-        tools. {learnMoreButton}
-      </Text>
-    );
-  } else {
-    return (
-      <Text style={styles.developmentModeText}>
-        You are not in development mode: your app will run at full speed.
-      </Text>
-    );
-  }
-}
-
-function handleLearnMorePress() {
-  WebBrowser.openBrowserAsync('https://docs.expo.io/versions/latest/workflow/development-mode/');
-}
-
-function handleHelpPress() {
-  WebBrowser.openBrowserAsync(
-    'https://docs.expo.io/versions/latest/get-started/create-a-new-app/#making-your-first-change'
-  );
-}
-
-
 
 
 const styles = StyleSheet.create({
@@ -239,6 +239,23 @@ const styles = StyleSheet.create({
   },
   helpLink: {
     paddingVertical: 15,
+  },
+  rowBack: {
+    backgroundColor: '#0273b1',
+    height: '100%',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    flexDirection: 'row'
+  },
+  rowBackRemove: {
+    backgroundColor: '#d15457',
+  },
+  rowBackText: {
+    fontSize: 17 * fontScale,
+    color: '#FFF',
+    textAlign: 'center',
+
+    width: 75 * fontScale
   },
 
 });

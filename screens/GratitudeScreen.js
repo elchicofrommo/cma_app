@@ -59,7 +59,7 @@ function GratitudeScreen() {
         isLastOption
       />
     </ScrollView>
-    <SoberietyTime />
+
     </View>
   );
 }

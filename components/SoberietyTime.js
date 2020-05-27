@@ -43,10 +43,10 @@ function calcDate(date1, date2) {
     var days = dateDiff.days == 0 ? "" : dateDiff.days == 1 ? `${dateDiff.days} day ` : `${dateDiff.days} days `
     var message = "";
     if(months == days ){
-        message = `🎉🎉🎉 ${years} 🎉🎉🎉`
+        message = `🎉  ${years}  🎉`
     }
     else if(years == days){
-        message = `🎉🎉🎉 ${months} 🎉🎉🎉`
+        message = `🎉  ${months}  🎉`
     }else {
         message = `${years}${months}${days}`
     }
