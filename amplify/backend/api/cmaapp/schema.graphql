@@ -25,9 +25,13 @@ type AuthDetail @model @auth(rules: [{allow: owner}]) {
   username: String!
 }
 type Preferences @model @auth(rules: [{allow: owner}]) {
+  email: String!
   screenName: String!
   name: String!
   soberietyDate: String!
-  meetings: [String]
+}
+type Meetings @model @auth(rules: [{allow: owner}]){
+  email: String!
+  meetings: [String]!
 }
 

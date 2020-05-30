@@ -221,6 +221,13 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
+                "email": {
+                    "name": "email",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
                 "screenName": {
                     "name": "screenName",
                     "isArray": false,
@@ -240,13 +247,6 @@ export const schema = {
                     "isArray": false,
                     "type": "String",
                     "isRequired": true,
-                    "attributes": []
-                },
-                "meetings": {
-                    "name": "meetings",
-                    "isArray": true,
-                    "type": "String",
-                    "isRequired": false,
                     "attributes": []
                 }
             },
@@ -276,9 +276,61 @@ export const schema = {
                     }
                 }
             ]
+        },
+        "Meetings": {
+            "name": "Meetings",
+            "fields": {
+                "id": {
+                    "name": "id",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "email": {
+                    "name": "email",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "meetings": {
+                    "name": "meetings",
+                    "isArray": true,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                }
+            },
+            "syncable": true,
+            "pluralName": "Meetings",
+            "attributes": [
+                {
+                    "type": "model",
+                    "properties": {}
+                },
+                {
+                    "type": "auth",
+                    "properties": {
+                        "rules": [
+                            {
+                                "provider": "userPools",
+                                "ownerField": "owner",
+                                "allow": "owner",
+                                "identityClaim": "cognito:username",
+                                "operations": [
+                                    "create",
+                                    "update",
+                                    "delete"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
         }
     },
     "enums": {},
     "nonModels": {},
-    "version": "050a681650311d767ba5355858a4ecc1"
+    "version": "ffd2c62be75520773c205d01c1df6101"
 };

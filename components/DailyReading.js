@@ -1,7 +1,9 @@
-import * as React from 'react';
+import React, {useState} from 'react';
 import { Text, View , StyleSheet, Dimensions} from 'react-native';
 import { MonoText } from '../components/StyledText';
 import Swiper from 'react-native-swiper';
+import ReadMore from 'react-native-read-more-text';
+import Modal from 'react-native-modal';
 
 import moment from "moment";
 import { faGratipay } from '@fortawesome/free-brands-svg-icons';
@@ -11,46 +13,80 @@ const {
   height: SCREEN_HEIGHT
 } = Dimensions.get('window')
 const fontScale = SCREEN_WIDTH / 320;
-
+const longScreen = (SCREEN_WIDTH / SCREEN_HEIGHT )  *2
 
 export default function DailyReading({title, subtitle, reading}){
 
+
   const sections = [];
+  
   for(const section in reading){
     sections.push(
-      <View key={section} style={styles.section}>
-        <Text style={styles.sectionHeading}>{section}</Text>
-        <Text style={styles.sectionText}>{reading[section]}</Text>
-      </View>
+      <ReadingSection key={section} title={title} subtitle={subtitle} section={section} reading={reading} />
+      
     )
   }
     return(
-        <View style={styles.readingContainer}>
+
           <Swiper 
             loop={true}
             showsPagination={true}
-            dotColor={"#F4F5F4"}
+            dotColor={"lightgray"}
             activeDotColor={"#87A287"}
-            index={1}
-            dotStyle={{marginBottom: -20, width: 4, height: 4}}
-            activeDotStyle={{marginBottom: -20, width: 4, height: 4}}
-            style={styles.swiping}>
+            index={0}
+            dotStyle={{marginBottom: -10 * fontScale}}
+            activeDotStyle={{marginBottom: -10 * fontScale}}
+            containerStyle={styles.swiping}>
             {sections}
           </Swiper>
-        </View>
+
     )
 }
+function ReadingSection({title, subtitle, section, reading}){
+  let lines = Platform.OS ==='ios'? 5.5* fontScale: 4.7 * fontScale
+  const [visible, setVisible] = useState(false)
 
+  return(
+  <View key={section} style={styles.section}>
+        <Text style={styles.sectionHeading}>{section}</Text>
+
+        <ReadMore
+            numberOfLines={lines}
+            renderTruncatedFooter={(onPress)=> 
+              <View>
+                <Text style={styles.viewMore} onPress={()=>setVisible(true)}>View more</Text>
+                <Modal isVisible={visible} 
+            onBackdropPress={()=>setVisible(false)}
+            onSwipeComplete={()=>setVisible(false)}
+            onBackButtonPress={()=>setVisible(false)}
+            swipeDirection={['up', 'down', 'left', 'right']}>
+
+            <View style={styles.modalTextContainer}>
+              <Text style={styles.sectionHeading}>{section}</Text>
+              <Text style={styles.modalText} >
+              {reading[section]}
+              </Text>
+            </View>
+          </Modal>
+              </View>
+            }
+          >
+
+          <Text style={styles.sectionText} >{reading[section]}</Text>
+        </ReadMore>
+        
+      </View>
+  )
+}
 const styles = StyleSheet.create({
     
 
     readingContainer: {
       color: 'rgba(96,100,109, 0.8)',
-      backgroundColor: "#D4DAD4",
-      flex: 1,
-
+      flexDirection: 'column',
       paddingHorizontal: 10,
-      borderBottomWidth: 3,
+      paddingTop: 10,
+      paddingBottom: 30,
       borderColor: '#FFF',
     
     },
@@ -59,25 +95,42 @@ const styles = StyleSheet.create({
       textAlign: 'left',
       fontSize: fontScale *  17,
     },
+    viewMore:{
+      paddingTop: 6 * fontScale,
+      color: 'blue',
+    },  
     section: {
-      flex: 1,
-
+      paddingHorizontal: 10* fontScale,
+      flexDirection: 'column',
+      height: 200 * fontScale,
+      justifyContent: 'flex-start',
+      paddingBottom: 20,
     },
     sectionText: {
       fontSize: fontScale *  12,
       flex: 85,
-      
     },
     sectionHeading: {
       textAlign: 'center',
       fontSize: fontScale *  15,
       fontWeight: 'bold',
-      flex: 15,
-      textAlignVertical: "bottom"
+      textAlignVertical: "bottom",
+      paddingTop: 10* fontScale,
     },
     swiping:  {
 
+      flexDirection: 'column',
     },  
+    modalText:{
+      fontSize: 14 *fontScale,
+      paddingVertical: 20* fontScale,
+      paddingHorizontal: 10* fontScale,
+      textAlign: 'left',
+    },
+     modalTextContainer: {
+      backgroundColor: '#FFF',
+      borderRadius: 5 * fontScale,
+     },
     tabBarInfoContainer: {
       position: 'absolute',
       bottom: 0, 

@@ -2,25 +2,33 @@
 import  React,  {useState, useEffect} from 'react';
 import {  StyleSheet, View, Text, Animated } from 'react-native';
 import Logo from '../assets/images/LogoComponent'
+import LogoNoAnimation from '../assets/images/LogoComponetNoAnimation'
+import WhiteLogo from '../assets/images/whiteLogo2.png'
 
 export default function SplashScreen(props ){
+
+  const component = Platform.OS === 'ios' ? <Logo height={"40%"} style={{marginLeft: 20}} />: 
+    <LogoNoAnimation height={"40%"} style={{marginBottom: 20}} />
+    const timeout = Platform.OS === 'ios'? 3000: 0;
+    const duration = Platform.OS === 'ios'? 1000: 3000;
 
     const [opacity, setOpacity] = useState(new Animated.Value(0))
     const animation = Animated.timing(
         opacity, 
         {
             toValue: 1,
-            duration: 1000
+            duration: duration
         }
     );
     React.useEffect(()=>{
-        setTimeout(animation.start, 3000)
+        setTimeout(animation.start, timeout)
     }, []);
 
+  
   return (
     <View style={styles.container}>
-        <Logo height={"40%"} style={{marginLeft: 20}} />
-        <Animated.View  style={{opacity: opacity}}>
+        {component}
+        <Animated.View  style={{opacity: opacity, }}>
             <View style={styles.labelView}>
                 <Text style={styles.topLine}>Crystal Meth </Text>
                 <Text style={styles.bottomLine}>Anonymous</Text>

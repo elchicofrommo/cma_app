@@ -1,12 +1,14 @@
 
 import React, {useState} from 'react';
-import {Picker, Text, StyleSheet, View, TextInput, Button, Dimensions, TouchableOpacity } from 'react-native';
+import {Picker, Text, StyleSheet, View, TextInput, Button, 
+  KeyboardAvoidingView, Dimensions, TouchableOpacity } from 'react-native';
 import { BorderlessButton, ScrollView } from 'react-native-gesture-handler';
 import DatePicker from 'react-native-datepicker'
 import { useFocusEffect } from '@react-navigation/native';
 import Modal from 'react-native-modal';
 import {AppState} from '../constants/AppState'
 import Swiper from 'react-native-swiper';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 
@@ -52,7 +54,7 @@ function SettingsScreen({general: state, ...props}) {
       
       try{
         const result = await Auth.signIn(state.email, state.password  )
-        console.log(`successful sign in, now dispatching save auth ${JSON.stringify(result)}`)
+        console.log(`successful sign in, now dispatching save auth ${result}`)
         props.dispatchSaveAuth(result.username )
       }catch(err){
         if(err.code == 'UserNotFoundException' || err.code == "NotAuthorizedException"){
@@ -64,7 +66,7 @@ function SettingsScreen({general: state, ...props}) {
             console.log(`sign up userSub are ${signin.userSub}`)
 
             if(!signin.userConfirmed){
-              setSigninError({display: 'inline', message: "Check your email to complete registration then come back and sign in."})
+              setSigninError({display: 'flex', message: "Check your email to complete registration then come back and sign in."})
             }else{
               
             }
@@ -73,14 +75,14 @@ function SettingsScreen({general: state, ...props}) {
           }catch(err2){
             console.log(`Could not sign up either because ${JSON.stringify(err2)}`)
             if(err2.code == "UsernameExistsException")
-              setSigninError({display: "inline", message: JSON.stringify(err.message)})
+              setSigninError({display: "flex", message: JSON.stringify(err.message)})
             else
-              setSigninError({display: "inline", message: JSON.stringify(err2.message)})
+              setSigninError({display: "flex", message: JSON.stringify(err2.message)})
 
           }
         }else{
           console.log(`error siginin in ${JSON.stringify(err)}`)
-          setSigninError({display: "inline", message: err.message})
+          setSigninError({display: "flex", message: err.message})
         }
       }
 
@@ -111,10 +113,10 @@ function SettingsScreen({general: state, ...props}) {
       && state.password.length >= 8?
         "green" : "red"
 
-    console.log(`error display: ${error.display}`)
     return (
-      <View style={styles.container} >
-          <Modal isVisible={!state.authenticated && !isCancel} 
+      
+      <KeyboardAwareScrollView contentContainerStyle={styles.container} enableOnAndroid={true} extraHeight={130} extraScrollHeight={130}>
+        <Modal isVisible={!state.authenticated && !isCancel} 
             onModalHide={onModalHide} 
             onBackdropPress={cancel}
             onSwipeComplete={cancel}
@@ -127,7 +129,7 @@ function SettingsScreen({general: state, ...props}) {
               </Text>
             </View>
 
-              <View style={{display: (!confirmEmail)? "inline": "hidden"}}>
+              <View style={{display: (!confirmEmail)? "flex": "none"}}>
                 <View style={{backgroundColor: '#fff', paddingHorizontal: 10* fontScale, paddingVertical: 15* fontScale}}>
                   
                   <TextInput 
@@ -137,7 +139,7 @@ function SettingsScreen({general: state, ...props}) {
                     style={[styles.textField]}
                     onChangeText={(name)=>{props.dispatchEmailChange(name)}}
                   />
-                  <Text style={{fontSize: 10 * fontScale, color: 'red'}}>Email</Text>
+                  <Text style={styles.inputLabel}>Email</Text>
                 </View>
                 <View style={{backgroundColor: '#fff',paddingHorizontal: 10* fontScale, paddingVertical: 15* fontScale}}>
                     
@@ -148,11 +150,11 @@ function SettingsScreen({general: state, ...props}) {
                   style={[styles.textField]}
                   onChangeText={(name)=>{props.dispatchPasswordChange(name)}}
                   />
-                  <Text style={{fontSize: 10 * fontScale, color: 'red'}}>Password</Text>
+                  <Text style={styles.inputLabel}>Password</Text>
                   <Text style={{fontSize: 10 * fontScale, color: passwordColor, paddingTop: 6* fontScale}}>must include a uppercase, a lowercase, a number, and a special character and be more than 8 characters.</Text>
                 </View>  
                 <View style={{backgroundColor: '#fff', paddingHorizontal: 10* fontScale, paddingVertical: 15* fontScale, display: error.display}}>
-                  <Text style={{fontSize: 10 * fontScale, color: 'red'}}>{error.message}</Text>
+                  <Text style={styles.inputLabel}>{error.message}</Text>
                 </View> 
                 <TouchableOpacity style={[styles.button, styles.modalButton]} onPress={signIn}>
                   <Text style={[styles.buttonText]}>Sign In</Text>
@@ -160,21 +162,22 @@ function SettingsScreen({general: state, ...props}) {
               </View>
  
           </Modal>
+
         <View>
-          
-          <View style={{backgroundColor: '#fff',paddingHorizontal: 10* fontScale, paddingVertical: 15* fontScale}}>
+          <View style={styles.textFieldContainer}>
               
               <TextInput 
               placeholder="bill@cma.com" 
               value={state.email}
               autoCapitalize="none"
               editable={false}
-              style={[styles.textField, styles.disabledText]}
+              
+              style={[styles.textField, styles.disabledText, {height: 30* fontScale}]}
               onChangeText={(name)=>{props.dispatchEmailChange(name)}}
               />
-              <Text style={{fontSize: 10 * fontScale, color: 'red'}}>Email</Text>
+              <Text style={styles.inputLabel}>Email</Text>
           </View>
-          <View style={{backgroundColor: '#fff',paddingHorizontal: 10* fontScale, paddingVertical: 15* fontScale}}>
+          <View style={styles.textFieldContainer}>
               
               <TextInput 
               placeholder="*******" secureTextEntry={true}
@@ -184,9 +187,9 @@ function SettingsScreen({general: state, ...props}) {
               style={[styles.textField, , styles.disabledText]}
               onChangeText={(name)=>{props.dispatchPasswordChange(name)}}
               />
-              <Text style={{fontSize: 10 * fontScale, color: 'red'}}>Password</Text>
+              <Text style={styles.inputLabel}>Password</Text>
           </View>  
-          <View style={{backgroundColor: '#fff',paddingHorizontal: 10* fontScale, paddingVertical: 15* fontScale}}>
+          <View style={styles.textFieldContainer}>
               
               <TextInput 
               placeholder="sober1" 
@@ -195,9 +198,9 @@ function SettingsScreen({general: state, ...props}) {
               style={[styles.textField]}
               onChangeText={(name)=>{props.dispatchScreenNameChange(name)}}
               />
-              <Text style={{fontSize: 10 * fontScale, color: 'red'}}>Screen Name</Text>
+              <Text style={styles.inputLabel}>Screen Name</Text>
           </View>
-          <View style={{backgroundColor: '#fff',paddingHorizontal: 10* fontScale, paddingVertical: 15* fontScale}}>
+          <View style={styles.textFieldContainer}>
               
               <TextInput 
               value={state.name}
@@ -205,10 +208,10 @@ function SettingsScreen({general: state, ...props}) {
               style={[styles.textField]}
               onChangeText={(name)=>{props.dispatchNameChange(name)}}
               />
-              <Text style={{fontSize: 10 * fontScale, color: 'red'}}>Name</Text>
+              <Text style={styles.inputLabel}>Name</Text>
           </View>
 
-          <View style={{ backgroundColor: '#fff',paddingHorizontal: 10* fontScale, paddingVertical: 15* fontScale}}>
+          <View style={styles.textFieldContainer}>
               
             <DatePicker
               style={{width: '100%'}}
@@ -241,15 +244,16 @@ function SettingsScreen({general: state, ...props}) {
               }}
               onDateChange={(date) => {props.dispatchDosChange(date)}}
             />
-            <Text style={{fontSize: 10 * fontScale, color: 'red'}}>Soberiety Date</Text>
+            <Text style={styles.inputLabel}>Soberiety Date</Text>
           </View>
         </View>
-        <View style={{ backgroundColor: '#fff',paddingHorizontal: 10* fontScale, paddingVertical: 15* fontScale, }}>
+        <View style={{ backgroundColor: '#fff',paddingHorizontal: 10* fontScale, 
+          paddingVertical: 15* fontScale, display: state.authenticated ? "flex":"none" }}>
           <TouchableOpacity style={styles.button} onPress={signOut}>
                 <Text style={styles.buttonText}> Sign Out</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     );
   }
 
@@ -288,7 +292,7 @@ function SettingsScreen({general: state, ...props}) {
             dispatch({type: "SIGN_OUT", data})
           },
           dispatchSaveAuth:(data)=>{
-            console.log(`dispatching auth ${JSON.stringify(data)}`)
+            console.log(`dispatching auth ${data}`)
             dispatch({type: "SAVE_AUTH", data})
           }
           
@@ -313,6 +317,18 @@ const styles = StyleSheet.create({
   trackDescription:{
 
   },
+  inputLabel: {
+    fontSize: 10 * fontScale, 
+    color: 'red', 
+    height: 20* fontScale
+  },
+  textFieldContainer:{
+
+    paddingHorizontal: 10* fontScale, 
+    paddingVertical: 5* fontScale,
+    flexDirection: 'column',
+    height: 50* fontScale,
+  },
   buttonText: {
     fontSize: 20 * fontScale, 
     color: 'white',     
@@ -326,7 +342,8 @@ const styles = StyleSheet.create({
     paddingVertical: 5* fontScale,
     textAlign: 'center',
     justifyContent: 'center',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    height: 40* fontScale
   },
   trackCreated:{
     flex: 2.1
@@ -346,14 +363,12 @@ const styles = StyleSheet.create({
    },
   container: {
     flex: 1,
-    backgroundColor: '#D4DAD4',
     justifyContent: "space-between",
     backgroundColor: "#FFF"
   },
   header: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: 'yellow',
   },
   logo: {
     flex: 1, 
@@ -368,7 +383,8 @@ const styles = StyleSheet.create({
     borderWidth: 1
   },
   textField: {
-    fontSize: 19 * fontScale
+    fontSize: 19 * fontScale,
+    height: 30 * fontScale,
   },
   disabledText: {
     color: 'grey'

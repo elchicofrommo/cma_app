@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import NowPlaying from './NowPlayingReducer'
 
 import { DataStore, Predicates } from "@aws-amplify/datastore";
-import { Preferences, AuthDetail } from "../models/index";
+import { Preferences, AuthDetail, Meetings } from "../models/index";
 
 import {AppState} from "../constants/AppState";
 
@@ -29,7 +29,7 @@ const INITIAL_STATE: AppState = {
 };
 
 function logState(state){
-  console.log(`GR: state is:${JSON.stringify(state, null, 2)} \n`)
+//  console.log(`GR: state is:${JSON.stringify(state, null, 2)} \n`)
 }
 const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
   console.log(`in general reducer action observed:${action.type} \n`)
@@ -55,24 +55,27 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       add.push(action.data)
       newState.meetings = add;
       newState.meetingMap = new Map(newState.meetingMap);
+      
       newState.meetingMap.set(action.data._id, action.data);
-      //savePreferences(newState);
+
+      //console.log(`adding entry with id to meetings ${action.data._id} has is ${newState.meetingMap.has(action.data_id)}`)
+      saveMeetings(newState);
       return newState;
     
     case "REMOVE_MEETING":
       const remove = [...newState.meetings];
-      console.log(`in before remove meeting size is ${remove.length}`)
+     // console.log(`in before remove meeting size is ${remove.length}`)
       
      
       newState.meetings = remove.filter((entry)=> {
-        console.log(`entry is ${entry._id}`)
+       // console.log(`entry is ${entry._id}`)
 
         return entry._id != action.data._id;
       });
-      console.log(`in after remove meeting size is ${newState.meetings.length}`)
+    //  console.log(`in after remove meeting size is ${newState.meetings.length}`)
       newState.meetingMap = new Map(newState.meetingMap);
       newState.meetingMap.delete(action.data._id)
-      //savePreferences(newState);
+      saveMeetings(newState);
       return newState;
       
     case "SIGN_OUT":
@@ -86,11 +89,17 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
     case "SAVE_PREFERENCES":
       savePreferences(state)
       return state;
+    case "SAVE_MEETINGS":
+        saveMeetings(state)
+        return state;
     case "SYNC_PREFRENCES":
       return syncPrefWithDS(newState, action.data)
     
     case "SYNC_AUTH":
       return syncAuthWithDS(newState, action.data)
+
+      case "SYNC_MEETINGS":
+        return syncMeetingsWithDS(newState, action.data)
 
     case "NAME_CHANGE":
       newState.name = action.name;
@@ -137,19 +146,34 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
 
 async function resetDataStore(){
 
-  console.log("Here in resetDataStore")
+ // console.log("Here in resetDataStore")
   const prefDelete = await DataStore.delete(Preferences, Predicates.ALL);
   const authDelete = await DataStore.delete(AuthDetail, Predicates.ALL);
 
-  console.log(`result from save auth is ${JSON.stringify(prefDelete)} and ${JSON.stringify(authDelete)}`)
+  
 }
 
 function syncPrefWithDS(state, datastore){
   state.screenName = datastore.screenName;
   state.dos = datastore.soberietyDate;
   state.name = datastore.name;
-  state.meetings = datastore.meetings;
-  console.log(`datastore pref synced ${JSON.stringify(state)}`)
+
+  return state;
+}
+
+function syncMeetingsWithDS(state, datastore){
+
+  const newMeetings = [];
+  const meetingMap = new Map();
+  datastore.meetings.forEach((entry)=>{
+    const meeting = JSON.parse(entry);
+    newMeetings.push(meeting);
+    meetingMap.set(entry._id, entry)
+  })
+
+  state.meetings = newMeetings;
+  state.meetingMap = meetingMap;
+  //console.log(` datastore ${JSON.stringify(datastore)}`)
   return state;
 }
 
@@ -157,7 +181,7 @@ function syncAuthWithDS(state, datastore){
   state.email = datastore.email;
   state.password = datastore.password; 
   state.username = datastore.username;
-  console.log(`datastore auth synced ${JSON.stringify(state)}`)
+ // console.log(`datastore auth synced ${JSON.stringify(state)}`)
   return state;
 }
 
@@ -165,7 +189,7 @@ function syncAuthWithDS(state, datastore){
 
 async function saveAuth(state){
 
-  console.log("Here in saveAuth")
+ // console.log("Here in saveAuth")
   const original = await DataStore.query(AuthDetail);
   let auth = undefined;
   if(original.length>0){
@@ -183,30 +207,76 @@ async function saveAuth(state){
   }
 
   const result = await DataStore.save(auth)
-  console.log(`result from save auth is ${JSON.stringify(result)}`)
+ // console.log(`result from save auth is ${JSON.stringify(result)}`)
 }
 
 
 
-async function savePreferences(state){
-  const original = await DataStore.query(Preferences);
-  let pref = undefined;
-  if(original.length>0){
-    pref = Preferences.copyOf(original[0], updated => {
-      updated.soberietyDate= state.dos, 
-      updated.name= state.name, 
-      updated.meetings= state.meetings
-    })
-  }else{
-    pref = new Preferences({screenName: state.screenName, 
-      soberietyDate: state.dos, 
-      name: state.name, 
-      meetings: state.meetings
-    })
-  }
 
-  const result = await DataStore.save(pref)
-  console.log(`result from save is ${JSON.stringify(result)}`)
+async function saveMeetings(state){
+  console.log("saving meetings")
+  const original = await DataStore.query(Meetings);
+
+  let data = undefined;
+  const newMeetings = [];
+  // console.log("saving preferences 2")
+   state.meetings.forEach((entry)=>{newMeetings.push(JSON.stringify(entry))})
+   
+  try{
+    if(original.length>0){
+    //  console.log("saving preferences 3.1")
+      data = Meetings.copyOf(original[0], updated => {
+        updated.email = state.email,
+        updated.meetings = newMeetings
+      })
+    }else{
+   //   console.log("saving preferences 3.2")
+      data = new Meetings({
+        email: state.email,
+        meetings: newMeetings
+      })
+    }
+ //   console.log("saving preferences 4")
+    const result = await DataStore.save(data)
+ //   console.log(`result from save is ${result}`)
+  }catch(err){
+
+    console.log(`could not save meetings for ${err}`)
+  }
+}
+
+
+async function savePreferences(state){
+  console.log("saving preferences 1")
+  const original = await DataStore.query(Preferences);
+
+  let pref = undefined;
+
+  try{
+    if(original.length>0){
+    //  console.log("saving preferences 3.1")
+      pref = Preferences.copyOf(original[0], updated => {
+        updated.email = state.email,
+        updated.screenName = state.screenName,
+        updated.soberietyDate= state.dos, 
+        updated.name= state.name
+      })
+    }else{
+   //   console.log("saving preferences 3.2")
+      pref = new Preferences({
+        email: state.email,
+        screenName: state.screenName, 
+        soberietyDate: state.dos, 
+        name: state.name
+      })
+    }
+ //   console.log("saving preferences 4")
+    const result = await DataStore.save(pref)
+ //   console.log(`result from save is ${result}`)
+  }catch(err){
+    alert(`Your data was not saved because your profile is incomplete.`)
+    console.log(`could not save for ${err}`)
+  }
 }
 export default combineReducers({
   general: generalReducer,

@@ -61,7 +61,7 @@ function DocumentScreenStack(props){
           },
         })}/>
       <DocumentStack.Screen 
-        name="Meeting Formats"
+        name="Formats"
         component={FormatWrapper} 
         options={({navigation, route})=>({
 
@@ -71,10 +71,12 @@ function DocumentScreenStack(props){
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontWeight: 'bold',
+            fontFamily: 'merriweather',
+            fontSize:  18 * fontScale
           },
         })}/>
       <DocumentStack.Screen 
-        name="Pamphlets"
+        name="Pamphlet"
         component={PamphletWrapper} 
         options={({navigation, route})=>({
 
@@ -83,8 +85,9 @@ function DocumentScreenStack(props){
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
-            
             fontWeight: 'bold',
+            fontFamily: 'merriweather',
+            fontSize:  18 * fontScale
           },
         })}/>      
       <DocumentStack.Screen 
@@ -98,6 +101,8 @@ function DocumentScreenStack(props){
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontWeight: 'bold',
+            fontFamily: 'merriweather',
+            fontSize:  18 * fontScale
           },
         })}/>
     </DocumentStack.Navigator>
@@ -107,11 +112,11 @@ function DocumentScreenStack(props){
 function DocumentScreen({navigation, ...props}) {
   return (
     <View style={styles.container}>
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+
       <OptionButton
         icon="md-school"
         label="Meeting Formats"
-        onPress={() => navigation.navigate('Meeting Formats')}
+        onPress={() => navigation.navigate('Formats')}
       />
 
       <OptionButton
@@ -127,8 +132,7 @@ function DocumentScreen({navigation, ...props}) {
         isLastOption
       />
 
-    </ScrollView>
-    <SoberietyTime />
+
     </View>
     
   );
@@ -153,7 +157,7 @@ function OptionButton({ icon, label, onPress, isLastOption }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#D4DAD4',
+    backgroundColor: '#FFF',
   },
   contentContainer: {
     paddingTop: 15,

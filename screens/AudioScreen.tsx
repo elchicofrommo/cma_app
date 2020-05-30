@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
-import  React,  {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import  React,  {useState, useEffect, memo, useCallback} from 'react';
+import { StyleSheet, Text, View, Dimensions, FlatList } from 'react-native';
 import { RectButton, ScrollView, BorderlessButton } from 'react-native-gesture-handler';
 import SoberietyTime from '../components/SoberietyTime'
 import {NavigationContainer } from '@react-navigation/native';
@@ -53,32 +53,56 @@ export default function SpeakerScreenStack(){
   )
 }
 
-function PlayerComponent(props){
-  const [buttonState, setButtonState] = useState(0);
+
+
+  
+  
+
+const PlayerComponent = memo(({track, isPlaying, setPlayingTrack})=>{
+
   const [player, setPlayer] = useState();
+
+  const duration = moment.duration(track.full_duration)
+  const time = moment.utc(duration.as('milliseconds')).format('mm:ss')
+  let hours = ""
+
+  if(duration.hours() >0)
+    hours = `${duration.hours()}:`
+
+  const created = moment(track.created_at);
+
+  const durationText = `${hours}${time}`; 
+  const description =  track.description;
+  const title = track.title.replace(/\d\d.\d\d.\d\d\d\d$/, '');
+  const createdText= created.format("MM/DD/YYYY");
+  const url= track.media.transcodings[1].url
+
+
   const buttons = [faPlayCircle, faPauseCircle]
 
+
   function playbackStatus(status){
-    console.log(`${JSON.stringify(status)}`)
+  
+   // console.log(`${JSON.stringify(status)}`)
   }
 
   function playerCallback(){
-    console.log(`player callback is called for ${props.url}`)
+    console.log(`player callback is called for ${url}`)
 
     if(player){
-      if(buttonState ==1){
+      if(isPlaying){
         player.pauseAsync().then(
           (result)=>{ 
             console.log('pausing');
-            setButtonState((buttonState +1)%2)
+            setPlayingTrack(undefined)
           }
         )
         
       }else {
         player.playAsync().then(
           (result)=>{
-            console.log('playing again');
-            setButtonState((buttonState +1 ) %2 )
+            console.log(`restarting track ${track.id}`);
+            setPlayingTrack(track.id)
           }
         )
       }
@@ -87,18 +111,18 @@ function PlayerComponent(props){
 
 
     else{
-        axios.get(props.url + CLIENT_ID)
+        axios.get(url + CLIENT_ID)
       .then( response => {
-        console.log(`have playing url ${response.data.url}`)
+       // console.log(`have playing url ${response.data.url}`)
         Audio.Sound.createAsync(
           {uri: response.data.url},
           {shouldPlay: true},
           playbackStatus,
           false
         ).then(({sound, status})=>{
-          setButtonState((buttonState +1)%2)
-          setPlayer(sound);
-
+          console.log(`playing track ${track.id}`);
+          setPlayer(sound)
+          setPlayingTrack(track.id)
         }).catch((err)=>{
           console.log('problem playing the file ' + err)
         })
@@ -109,76 +133,65 @@ function PlayerComponent(props){
     }
     
   }
+
+
   return (
   <View style={{height: fontScale * 80, flexDirection: 'row',  backgroundColor: '#FFF', borderBottomWidth: 1,}}>
           <View style={{ justifyContent: 'center', paddingHorizontal: 5}}>
             <BorderlessButton style={[styles.button]} onPress={playerCallback}>
-              <FontAwesomeIcon icon={buttons[buttonState]} style={{color: color}}  size={50* fontScale}/>
+              <FontAwesomeIcon icon={isPlaying ? faPauseCircle: faPlayCircle} style={{color: color}}  size={50* fontScale}/>
             </BorderlessButton>
             
-            <Text style={styles.duration}>{`${props.duration}`}</Text>
+            <Text style={styles.duration}>{`${durationText}`}</Text>
           </View>
-          <View key={props.title} style={{flex: 10,  borderColor: 'grey', }}>
+          <View key={title} style={{flex: 10,  borderColor: 'grey', }}>
             <View style={styles.trackTitleGroup}>
-              <Text style={styles.title}>{props.title}</Text>
-              <Text style={styles.trackCreated}>{props.created}</Text>
+              <Text style={styles.title}>{title}</Text>
+              <Text style={styles.trackCreated}>{createdText}</Text>
                 
             </View>
-            <Text style={styles.trackDescription}>{props.description}</Text>
+            <Text style={styles.trackDescription}>{description}</Text>
           </View>
           </View>
   )
+
+}, compareStates)
+
+function compareStates(prev, next){
+
+  return prev.isPlaying == next.isPlaying
 }
 
-function buildTrackList(rawTracks){
-  const tracks = [];
 
-  rawTracks.forEach((track)=>{
-    const duration = moment.duration(track.full_duration)
-    const time = moment.utc(duration.as('milliseconds')).format('mm:ss')
-    let hours = duration.hours();
 
-    if(hours >0)
-      hours = `${hours}:`
-    else
-      hours = ""
-
-    console.log(`getting uri from ${JSON.stringify(track.media.transcodings[1].url)}`);
-    const created = moment(track.created_at);
-
-    tracks.push(<PlayerComponent 
-      duration={`${hours}${time}`} 
-      description={track.description} 
-      title={track.title.replace(/\d\d.\d\d.\d\d\d\d$/, '')}
-      created={created.format("MM/DD/YYYY")}
-      url={track.media.transcodings[1].url}
-    />)
-  })
-  return tracks
-}
 function SpeakerScreen(props) {
-  console.log(`building audio screen, description is ${JSON.stringify(props.general.soundCloudDetails)}`)
-  const trackList = buildTrackList(props.general.soundCloudTracks)
+  //console.log(`building audio screen, description is ${JSON.stringify(props.general.soundCloudTracks)}`)
+  const [playingTrack, setPlayingTrack] = useState();
+  
+
+  const playerComponentWrapper = useCallback(({item})=>{
+    //console.log(`playingTrack ${playingTrack} and this track is ${item.id}`)
+    return <PlayerComponent track={item} isPlaying={playingTrack == item.id} setPlayingTrack={setPlayingTrack}/>
+  }, [playingTrack])
+  const keyExtractorCallback = useCallback(({item})=>{return item.track.id}, [])
   return (
     
     <View style={styles.container}>
-
       <View style={{flex: .2, flexDirection: 'row', paddingTop: 10, paddingBottom: 10}}>
+          <Logo style={{flex: 1, marginLeft: -10, marginRight: -40, }}/>
 
-          <Logo style={{flex: 1, marginLeft: -20, marginRight: -40, }}/>
-
-
-          <View style={{flex: 2, justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{flex: 2, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 * fontScale }}>
             <Text>{props.general.soundCloudDetails.description}</Text>
           </View>
-
-
       </View>
+      <FlatList data={props.general.soundCloudTracks} 
+
+        style={styles.container}
+        extraData={playingTrack}
+        maxToRenderPerBatch={10}
+        renderItem={playerComponentWrapper} />
+
     
-    <ScrollView style={styles.container} contentContainerStyle={{}}>
-      {trackList}
-      
-    </ScrollView>
     </View>
   );
 }
@@ -190,11 +203,11 @@ SpeakerScreen =  connect(
     function mapDispatchToProps(dispatch, ownState){
       return {
         dispatchNameChange: (name) => {
-          console.log("dispatching name change with input " + name);
+      //    console.log("dispatching name change with input " + name);
           dispatch({type: "NAME_CHANGE", name})
         },
         dispatchDosChange: (date) => {
-            console.log(`dispatching dos change ${date}`)
+         //   console.log(`dispatching dos change ${date}`)
             dispatch({type: 'DOS_CHANGE', date})
         }
         

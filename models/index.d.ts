@@ -40,10 +40,18 @@ export declare class AuthDetail {
 
 export declare class Preferences {
   readonly id: string;
+  readonly email: string;
   readonly screenName: string;
   readonly name: string;
   readonly soberietyDate: string;
-  readonly meetings?: string[];
   constructor(init: ModelInit<Preferences>);
   static copyOf(source: Preferences, mutator: (draft: MutableModel<Preferences>) => MutableModel<Preferences> | void): Preferences;
+}
+
+export declare class Meetings {
+  readonly id: string;
+  readonly email: string;
+  readonly meetings: string[];
+  constructor(init: ModelInit<Meetings>);
+  static copyOf(source: Meetings, mutator: (draft: MutableModel<Meetings>) => MutableModel<Meetings> | void): Meetings;
 }

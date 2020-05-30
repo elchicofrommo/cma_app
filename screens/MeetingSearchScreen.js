@@ -1,8 +1,9 @@
 import * as WebBrowser from 'expo-web-browser';
-import React, { useState, useEffect } from 'react';
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, View, Button, Dimensions } from 'react-native';
+import React, { useState, useEffect,useCallback, memo } from 'react';
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, 
+  TextInput, View, Button, Dimensions, Keyboard, Linking } from 'react-native';
 
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import { BorderlessButton, ScrollView } from 'react-native-gesture-handler';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -14,6 +15,7 @@ import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import axios from 'axios';
 import moment from 'moment'
+import { faBluetooth } from '@fortawesome/free-brands-svg-icons';
 const {
     width: SCREEN_WIDTH, 
     height: SCREEN_HEIGHT
@@ -29,18 +31,27 @@ const daysOfWeek = {
     Friday: 5,
     Saturday: 6
 }
+function shouldUpdateBackRow(prev, next){
+  const prevVisible = prev.state.general.meetingMap.has(prev.row._id)
+  const nextVisible = next.state.general.meetingMap.has(next.row._id)
+  return prevVisible == nextVisible
+}
+const BackRowComponent = memo(({row, rowMap, state}) => {
 
-const BackRowComponent = (data, rowMap, props) => {
+  const savedSeat = state.general.meetingMap.has(row._id)
 
-  
-  if(data.item.myCma){
-    console.log(`this row ${JSON.stringify(data)}`)
+
+  if(savedSeat!= false){
+
     return (
-      <TouchableOpacity style={[styles.rowBack, styles.rowBackRemove]} key={data._id}
+      <TouchableOpacity style={[styles.rowBack, styles.rowBackRemove]} key={row._id}
       onPress={(rowPress)=>{
-        console.log(`I am removing meeting ${JSON.stringify(data.item)}`)
-        rowMap[data.item._id].closeRow()
-        props.dispatchRemoveMeeting(data.item)
+        console.log(`I am removing meeting ${JSON.stringify(row._id)}`)
+       
+        rowMap[row._id].closeRow()
+        state.dispatchRemoveMeeting(row)
+        
+        
       }}>
       <Text style={styles.rowBackText}>Remove</Text>
     </TouchableOpacity>      
@@ -49,25 +60,45 @@ const BackRowComponent = (data, rowMap, props) => {
 
   else{
     return (
-        <TouchableOpacity style={styles.rowBack} key={data._id}
-        onPress={(rowPress)=>{
-          console.log(`I am adding meeting ${JSON.stringify(data.item)}`)
-          rowMap[data.item._id].closeRow()
-          props.dispatchAddMeeting(data.item)
+        <View style={styles.rowBack} key={row._id}>
+        <TouchableOpacity style={{flexDirection: 'column'}}   onPress={(rowPress)=>{
+          console.log(`I am adding meeting ${JSON.stringify(row)}`)
+          rowMap[row._id].closeRow()
+          state.dispatchAddMeeting(row)
         }}>
-        <Text style={styles.rowBackText}>Add</Text>
-      </TouchableOpacity>
+          <Text style={styles.rowBackText}>Save</Text>
+          <Text style={styles.rowBackText}>Seat</Text>
+        </TouchableOpacity>
+      </View>
       )
     }
-  }
 
+  }, shouldUpdateBackRow)
+
+
+function shouldUpdateMainRow(prev, next){
+  return prev.meeting._id == next.meeting._id
+}
+
+function openMap(lat, long, label){
+  const androidLabel =  encodeURIComponent(`(${label})`)
+ // console.log(`open map to ${lat} ${long} name: ${androidLabel}`)
+  const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
+  const latLng = `${lat},${long}`;
+
+  const url = Platform.select({
+    ios: `${scheme}${label}@${latLng}`,
+    android: `${scheme}${latLng}${androidLabel}`
+  });
   
+  
+  Linking.openURL(url); 
+}
 
-
-
-function MeetingComponent ({item: meeting}){
-
- //console.log("building MeetingComponent " + JSON.stringify(meeting))
+const MeetingComponent = memo(({meeting})=>{
+  
+  
+ //console.log("building MeetingComponent " + meeting )
             // object is [{name, active, category, start_time (as string), weekday, street, city,state, zip, dist.calculated}
     return(
         <View key={meeting._id}
@@ -89,13 +120,22 @@ function MeetingComponent ({item: meeting}){
               <Text style={styles.title}>{meeting.street}</Text>
               <Text style={styles.title}>{meeting.city}, {meeting.state} {meeting.zip}</Text>
               <Text style={styles.title}>{(meeting.dist.calculated/1609).toFixed(2)} miles</Text>
+
+                <TouchableOpacity onPress={()=>{openMap(
+                  meeting.location.coordinates[1], 
+                  meeting.location.coordinates[0], 
+                  meeting.name)}}>
+                  <Text style={styles.directions}>Directions</Text>
+                </TouchableOpacity>
+
             </View>
             <View style={{flexDirection: 'column', flex: 1, justifyContent: 'center', }}>
               <FontAwesomeIcon icon={faGripLinesVertical} style={styles.icon} size={23 * fontScale}/>
             </View>
         </View>
     )
-}
+}, shouldUpdateMainRow)
+
 const MeetingStack = createStackNavigator();
 export default function MeetingSearchScreenStack(){
   return (
@@ -126,20 +166,6 @@ export default function MeetingSearchScreenStack(){
   )
 }
 
-function decorateMeetings(meetings, myMeetings){
-  console.log(`decorating meetings  ${meetings} ${myMeetings}`)
-  if(!meetings)
-    return
-  meetings.forEach((entry)=>{
-    if(myMeetings.has(entry._id)){
-      console.log(`found myMeeting match ${entry.name}`)
-      entry.myCma = true
-    }else{
-      entry.myCma = false
-    }
-  })
-}
-
 function sortMeetings(meetings){
   meetings.sort((a, b) =>{
 
@@ -165,21 +191,23 @@ function sortMeetings(meetings){
 }
 function MeetingSearchScreen({navigation, ...props}) {
 
+  const savedSeat = useSelector(state => state.general.meetingMap)
     const emptyView = <View></View>
     const [address, setAddress] = useState(null);
     const [meetingData, setMeetingData] = useState();
     const [distance, setDistance] = useState(5)
     const [message, setMessage] = useState(null)
     const [meetingComponents, setMeetingComponents] = useState (emptyView)
+
+    const instructions = props.general.authenticated ? 
+      <Text style={[styles.message, {fontWeight: 'bold'}]}>Swipe for more</Text>:
+      <Text style={[styles.message, {fontWeight: 'bold'} ]}>Sign in for more</Text>
     
-    useEffect(()=> {
-      console.log(`use effect is called, myMeeting has changed`)
-      decorateMeetings(meetingData, props.general.meetingMap)
-      if(meetingData)
-        setMeetingData([...meetingData]);
-    }, [props.general.meetingMap])
+
   
     async function getMeetings(){
+
+        Keyboard.dismiss();
 
         let lat ="";
         let long = ""
@@ -230,7 +258,6 @@ function MeetingSearchScreen({navigation, ...props}) {
 
         
           setMessage(`${response.data.length} meetings found`);
-          decorateMeetings(response.data, props.general.meetingMap)
           setMeetingData(sortMeetings(response.data))
         }
         
@@ -238,41 +265,70 @@ function MeetingSearchScreen({navigation, ...props}) {
 
     }
 
-  
-console.log(`props are : ${JSON.stringify(props.general.authenticated)}`)
+
+
+const keyExtractorCallback = useCallback((data)=>{return data._id})
+const renderBackRowCallback = useCallback(({item, index}, rowMap) => 
+{
+  //renderBackRow({data, rowMaps, props}),[])
+ // console.log(`item is : ${JSON.stringify(item)} index is: ${index} rowMap is ${rowMap} props is ${props}`)
+  return <BackRowComponent row={item} rowMap={rowMap} state={props}/>
+}, [props.general.meetingMap])
+
+const renderCallback = useCallback(({item, index}, rowMap) => 
+{
+  //renderBackRow({data, rowMaps, props}),[])
+ // console.log(`item is : ${JSON.stringify(item)} index is: ${index} rowMap is ${rowMap} props is ${props}`)
+  return <MeetingComponent meeting={item} />
+}, [])
+
+console.log(` meeting screen meeting map size is : ${props.general.meetingMap.size}`)
   return (
 
     <View style={styles.container}>
       <View style={{backgroundColor: '#fff',paddingHorizontal: 10* fontScale,}}>
-        <View style={{flexDirection: 'row',  paddingVertical: 15* fontScale}}>
-            <Text style={{fontSize: 19 * fontScale, fontWeight: 'bold'}}>Address: </Text>
-            <TextInput 
-            placeholder="[Current Location]" 
-            style={[styles.textField, {fontSize: 19 * fontScale}]}
-            onChangeText={(location)=>{(setAddress(location))}}/>
-        </View>
-        <View style={{flexDirection: 'row', paddingVertical: 15* fontScale}}>
-            <Text style={{fontSize: 19 * fontScale, fontWeight: 'bold'}}>Distance: </Text>
-            <TextInput 
-            placeholder="[Default 5 miles]" 
-            style={[styles.textField, {fontSize: 19 * fontScale}]}
-            onChangeText={(myDistance)=>{(setDistance(myDistance))}}/>
+        <View style={{backgroundColor: '#fff',paddingVertical: 15* fontScale}}>
 
+            <TextInput 
+              placeholder="[Current Location]" 
+              autoCapitalize="none"
+              style={[styles.textField]}
+              onChangeText={(location)=>{(setAddress(location))}}
+            />
+            <Text style={{fontSize: 10 * fontScale, color: 'red'}}>Address</Text>
         </View>
+        <View style={{backgroundColor: '#fff',   paddingVertical: 15* fontScale}}>
+
+          <TextInput keyboardType='numeric'
+            placeholder="[Default 5 miles]" 
+            autoCapitalize="none"
+            style={[styles.textField]}
+            onChangeText={(location)=>{(setDistance(location))}}
+          />
+          <Text style={{fontSize: 10 * fontScale, color: 'red'}}>Distance</Text>
+        </View>
+
         <View style={{  }}>
           <TouchableOpacity style={styles.button} onPress={getMeetings}>
                 <Text style={styles.buttonText}>Find</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.message}>{message}</Text>
+        <View style={{display: message ? "flex": "none", justifyContent: 'space-between', flexDirection: "row", borderBottomWidth: 1}}>
+          <Text style={[styles.message, ]}>{message}</Text>
+          {instructions}
+        </View>
+        
+        
       </View>
       
 
       <SwipeListView
             data={meetingData}
-            renderItem={ MeetingComponent}
-            keyExtractor={(data)=>{return data._id}}
-            renderHiddenItem={ (data, rowMap) => BackRowComponent(data, rowMap, props)}
+            renderItem={  renderCallback}
+            keyExtractor={keyExtractorCallback}
+            renderHiddenItem={renderBackRowCallback}
+            initialNumToRender={10}
+            extraData={props}
             closeOnRowPress={true}
             rightOpenValue={-75 * fontScale}
             leftOpenValue={0}
@@ -291,8 +347,14 @@ console.log(`props are : ${JSON.stringify(props.general.authenticated)}`)
 
   MeetingSearchScreen = connect(
     function mapStateToProps(state, ownProps){
-        return state;
-      }, 
+
+        return {
+          general: {
+            authenticated: state.general.authenticated,
+            meetingMap: state.general.meetingMap
+          }
+        };
+    }, 
     function mapDispatchToProps(dispatch){
       return {
         dispatchAddMeeting: (data) => {
@@ -323,6 +385,10 @@ console.log(`props are : ${JSON.stringify(props.general.authenticated)}`)
       justifyContent: 'flex-end',
       alignItems: 'center',
       flexDirection: 'row'
+    },
+    directions:{
+      paddingVertical: 5 * fontScale,
+      color: 'blue',
     },
     rowBackRemove: {
       backgroundColor: '#d15457',
@@ -409,6 +475,9 @@ console.log(`props are : ${JSON.stringify(props.general.authenticated)}`)
       fontSize: 15,
       alignSelf: 'flex-start',
       marginTop: 1,
+    },
+    textField: {
+      fontSize: 19 * fontScale
     },
   });
   

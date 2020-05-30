@@ -6,22 +6,31 @@ import moment from "moment";
 
 
 function SoberietyTime(props){
-    let message = "Enter Date in settings"
     if(props.general.dos){
         console.log(`building date from ${props.general.dos} ${typeof props.general.dos}`)
         const dos = new Date(props.general.dos);
         const current = new Date();
         message = calcDate(current, dos);
+
+        return(
+          <View style={styles.tabBarInfoContainer}>
+     
+             <Text style={styles.timeLabel}>Clean Time:</Text>
+             <Text  style={[styles.timeText]}>{message}</Text>
+     
+           </View>
+         )
+    }else{
+      return(
+        <View style={styles.tabBarInfoContainer}>
+   
+           <Text style={styles.timeText}>Enter Soberiety Date in Profile</Text>
+   
+         </View>
+       )
     }
-
-    return(
-     <View style={styles.tabBarInfoContainer}>
-
-        <Text style={styles.timeLabel}>Clean Time:</Text>
-        <Text  style={[styles.timeText]}>{message}</Text>
-
-      </View>
-    )
+  
+    
 }
 const {
   width: SCREEN_WIDTH, 
@@ -76,22 +85,23 @@ const styles = StyleSheet.create({
     },
     timeText: {
       
-        fontSize: 20 * fontScale,
+        fontSize: 15 * fontScale,
         fontStyle: 'italic',
         textAlign: 'center',
-        flex: 1
+        flex: 1,
+        marginBottom: -5 * fontScale,
+        paddingBottom: 5 * fontScale,
 
     },
     timeLabel: {
-      fontSize: 20 * fontScale,
-      paddingLeft: '3%',
-      paddingRight: '1%',
+      fontSize: 15 * fontScale,
+      textAlign: "right",
+      paddingLeft: 10 * fontScale,
+      marginBottom: -5 * fontScale,
+      paddingBottom: 5 * fontScale,
     },
     tabBarInfoContainer: {
-      position: 'absolute',
-      bottom: 0, 
-      left: 0,
-      right: 0,
+
       ...Platform.select({
         ios: {
           shadowColor: 'black',
@@ -104,8 +114,9 @@ const styles = StyleSheet.create({
         },
       }),
       alignItems: 'center',
+      justifyContent: 'center',
       backgroundColor: '#fbfbfb',
-      paddingVertical: 15,
+      paddingVertical: 10,
       flex: 1,
       flexDirection: 'row'
     },

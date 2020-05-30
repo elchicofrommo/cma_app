@@ -9,7 +9,7 @@ import LinkingConfiguration from './navigation/LinkingConfiguration';
 import reducers from './reducers/CombinedReducers';
 
 import { DataStore, Predicates } from "@aws-amplify/datastore";
-import { Preferences, AuthDetail } from "./models/index";
+import { Preferences, AuthDetail, Meetings } from "./models/index";
 
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
@@ -70,7 +70,7 @@ async function getNetworkResources(){
         trackCount: response.data.track_count
       }
 
-      console.log(`filtered: ${JSON.stringify(filtered)}`)
+      //console.log(`filtered: ${JSON.stringify(filtered)}`)
       store.dispatch({type: "SOUNDCLOUD_DETAILS", data: filtered})
     }).catch( error =>{
       console.log("could not get network resources " + error)
@@ -98,23 +98,32 @@ async function getNetworkResources(){
 
   DataStore.query(AuthDetail, Predicates.ALL)
     .then(async (result)=>{
-      console.log(`authDetail out of datastore are ${JSON.stringify(result)}`)
+      console.log(`authDetail out of datastore are ${result}`)
       if(result.length >0){ // if there are auth details to retrieve
         store.dispatch({type: "SYNC_AUTH", data: result[0]})
         // try to sign in
-        console.log(`going to authenticate with email: ${result[0].email}`)
+
         const userName = await signIn(result[0].email, result[0].password)
-        console.log(`done authenticating: ${userName}`)
+
         if(userName){
 
-          console.log(`auth successful, user name is ${JSON.stringify(userName)}`)
           store.dispatch({type: "SAVE_AUTH", data: userName})
 
           DataStore.query(Preferences, Predicates.ALL)
           .then((result)=>{
-            console.log(`preferences out of datastore are ${JSON.stringify(result)}`)
+
             if(result.length >0)
               store.dispatch({type: "SYNC_PREFRENCES", data: result[0]})
+          })
+          .catch((err)=> {
+            console.log(`err out of datastore are ${JSON.stringify(err)}`)
+          })
+
+          DataStore.query(Meetings, Predicates.ALL)
+          .then((result)=>{
+
+            if(result.length >0)
+              store.dispatch({type: "SYNC_MEETINGS", data: result[0]})
           })
           .catch((err)=> {
             console.log(`err out of datastore are ${JSON.stringify(err)}`)
@@ -146,6 +155,9 @@ export default function App(props) {
       
     }, 5000)
     getNetworkResources();
+    Text.defaultProps = Text.defaultProps || {};
+    // Ignore dynamic type scaling on iOS
+    Text.defaultProps.allowFontScaling = false; 
   }, [])
 
   if (!isLoadingComplete) {

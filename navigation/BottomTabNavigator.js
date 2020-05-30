@@ -13,7 +13,7 @@ import MeetingSearchScreen from '../screens/MeetingSearchScreen';
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Meeting';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faHeadphones, faHome, faBook, faHandsHelping} from '@fortawesome/free-solid-svg-icons'
+import { faHeadphones, faHome, faBook, faHandsHelping, faChair} from '@fortawesome/free-solid-svg-icons'
 import { faPagelines} from '@fortawesome/free-brands-svg-icons'
 
 
@@ -48,7 +48,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         name="Meeting"
         component={MeetingSearchScreen}
         options={{
-          tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faHandsHelping} style={{color: color}}  size={25}/>,
+          tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faChair} style={{color: color}}  size={25}/>,
 
         }}
       />

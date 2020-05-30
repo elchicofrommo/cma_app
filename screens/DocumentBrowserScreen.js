@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     
   },
   contentContainer: {
-    marginTop: -30
+    
   },
   optionIconContainer: {
     marginRight: 12,
