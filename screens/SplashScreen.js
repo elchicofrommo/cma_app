@@ -7,6 +7,7 @@ import WhiteLogo from '../assets/images/whiteLogo2.png'
 
 export default function SplashScreen(props ){
 
+  console.log(`rendering SplashScreen`)
   const component = Platform.OS === 'ios' ? <Logo height={"40%"} style={{marginLeft: 20}} />: 
     <LogoNoAnimation height={"40%"} style={{marginBottom: 20}} />
     const timeout = Platform.OS === 'ios'? 3000: 0;

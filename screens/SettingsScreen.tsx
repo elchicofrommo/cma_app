@@ -29,6 +29,7 @@ const fontScale = SCREEN_WIDTH / 320;
 
 function SettingsScreen({general: state, ...props}) {
 
+    console.log(`rendering SettingsScreen`)
     props.navigation.setOptions({title: 'Settings'})
 
     const [isCancel, setIsCancel] = useState(false)

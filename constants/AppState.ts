@@ -14,10 +14,15 @@ export type AppState = {
     soundCloudTracks: any,
     paths: any,
     dailyReaders: any, 
-    readerDate: any
-
+    readerDate: any,
+    submenus: {},
+    meetingDetail: undefined| {},
+    showDetail: boolean,
+    showMenu: boolean,
+    
     // Cognito details
     password: string|undefined,
     email: string|undefined,
     username: string|undefined
+    
   }

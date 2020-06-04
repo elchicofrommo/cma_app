@@ -47,6 +47,7 @@ import SplashScreen  from './SplashScreen'
 const HomeStack = createStackNavigator();
 
 export default function HomeScreenStack(){
+  console.log(`rendering hoemscren stack`)
   return (
     <HomeStack.Navigator >
       <HomeStack.Screen 
@@ -111,7 +112,7 @@ function CustomButton({icon, callback, ...rest}){
 
 const MeetingComponent = ({item: meeting, rowMap})=>{
 
-  //console.log("building MeetingComponent " + JSON.stringify(meeting))
+  console.log("rendering MeetingComponent " )
              // object is [{name, active, category, start_time (as string), weekday, street, city,state, zip, dist.calculated}
      return(
          <View key={meeting._id}
@@ -148,20 +149,18 @@ const MeetingComponent = ({item: meeting, rowMap})=>{
 
 function HomeScreen({navigation, ...props}) {
 
-  if(!props.general.dailyReaders)
+  console.log(`rendering homescreen`)
+  if(!props.dailyReaders)
     return <Text>Stil Loading</Text>
 
-  let twentyFour = props.general.dailyReaders.twentyFour;
-  let men = props.general.dailyReaders.men;
-  let women = props.general.dailyReaders.women;
-  let readerDate = moment(props.general.readerDate)
+  let readerDate = moment(props.readerDate)
 
-  console.log(`meeting list is: ${props.general.meetings}`)
-  console.log(`meeting map is: ${props.general.meetingMap.size}`)
+  
+
   let meetingSection = undefined;
-  if(props.general.meetings && props.general.meetings.length > 0){
+  if(props.meetings && props.meetings.length > 0){
     meetingSection = <SwipeListView
-      data={props.general.meetings}
+      data={props.meetings}
       renderItem={ (data, rowMap) => { return MeetingComponent(data, rowMap)}}
       keyExtractor={(data)=>{return data._id}}
       renderHiddenItem={ (data, rowMap) => (
@@ -181,7 +180,7 @@ function HomeScreen({navigation, ...props}) {
     />
   }else{
     let signin = ""
-    if(!props.general.authenticated)
+    if(!props.authenticated)
       signin = "Start by signing in or creating an account. ";
     meetingSection = <View style={styles.section}><Text>You have no saved seats. {signin} Search for your favorite meeting and save a seat. 
     </Text></View>
@@ -190,7 +189,7 @@ function HomeScreen({navigation, ...props}) {
     <View style={styles.container}>
         <View style={styles.readerSection}>
           <Text style={styles.sectionHeading}>Daily Reading {readerDate.format("MM/DD")}</Text>
-          <DailyReading subtitle={twentyFour.subtitle} reading={{...twentyFour[readerDate.format('MM-DD')], ...men[readerDate.format('MM-DD')], ...women[readerDate.format('MM-DD')]}} />
+          <DailyReading date={readerDate.format("MM-DD")} />
         </View>
         <View style={styles.meetingSection}>
           <Text style={styles.sectionHeading}>Saved Seats</Text>
@@ -205,7 +204,10 @@ function HomeScreen({navigation, ...props}) {
 
 HomeScreen = connect(
     function mapStateToProps(state, ownProps){
-        return state;
+        const { dailyReaders, meetings, authenticated} = state.general
+        return {
+          dailyReaders, meetings, authenticated
+        };
       }, 
       function mapDispatchToProps(dispatch){
         return {

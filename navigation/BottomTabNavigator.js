@@ -1,6 +1,6 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import * as React from 'react';
-import { StyleSheet, View} from 'react-native';
+import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
+import React, {useState} from 'react';
+import { StyleSheet, View, Animated, Easing} from 'react-native';
 import { MonoText } from '../components/StyledText';
 
 import TabBarIcon from '../components/TabBarIcon';
@@ -9,32 +9,71 @@ import DocumentScreen from '../screens/DocumentScreen';
 import GratitudeScreen from '../screens/GratitudeScreen';
 import HomeScreen from '../screens/HomeScreen';
 import MeetingSearchScreen from '../screens/MeetingSearchScreen';
+import { connect } from 'react-redux';
+import MyTabBar from './BottomTabBar';
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Meeting';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faHeadphones, faHome, faBook, faHandsHelping, faChair} from '@fortawesome/free-solid-svg-icons'
 import { faPagelines} from '@fortawesome/free-brands-svg-icons'
+import { relativeTimeRounding } from 'moment';
 
 
-export default function BottomTabNavigator({ navigation, route }) {
+function BottomTabNavigator({ navigation, route, ...props }) {
   // Set the header title on the parent stack navigator depending on the
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
 
+  console.log(`rendering BottomTabNavigator`)
+  
+  const [tabHeight, setTabHeight] = useState(
+    new Animated.Value(0),
+  );
+
+  function show(){
+
+    Animated.timing(tabHeight, {
+      toValue: 0,
+      useNativeDriver: true,
+      duration: 500,
+      easing: Easing.inOut(Easing.sin),
+    }).start();
+  }
+
+  function hide(){
+
+    Animated.timing(tabHeight, {
+      toValue: -100,
+      useNativeDriver: true, 
+      duration: 500,
+    }).start();
+  }
+
+  function toggleTab(){
+    console.log(`toggle tab is ${props.tabExpanded}`)
+    if(props.tabExpanded)
+      show()
+    else
+      hide()
+
+  }
+
+  toggleTab()
 
   return (
 
-    <BottomTab.Navigator 
+    <BottomTab.Navigator  
+    tabBar={MyTabBar}
     tabBarOptions={{
       activeTintColor: 'green',
       inactiveTintColor: 'gray',
       showLabel: false,
       style: {
         borderTopWidth: 1,
-        paddingTop: 5,
-        backgroundColor: 'black'
-      }
+        backgroundColor: 'black',
+      },
+
     }}>
       <BottomTab.Screen
         name="Home"
@@ -77,6 +116,19 @@ export default function BottomTabNavigator({ navigation, route }) {
 
   );
 }
+export default connect(
+  function mapStateToProps(state, ownProps){
+    console.log(`toggletab ${state.general.tabExpanded}`)
+      return {tabExpanded: state.general.tabExpanded};
+    }, 
+    function mapDispatchToProps(dispatch){
+      return {
+
+      }
+
+    }
+)(BottomTabNavigator)
+
 
 
 

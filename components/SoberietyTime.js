@@ -6,9 +6,10 @@ import moment from "moment";
 
 
 function SoberietyTime(props){
-    if(props.general.dos){
-        console.log(`building date from ${props.general.dos} ${typeof props.general.dos}`)
-        const dos = new Date(props.general.dos);
+  console.log(`rendering SoberietyTime`)
+    if(props.dos){
+        console.log(`building date from ${props.dos} ${typeof props.dos}`)
+        const dos = new Date(props.dos);
         const current = new Date();
         message = calcDate(current, dos);
 
@@ -66,7 +67,8 @@ function calcDate(date1, date2) {
 
 export default connect(
     function mapStateToProps(state, ownProps){
-        return state;
+      const {dos} = state.general
+        return {dos} ;
       }, 
       function mapDispatchToProps(dispatch){
         return {

@@ -7,18 +7,20 @@ import useCachedResources from './hooks/useCachedResources';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import LinkingConfiguration from './navigation/LinkingConfiguration';
 import reducers from './reducers/CombinedReducers';
+import { SharedElement, SharedElementRenderer } from 'react-native-motion';
+import thunk from "redux-thunk";
 
 import { DataStore, Predicates } from "@aws-amplify/datastore";
 import { Preferences, AuthDetail, Meetings } from "./models/index";
 
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import { createStore, applyMiddleware,  } from 'redux';
 import { AppLoading, SplashScreen } from 'expo';
 import { Auth, auth0SignInButton } from 'aws-amplify'
 import MySplashScreen from './screens/SplashScreen'
 
 const Stack = createStackNavigator();
-const store = createStore(reducers)
+const store = createStore(reducers, applyMiddleware(thunk))
 
 
 async function signIn(email, password){

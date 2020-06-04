@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "cma-app",
-    "slug": "cma-app",
+    "name": "cma app beta",
+    "slug": "cma-app-beta",
     "platforms": [
       "ios",
       "android",

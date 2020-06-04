@@ -1,9 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
-import * as WebBrowser from 'expo-web-browser';
+
 import  React,  {useState, useEffect, memo, useCallback} from 'react';
 import { StyleSheet, Text, View, Dimensions, FlatList } from 'react-native';
 import { RectButton, ScrollView, BorderlessButton } from 'react-native-gesture-handler';
-import SoberietyTime from '../components/SoberietyTime'
+
 import {NavigationContainer } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import { connect } from 'react-redux';
@@ -31,6 +30,7 @@ const {
 const fontScale = SCREEN_WIDTH / 320;
 
 export default function SpeakerScreenStack(){
+  console.log(`render AudioScreenStack`)
   return (
     <SpeakerStack.Navigator>
       <SpeakerStack.Screen 
@@ -60,6 +60,7 @@ export default function SpeakerScreenStack(){
 
 const PlayerComponent = memo(({track, isPlaying, setPlayingTrack})=>{
 
+  console.log(`new PlayerComponent past memo`)
   const [player, setPlayer] = useState();
 
   const duration = moment.duration(track.full_duration)
@@ -83,7 +84,7 @@ const PlayerComponent = memo(({track, isPlaying, setPlayingTrack})=>{
 
   function playbackStatus(status){
   
-   // console.log(`${JSON.stringify(status)}`)
+    console.log(`playbackStatus`)
   }
 
   function playerCallback(){
@@ -165,7 +166,7 @@ function compareStates(prev, next){
 
 
 function SpeakerScreen(props) {
-  //console.log(`building audio screen, description is ${JSON.stringify(props.general.soundCloudTracks)}`)
+  console.log(`rendering SpeakerScreen`)
   const [playingTrack, setPlayingTrack] = useState();
   
 
@@ -181,10 +182,10 @@ function SpeakerScreen(props) {
           <Logo style={{flex: 1, marginLeft: -10, marginRight: -40, }}/>
 
           <View style={{flex: 2, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 * fontScale }}>
-            <Text>{props.general.soundCloudDetails.description}</Text>
+            <Text>{props.soundCloudDetails.description}</Text>
           </View>
       </View>
-      <FlatList data={props.general.soundCloudTracks} 
+      <FlatList data={props.soundCloudTracks} 
 
         style={styles.container}
         extraData={playingTrack}
@@ -198,7 +199,8 @@ function SpeakerScreen(props) {
 
 SpeakerScreen =  connect(
   function mapStateToProps(state, ownProps){
-      return state;
+      const {soundCloudDetails, soundCloudTracks} = state.general
+      return {soundCloudTracks, soundCloudDetails};
     }, 
     function mapDispatchToProps(dispatch, ownState){
       return {

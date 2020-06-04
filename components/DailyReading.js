@@ -4,7 +4,7 @@ import { MonoText } from '../components/StyledText';
 import Swiper from 'react-native-swiper';
 import ReadMore from 'react-native-read-more-text';
 import Modal from 'react-native-modal';
-
+import { connect } from 'react-redux';
 import moment from "moment";
 import { faGratipay } from '@fortawesome/free-brands-svg-icons';
 
@@ -15,14 +15,27 @@ const {
 const fontScale = SCREEN_WIDTH / 320;
 const longScreen = (SCREEN_WIDTH / SCREEN_HEIGHT )  *2
 
-export default function DailyReading({title, subtitle, reading}){
+function DailyReading(props){
+  console.log(`rendering DailyReading`)
+  
+  let twentyFour = props.dailyReaders.twentyFour;
+  let men = props.dailyReaders.men;
+  let women = props.dailyReaders.women;
+  let readerDate = props.date 
+
+
+  const {subtitle} = twentyFour.subtitle
+  const reading={
+    ...twentyFour[readerDate], 
+    ...men[readerDate], 
+    ...women[readerDate]}
 
 
   const sections = [];
   
   for(const section in reading){
     sections.push(
-      <ReadingSection key={section} title={title} subtitle={subtitle} section={section} reading={reading} />
+      <ReadingSection key={section}  subtitle={subtitle} section={section} reading={reading} />
       
     )
   }
@@ -42,7 +55,33 @@ export default function DailyReading({title, subtitle, reading}){
 
     )
 }
+
+
+DailyReading = connect(
+  function mapStateToProps(state, ownProps){
+      const { dailyReaders} = state.general
+      return {
+        dailyReaders
+      };
+    }, 
+    function mapDispatchToProps(dispatch){
+      return {
+        testFunction: (testInput) => {
+          console.log("dispatching test function with input " + testInput)
+        },
+        dispatchRemoveMeeting: (data) => {
+          console.log("dispatching remove meeting " + JSON.stringify(data))
+          dispatch({type: "REMOVE_MEETING", data})
+        }
+      }
+
+    }
+)(DailyReading)
+
+export default DailyReading
+
 function ReadingSection({title, subtitle, section, reading}){
+  console.log(`rendering ReadingSection`)
   let lines = Platform.OS ==='ios'? 5.5* fontScale: 4.7 * fontScale
   const [visible, setVisible] = useState(false)
 

@@ -17,7 +17,8 @@ const fontScale = SCREEN_WIDTH / 320;
 
 export default connect(
   function mapStateToProps(state, ownProps){
-      return state;
+    const {documents} = state.general.paths
+      return {documents};
     }, 
     function mapDispatchToProps(dispatch){
       return {
@@ -29,10 +30,8 @@ export default connect(
 )(DocumentScreenStack)
 
 function DocumentScreenStack(props){
-  const {formats, pamphlet, readings} = props.general.paths.documents;
-  console.log(`logging the formats: ${JSON.stringify(formats, null, 2)}`)
-  console.log(`logging the pamphlet: ${JSON.stringify(pamphlet, null, 2)}`)
-  console.log(`logging the readings: ${JSON.stringify(readings, null, 2)}`)
+  const {formats, pamphlet, readings} = props.documents;
+  console.log(`rendering document screenstack`)
   const FormatWrapper = ({ navigation, route }) => (
     <DocumentBrowserScreen path="https://cma-northamerica.s3-us-west-1.amazonaws.com/documents/formats/" fileNames={formats} />
   );
@@ -110,6 +109,7 @@ function DocumentScreenStack(props){
 }
 
 function DocumentScreen({navigation, ...props}) {
+  console.log(`rendering documentscreen`)
   return (
     <View style={styles.container}>
 

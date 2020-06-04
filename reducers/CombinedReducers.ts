@@ -16,6 +16,9 @@ const INITIAL_STATE: AppState = {
   gratitudeLists: [],
   screenName: undefined,
   authenticated: false,
+  meetingDetail: undefined,
+  showDetail: false,
+  showMenu: true,
   role: 'basic',
   soundCloudDetails: undefined,
   soundCloudTracks: undefined,
@@ -26,6 +29,7 @@ const INITIAL_STATE: AppState = {
   password: undefined,
   email: undefined,
   username: undefined,
+  submenus: {}
 };
 
 function logState(state){
@@ -35,6 +39,7 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
   console.log(`in general reducer action observed:${action.type} \n`)
   let newState : AppState = {...state};
 
+  console.log(`checking equality name: ${newState.name === state.name}`)
   switch (action.type) {
     case "AUTHENTICATE":
       newState.authenticated = true;
@@ -49,6 +54,31 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
     case "AUTHORIZE":
       newState.role = action.data;
       return newState
+
+    case "SET_DETAIL":
+      const {toggle, ...meetingDetail} = action.meetingDetail;
+      newState.meetingDetail = meetingDetail
+      if(toggle){
+        console.log("toggle detail is true")
+        newState.showDetail = !state.showDetail
+      } 
+      console.log('just returning new state but same objects')
+      return newState;
+
+    case "TOGGLE_DETAIL":
+      console.log(`in toggle detail, old: ${state.showDetail}`)
+      newState.showDetail = !state.showDetail
+      return newState;
+    
+    case "TOGGLE_MENU":
+        console.log(`in toggle menu, old: ${state.showMenu}`)
+        newState.showMenu = !state.showMenu
+        return newState;
+
+    case "REGISTER_SUBMENU":
+      newState.submenus = {...newState.submenus}
+      newState.submenus[action.data.name] = action.data.submenu;
+      return newState;
 
     case "ADD_MEETING":
       const add = [...newState.meetings];
