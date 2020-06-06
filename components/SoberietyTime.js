@@ -40,28 +40,31 @@ const {
 const fontScale = SCREEN_WIDTH / 320;
 
 function calcDate(date1, date2) {
-    console.log(`calculating date from ${date1} and ${date2}`)
 
-    const dateDiff ={
-        years: date1.getFullYear() - date2.getFullYear(),
-        months: date1.getMonth() - date2.getMonth(),
-        days: date1.getDate() - date2.getDate()
-    }
+    const firstDate = new moment(date1)
+    const secondDate = new moment(date2)
+    const duration = moment.duration(firstDate.diff(secondDate))
+    const years = Math.floor(duration.asYears())
+    const months = Math.floor(duration.asMonths()%12)
+    const days = Math.floor(duration.days())
+
     
-    var years = dateDiff.years == 0 ? "" : dateDiff.years == 1 ? `${dateDiff.years} year ` : `${dateDiff.years} years `
-    var months = dateDiff.months == 0 ? "" : dateDiff.months == 1 ? `${dateDiff.months} month ` : `${dateDiff.years} months `
-    var days = dateDiff.days == 0 ? "" : dateDiff.days == 1 ? `${dateDiff.days} day ` : `${dateDiff.days} days `
-    var message = "";
-    if(months == days ){
-        message = `🎉  ${years}  🎉`
-    }
-    else if(years == days){
-        message = `🎉  ${months}  🎉`
-    }else {
-        message = `${years}${months}${days}`
-    }
+    var yearsString = years == 0 ? "" : years == 1 ? `${years} year ` : `${years} years `
+    var monthsString = months == 0 ? "" : months == 1 ? `${months} month ` : `${months} months `
+    var daysString = days == 0 ? "🎉 First Day  🎉" : days == 1 ? `${days} day ` : `${days} days `
 
-    return message
+    var message = "";
+    if(monthsString == daysString ){
+        message = `🎉  ${yearsString}  🎉`
+    }
+    else if(yearsString == daysString){
+        message = `🎉  ${monthsString}  🎉`
+    }else {
+        message = `${yearsString} ${monthsString} ${daysString}`
+    }
+   
+
+    return `${yearsString} ${monthsString} ${daysString}`
 
 }
 

@@ -1,25 +1,18 @@
-
-import React, { useState, useEffect, useCallback, memo} from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import {
   Image, Platform, StyleSheet, Text, TouchableOpacity,
   TextInput, View, Button, Dimensions, Keyboard, Linking, FlatList
 } from 'react-native';
+import MapView, {Marker} from 'react-native-maps';
+import { connect } from 'react-redux';
 
-import { connect, useSelector } from 'react-redux';
-import { BorderlessButton, ScrollView } from 'react-native-gesture-handler';
-import { SwipeListView } from 'react-native-swipe-list-view';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faGripLinesVertical } from '@fortawesome/free-solid-svg-icons';
-import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import Slider from '@react-native-community/slider';
-import Constants from 'expo-constants';
+import { createStackNavigator,  } from '@react-navigation/stack';
+
 import * as Location from 'expo-location';
 import axios from 'axios';
 import moment from 'moment'
-import MeetingDetailMenu from '../navigation/MeetingDetailMenu'
 import MeetingListRow from '../components/MeetingListRow'
-import { faBluetooth } from '@fortawesome/free-brands-svg-icons';
+import {DetailsScreen, DetailsBackButton, DetailTransition} from './MeetingDetailsScreen'
 
 const {
   width: SCREEN_WIDTH,
@@ -37,15 +30,17 @@ const daysOfWeek = {
   Saturday: 6
 }
 
+
 const MeetingStack = createStackNavigator();
+export {MeetingList, sortMeetings}
 export default function MeetingSearchScreenStack() {
-  console.log( `rendering meetingstack`)
+  console.log(`rendering meetingstack`)
   return (
     <MeetingStack.Navigator >
       <MeetingStack.Screen
         name="Meeting Search"
         component={MeetingSearchScreen}
-        title="Me"
+
         options={({ navigation, route }) => ({
 
           headerStyle: {
@@ -59,28 +54,35 @@ export default function MeetingSearchScreenStack() {
             fontSize: 18 * fontScale
           },
 
+          
 
         })}
       />
 
       <MeetingStack.Screen
         name="Details"
-        component={DetailsScreen} 
-        title="Details"
-        options={({navigation, route})=>({
+        component={DetailsScreen}
+
+        options={({ navigation, route }) => ({
 
           headerStyle: {
-            backgroundColor: '#1f6e21',
-            
+            backgroundColor: '#FFF',
+            shadowColor: 'transparent'
           },
-          title: 'Details 2',
-          headerTintColor: '#fff',
+          title: '',
+          headerTintColor: '#1f6e21',
           headerTitleStyle: {
             fontWeight: 'bold',
             fontFamily: 'merriweather',
-            fontSize:  18 * fontScale
+            fontSize: 18 * fontScale,
+            borderBottomWidth: 0,
+            
+
           },
-        })}/>
+          headerLeft: () => <DetailsBackButton navigation={navigation}/>,
+          ...DetailTransition
+        })} />
+
     </MeetingStack.Navigator>
   )
 }
@@ -109,61 +111,28 @@ function sortMeetings(meetings) {
   return meetings;
 }
 
-function DetailsScreen({ route, navigation, ...props}){
-  console.log(`rendering DetailsScreen route is ${JSON.stringify(route)} `)
 
+function MeetingList({meetingData, action}){
 
-/*
-  useFocusEffect(()=>{
-    props.dispatchShowSequence(route.params);
-    return ()=> props.dispatchHideSequence(route.params);
-  },[]) */
-  return <View><Text>here I am in details</Text></View>
+  const keyExtractorCallback = useCallback((data) => { return data._id })
+
+  const renderCallback = useCallback(({ item, index }, rowMap) => {
+    //renderBackRow({data, rowMaps, props}),[])
+    console.log(`item is :  index is: ${index} rowMap is ${rowMap} `)
+    return <MeetingListRow meeting={item}
+      saved={true}
+      action={action}/>
+  }, [])
+
+  return(
+    <FlatList
+        data={meetingData}
+        renderItem={renderCallback}
+        keyExtractor={keyExtractorCallback}
+        initialNumToRender={5}
+      />
+  )
 }
-
-
-DetailsScreen =  connect(
-  function mapStateToProps(state, ownProps) {
-      console.log(`DetailsScreen connect observed redux change, detail ${state.general.meetingDetail}`)
-
-      return {
-          detail: state.general.meetingDetail,
-          showDetail: state.general.showDetail
-      };
-  },
-  function mapDispatchToProps(dispatch) {
-      return {
-        dispatchHideSequence: (data)=>{
-          dispatch(async (d1)=>{
-            return new Promise( resolve=>{
-              console.log(`dispatch hide sequence step 1`);
-              dispatch({ type: "TOGGLE_DETAIL" })
-              
-              console.log(`step 2`)
-              dispatch({ type: "TOGGLE_MENU" })
-              resolve();
-
-            })
-          })
-        },
-        dispatchShowSequence: (data)=>{
-          dispatch(async (d1)=>{
-            return new Promise( resolve=>{
-              console.log(`step 1`);
-              dispatch({ type: "SET_DETAIL", meetingDetail: data })
-              console.log(`step 2`)
-              dispatch({ type: "TOGGLE_MENU" })
-              console.log(`step 3`);
-              dispatch({ type: "TOGGLE_DETAIL" })
-              resolve();
-            })
-          })
-        },
-      }
-  },
-
-)(DetailsScreen)
-
 function MeetingSearchScreen({ navigation, ...props }) {
 
   console.log(`rendering MeetingSearchScreen`)
@@ -176,23 +145,25 @@ function MeetingSearchScreen({ navigation, ...props }) {
   const [expanded, setExpanded] = useState(false)
 
 
-  if(props.showDetail){
-    navigation.navigate('Details')
-  }
-
-  useEffect((myProps)=>{
+  useEffect(() => {
     console.log(`observing the message changed in gratitude screen`)
-    props.dispatchRegisterSubmenu({submenu: <MeetingDetailMenu key={'meetingSubmenu'} />, name: "gratitude"})
+    
+
   }, [])
 
+  useEffect(() => {
+    console.log(`meetingData changed`)
+
+
+  }, [meetingData])
 
 
   async function getMeetings() {
 
     Keyboard.dismiss();
 
-    let lat = "";
-    let long = ""
+    let lat = 0;
+    let long = 0
     setMessage("Working ...")
     setMeetingData(null)
     setMeetingComponents(emptyView)
@@ -246,15 +217,7 @@ function MeetingSearchScreen({ navigation, ...props }) {
   }
 
 
-  const keyExtractorCallback = useCallback((data) => { return data._id })
 
-  const renderCallback = useCallback(({ item, index }, rowMap) => {
-    //renderBackRow({data, rowMaps, props}),[])
-     console.log(`item is :  index is: ${index} rowMap is ${rowMap} props is ${props}`)
-    return <MeetingListRow meeting={item}
-      saved={true}
-      navigate={navigation.navigate} />
-  }, [])
 
   return (
 
@@ -295,15 +258,14 @@ function MeetingSearchScreen({ navigation, ...props }) {
       </View>
 
 
-      <FlatList
-        data={meetingData}
-        renderItem={renderCallback}
-        keyExtractor={keyExtractorCallback}
-        initialNumToRender={5}
-      />
+      <MeetingList meetingData={meetingData} 
+        action={(row)=>{
+         // props.dispatchHideMenu(); 
+          navigation.navigate('Details', row)
+        }}/>
 
 
-    </View>
+      </View>
 
 
   );
@@ -312,46 +274,29 @@ function MeetingSearchScreen({ navigation, ...props }) {
 
 
 MeetingSearchScreen = connect(
-  function mapStateToProps(state ) {
+  function mapStateToProps(state) {
 
-    const {authenticated, showDetail} = state.general;
+    const { authenticated, meetings } = state.general;
     return {
-      authenticated,
-      showDetail
+      authenticated, meetings
     };
   },
   function mapDispatchToProps(dispatch) {
     return {
-      dispatchShowSequence: (data)=>{
-        dispatch(async (d1)=>{
-          return new Promise( resolve=>{
-            console.log(`step 1`);
-            dispatch({ type: "SET_DETAIL", meetingDetail: data })
-            console.log(`step 2`)
-            dispatch({ type: "TOGGLE_MENU" })
-            console.log(`step 3`);
-            dispatch({ type: "TOGGLE_DETAIL" })
-            resolve();
-          })
-        })
-      },
 
       dispatchSetDetail: (data) => {
         console.log(`set detail data is `)
         dispatch({ type: "SET_DETAIL", meetingDetail: data })
       },
-      dispatchToggleDetail: (data) => {
-        console.log("dispatching show detail ")
-        dispatch({ type: "TOGGLE_DETAIL" })
+
+      dispatchShowMenu: (data) => {
+        console.log("dispatching show menu ")
+        dispatch({ type: "SHOW_MENU" })
       },
-      dispatchMenuDetail: (data) => {
-        console.log("dispatching toggle menu ")
-        dispatch({ type: "TOGGLE_MENU" })
+      dispatchHideMenu: (data) => {
+        console.log("dispatching hide menu ")
+        dispatch({ type: "HIDE_MENU" })
       },
-      dispatchRegisterSubmenu: (data) => {
-        console.log("registering gratitude submenu")
-        dispatch({ type: "REGISTER_SUBMENU", data })
-      }
     }
   }
 )(MeetingSearchScreen)

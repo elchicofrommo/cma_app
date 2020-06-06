@@ -9,48 +9,48 @@ import { faPlusCircle, faMinusCircle, faDirections } from '@fortawesome/free-sol
 const {
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT
-  } = Dimensions.get('window')
-  const fontScale = SCREEN_WIDTH / 320;
+} = Dimensions.get('window')
+const fontScale = SCREEN_WIDTH / 320;
 
-  function openMap(lat, long, label) {
+function openMap(lat, long, label) {
     const androidLabel = encodeURIComponent(`(${label})`)
     // console.log(`open map to ${lat} ${long} name: ${androidLabel}`)
     const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
     const latLng = `${lat},${long}`;
-  
+
     const url = Platform.select({
-      ios: `${scheme}${label}@${latLng}`,
-      android: `${scheme}${latLng}${androidLabel}`
+        ios: `${scheme}${label}@${latLng}`,
+        android: `${scheme}${latLng}${androidLabel}`
     });
-  
-  
+
+
     Linking.openURL(url);
-  }
+}
 
 const DetailsMenu = (props) => {
-    console.log(`render DetailsMenu `) 
-    const [offset, setOffset] = useState(new Animated.Value(103))
+    console.log(`render DetailsMenu `)
+    const [offset, setOffset] = useState(new Animated.Value(104))
 
     
 
-        console.log(`show detail changed ${props.showDetail}`)
-        if (props.showDetail) {
-            console.log(`going to 0`)
-            Animated.timing(offset, {
-                toValue: 0,
-                useNativeDriver: true,
-                duration: 200,
-                easing: Easing.inOut(Easing.sin),
-            }).start();
-        } else {
-            console.log(`going to 100`)
-            Animated.timing(offset, {
-                toValue: 103,
-                useNativeDriver: true,
-                duration: 200,
-                easing: Easing.inOut(Easing.sin),
-            }).start();
-        }
+    console.log(`show detail changed ${JSON.stringify(props.detail)} meetingmap size is ${props.meetingMap.size}`)
+    if (props.showDetail) {
+        console.log(`going to 0`)
+        Animated.timing(offset, {
+            toValue: 0,
+            useNativeDriver: true,
+            duration: 200,
+            easing: Easing.inOut(Easing.sin),
+        }).start();
+    } else {
+        console.log(`going to 100`)
+        Animated.timing(offset, {
+            toValue: 104,
+            useNativeDriver: true,
+            duration: 200,
+            easing: Easing.inOut(Easing.sin),
+        }).start();
+    }
 
 
     const transform = {
@@ -61,15 +61,15 @@ const DetailsMenu = (props) => {
 
         let button = undefined;
 
-        const buttonSize = 45* fontScale
+        const buttonSize = 45 * fontScale
 
-        if( props.meetingMap.has(props.detail._id)){
-            button = <TouchableOpacity onPress={(event) => {props.dispatchRemoveMeeting(props.detail)}}>
-                <FontAwesomeIcon icon={faMinusCircle} style={[styles.icon, styles.minus]}  size={buttonSize}/>
+        if (props.meetingMap.has(props.detail._id)) {
+            button = <TouchableOpacity onPress={(event) => { props.dispatchRemoveMeeting(props.detail) }}>
+                <FontAwesomeIcon icon={faMinusCircle} style={[styles.icon, styles.minus]} size={buttonSize} />
             </TouchableOpacity>
-        }else {
-            button =<TouchableOpacity onPress={(event) => {props.dispatchAddMeeting(props.detail)}}>
-                <FontAwesomeIcon icon={faPlusCircle} style={[styles.icon, styles.plus]}  size={buttonSize}/>
+        } else {
+            button = <TouchableOpacity onPress={(event) => { props.dispatchAddMeeting(props.detail) }}>
+                <FontAwesomeIcon icon={faPlusCircle} style={[styles.icon, styles.plus]} size={buttonSize} />
             </TouchableOpacity>
         }
         return (
@@ -81,7 +81,7 @@ const DetailsMenu = (props) => {
                         props.detail.location.coordinates[0],
                         props.detail.name)
                 }}>
-                    <FontAwesomeIcon icon={faDirections} style={[styles.icon, styles.directions]}  size={buttonSize}/>
+                    <FontAwesomeIcon icon={faDirections} style={[styles.icon, styles.directions]} size={buttonSize} />
                 </TouchableOpacity>
             </Animated.View>
         )
@@ -104,13 +104,13 @@ const styles = StyleSheet.create({
         left: 0,
         marginTop: -20,
         paddingTop: topPadding,
-        borderTopWidth: 1,
+
         paddingHorizontal: 40,
         zIndex: 200,
         height: 100,
         backgroundColor: 'white',
         width: '100%',
-        flexDirection: 'row', 
+        flexDirection: 'row',
         justifyContent: 'space-evenly'
     },
     icon: {
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     directions: {
         color: '#0273b1'
     }
-   
+
 })
 
 

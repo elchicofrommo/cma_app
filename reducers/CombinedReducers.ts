@@ -58,22 +58,28 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
     case "SET_DETAIL":
       const {toggle, ...meetingDetail} = action.meetingDetail;
       newState.meetingDetail = meetingDetail
-      if(toggle){
-        console.log("toggle detail is true")
-        newState.showDetail = !state.showDetail
-      } 
+
       console.log('just returning new state but same objects')
       return newState;
 
-    case "TOGGLE_DETAIL":
-      console.log(`in toggle detail, old: ${state.showDetail}`)
-      newState.showDetail = !state.showDetail
+    case "SHOW_DETAIL":
+      console.log(`in show detail, old: ${state.showDetail}`)
+      newState.showDetail = true
+      return newState;
+    case "HIDE_DETAIL":
+      console.log(`in show detail, old: ${state.showDetail}`)
+      newState.showDetail = false
       return newState;
     
-    case "TOGGLE_MENU":
-        console.log(`in toggle menu, old: ${state.showMenu}`)
-        newState.showMenu = !state.showMenu
+    case "SHOW_MENU":
+        console.log(`in show menu, old: ${state.showMenu}`)
+        newState.showMenu = true
         return newState;
+    
+    case "HIDE_MENU":
+      console.log(`in hide menu, old: ${state.showMenu}`)
+      newState.showMenu = false
+      return newState;
 
     case "REGISTER_SUBMENU":
       newState.submenus = {...newState.submenus}
@@ -196,9 +202,10 @@ function syncMeetingsWithDS(state, datastore){
   const newMeetings = [];
   const meetingMap = new Map();
   datastore.meetings.forEach((entry)=>{
+    console.log(`syncing with DS, ${JSON.stringify(entry)}`)
     const meeting = JSON.parse(entry);
     newMeetings.push(meeting);
-    meetingMap.set(entry._id, entry)
+    meetingMap.set(meeting._id, meeting)
   })
 
   state.meetings = newMeetings;

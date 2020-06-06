@@ -13,6 +13,9 @@ import { connect } from 'react-redux';
 import moment from 'moment'
 import { SwipeListView } from 'react-native-swipe-list-view';
 
+import {MeetingList, sortMeetings} from './MeetingSearchScreen'
+import {DetailsScreen, DetailsBackButton, DetailTransition, } from './MeetingDetailsScreen'
+
 // Screens imported
 import SoberietyTime from '../components/SoberietyTime'
 import SettingsScreen from './SettingsScreen';
@@ -80,8 +83,9 @@ export default function HomeScreenStack(){
         name="Settings"
         component={SettingsScreen} 
         title="Settings"
-        options={({navigation, route})=>({
 
+        options={({navigation, route})=>({
+          ...DetailTransition,
           headerStyle: {
             backgroundColor: '#1f6e21',
             
@@ -94,6 +98,30 @@ export default function HomeScreenStack(){
             fontSize:  18 * fontScale
           },
         })}/>
+      <HomeStack.Screen
+        name="Details"
+        component={DetailsScreen}
+
+        options={({ navigation, route }) => ({
+
+          headerStyle: {
+            backgroundColor: '#FFF',
+            shadowColor: 'transparent'
+          },
+          title: '',
+          headerTintColor: '#1f6e21',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontFamily: 'merriweather',
+            fontSize: 18 * fontScale,
+            borderBottomWidth: 0,
+
+
+          },
+          headerLeft: () => <DetailsBackButton navigation={navigation}/>,
+          ...DetailTransition
+
+        })} />
       
     </HomeStack.Navigator>
   )
@@ -110,42 +138,6 @@ function CustomButton({icon, callback, ...rest}){
   )
 }
 
-const MeetingComponent = ({item: meeting, rowMap})=>{
-
-  console.log("rendering MeetingComponent " )
-             // object is [{name, active, category, start_time (as string), weekday, street, city,state, zip, dist.calculated}
-     return(
-         <View key={meeting._id}
-           style={{ 
-             flexDirection: 'column',  
-             backgroundColor: '#FFF', 
-             borderBottomWidth: 1, 
-             paddingLeft: 10 * fontScale, 
-             paddingVertical: 10* fontScale,
-             justifyContent: "space-between",
-             flexDirection: "row"
-           }}>
- 
-             <View style={{flex: 15 }}>
-               <View style={{flexDirection: 'row', }}>
-                 <Text style={[styles.title, {fontSize: 14* fontScale, fontWeight: 'bold'}]}>{meeting.name}</Text>
-               </View>
-               <Text style={[styles.title,]}>{meeting.weekday + " " + meeting.start_time}</Text>
-               <Text style={styles.title}>{meeting.street}</Text>
-               <Text style={styles.title}>{meeting.city}, {meeting.state} {meeting.zip}</Text>
-               <TouchableOpacity onPress={()=>{openMap(
-                  meeting.location.coordinates[1], 
-                  meeting.location.coordinates[0], 
-                  meeting.name)}}>
-                  <Text style={styles.directions}>Directions</Text>
-                </TouchableOpacity>
-             </View>
-             <View style={{flexDirection: 'column', flex: 1, justifyContent: 'center', }}>
-               <FontAwesomeIcon icon={faGripLinesVertical} style={styles.icon} size={23 * fontScale}/>
-             </View>
-         </View>
-     )
- }
 
 function HomeScreen({navigation, ...props}) {
 
@@ -159,25 +151,9 @@ function HomeScreen({navigation, ...props}) {
 
   let meetingSection = undefined;
   if(props.meetings && props.meetings.length > 0){
-    meetingSection = <SwipeListView
-      data={props.meetings}
-      renderItem={ (data, rowMap) => { return MeetingComponent(data, rowMap)}}
-      keyExtractor={(data)=>{return data._id}}
-      renderHiddenItem={ (data, rowMap) => (
-
-          <TouchableOpacity style={[styles.rowBack, styles.rowBackRemove]} key={data._id}
-          onPress={(rowPress)=>{
-            console.log(`I am removing meeting ${JSON.stringify(data.item)}`)
-            rowMap[data.item._id].closeRow()
-            props.dispatchRemoveMeeting(data.item)
-          }}>
-          <Text style={styles.rowBackText}>Remove</Text>
-        </TouchableOpacity>  
-      )}
-      rightOpenValue={-75 * fontScale}
-      leftOpenValue={0}
-      disableRightSwipe={true}
-    />
+    const meetings = sortMeetings(props.meetings)
+    meetingSection = <MeetingList meetingData={meetings} 
+      action={row=> navigation.navigate('Details', row)} />
   }else{
     let signin = ""
     if(!props.authenticated)

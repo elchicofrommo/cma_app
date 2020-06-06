@@ -9,7 +9,7 @@ let TabBar  = function ({ state, descriptors, navigation, style, ...props }) {
   
   console.log('rendering TabBar')
   console.log(`showMenu is ${props.showMenu}`)
-  const [offset, setOffset] = useState(new Animated.Value(100))
+  const [offset, setOffset] = useState(new Animated.Value(0))
 
   function show(){
 

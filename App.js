@@ -9,7 +9,7 @@ import LinkingConfiguration from './navigation/LinkingConfiguration';
 import reducers from './reducers/CombinedReducers';
 import { SharedElement, SharedElementRenderer } from 'react-native-motion';
 import thunk from "redux-thunk";
-
+import BackgroundColor from 'react-native-background-color';
 import { DataStore, Predicates } from "@aws-amplify/datastore";
 import { Preferences, AuthDetail, Meetings } from "./models/index";
 
@@ -160,6 +160,7 @@ export default function App(props) {
     Text.defaultProps = Text.defaultProps || {};
     // Ignore dynamic type scaling on iOS
     Text.defaultProps.allowFontScaling = false; 
+
   }, [])
 
   if (!isLoadingComplete) {
