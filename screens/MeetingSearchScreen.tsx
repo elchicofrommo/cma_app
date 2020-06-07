@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import {
-  Image, Platform, StyleSheet, Text, TouchableOpacity,
-  TextInput, View, Button, Dimensions, Keyboard, Linking, FlatList
+  Image, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback,
+  TextInput, View, Button, Dimensions, Keyboard, Linking, FlatList, Animated, Easing
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import { connect } from 'react-redux';
 
 import { createStackNavigator,  } from '@react-navigation/stack';
-
+import AppBanner from '../components/AppBanner'
 import * as Location from 'expo-location';
 import axios from 'axios';
 import moment from 'moment'
 import MeetingListRow from '../components/MeetingListRow'
 import {DetailsScreen, DetailsBackButton, DetailTransition} from './MeetingDetailsScreen'
-
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faFilter, faStop} from '@fortawesome/free-solid-svg-icons';
 const {
   width: SCREEN_WIDTH,
   height: SCREEN_HEIGHT
@@ -118,7 +119,7 @@ function MeetingList({meetingData, action}){
 
   const renderCallback = useCallback(({ item, index }, rowMap) => {
     //renderBackRow({data, rowMaps, props}),[])
-    console.log(`item is :  index is: ${index} rowMap is ${rowMap} `)
+    //console.log(`item is :  index is: ${index} rowMap is ${rowMap} `)
     return <MeetingListRow meeting={item}
       saved={true}
       action={action}/>
@@ -130,6 +131,7 @@ function MeetingList({meetingData, action}){
         renderItem={renderCallback}
         keyExtractor={keyExtractorCallback}
         initialNumToRender={5}
+
       />
   )
 }
@@ -187,7 +189,8 @@ function MeetingSearchScreen({ navigation, ...props }) {
         lat = location[0].latitude;
         long = location[0].longitude;
       } catch (err) {
-        alert("Could not find address");
+        console.log(`problem looking for address ${JSON.stringify(err)}`)
+        props.dispatchSetBanner("Could not find address")
         return;
       }
     }
@@ -217,13 +220,12 @@ function MeetingSearchScreen({ navigation, ...props }) {
   }
 
 
-
-
   return (
 
     <View style={styles.container}>
-      <View style={{ backgroundColor: '#fff', paddingHorizontal: 10 * fontScale, }}>
-        <View style={{ backgroundColor: '#fff', paddingVertical: 15 * fontScale }}>
+      <AppBanner />
+      <View style={{ backgroundColor: '#fff', paddingHorizontal: 10 * fontScale, position: 'relative', zIndex: 50}}>
+        <View style={{ backgroundColor: '#fff', paddingTop: 10 * fontScale }}>
 
           <TextInput
             placeholder="[Current Location]"
@@ -233,7 +235,7 @@ function MeetingSearchScreen({ navigation, ...props }) {
           />
           <Text style={{ fontSize: 10 * fontScale, color: 'red' }}>Address</Text>
         </View>
-        <View style={{ backgroundColor: '#fff', paddingVertical: 15 * fontScale }}>
+        <View style={{ backgroundColor: '#fff', paddingVertical: 10 * fontScale }}>
 
           <TextInput keyboardType='numeric'
             placeholder="[Default 5 miles]"
@@ -249,9 +251,9 @@ function MeetingSearchScreen({ navigation, ...props }) {
             <Text style={styles.buttonText}>Find</Text>
           </TouchableOpacity>
         </View>
-        <View style={{ display: message ? "flex" : "none", justifyContent: 'space-between', flexDirection: "row", borderBottomWidth: 1 }}>
+        <View style={{ overflow:'visible', display: message ? "flex" : "none", justifyContent: 'space-between', flexDirection: "row", borderBottomWidth: 1, marginHorizontal: -10 * fontScale, paddingLeft: 10* fontScale }}>
           <Text style={[styles.message,]}>{message}</Text>
-
+          <MeetingFilter show={meetingData && meetingData.length > 0} callback={undefined} />
         </View>
 
 
@@ -297,24 +299,98 @@ MeetingSearchScreen = connect(
         console.log("dispatching hide menu ")
         dispatch({ type: "HIDE_MENU" })
       },
+      dispatchSetBanner: (message)=>{
+        dispatch({type: "SET_BANNER", banner: message})
+      }
     }
   }
 )(MeetingSearchScreen)
 
+function MeetingFilter({show, callback}){
 
+  console.log(`building MeetingFilter`)
+  const [showDialog, setShowDialog] = useState(false)
+  const [opacity, setOpacity] = useState(new Animated.Value(0))
+  useEffect(()=>{
+    console.log(`showDialog changed`)
+    if (showDialog) {
+        console.log(`showing`)
+        Animated.timing(opacity, {
+            toValue: 1,
+            useNativeDriver: true,
+            duration: 200,
+            easing: Easing.in(Easing.quad),
+        }).start();
+    } else {
+        console.log(`hiding`)
+        Animated.timing(opacity, {
+            toValue: 0,
+            useNativeDriver: true,
+            duration: 200,
+            easing: Easing.in(Easing.quad),
+        }).start();
+    }
+  }, [showDialog])
+  const backgroundOpacity = opacity.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, .2]
+  });
+
+
+  return(
+    <View style={[styles.filter, {display: show?"flex":"none"}]}>
+      <TouchableOpacity onPress={()=>setShowDialog(true)}>
+        <FontAwesomeIcon icon={faFilter} style={styles.icon} size={18}/>
+      </TouchableOpacity>
+      <TouchableWithoutFeedback onPress={()=>setShowDialog(false)}>
+        <Animated.View style={[styles.filterBackground, {opacity: backgroundOpacity, display: showDialog?"flex":"none"}]} >
+        </Animated.View>
+      </TouchableWithoutFeedback>
+      <Animated.View style={[styles.filterDialog, {opacity: opacity, display: showDialog?"flex":"none"}]}>
+        <Text>This is a filter modal</Text>
+        <TouchableOpacity onPress={()=>setShowDialog(false)}>
+          <FontAwesomeIcon icon={faStop} style={styles.icon} size={18}/>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
+  )
+}
 const styles = StyleSheet.create({
 
   icon: {
-    color: 'gray'
+    color: '#1f6e21',
+    
   },
-  rowBack: {
-    backgroundColor: '#0273b1',
-    height: '100%',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    flexDirection: 'row'
+  filterBackground: {
+    position: 'absolute',
+    zIndex: 5,
+    height: SCREEN_HEIGHT + 200,
+    width: SCREEN_WIDTH + 200,
+    backgroundColor: 'black',
+    left: -SCREEN_WIDTH, 
+    top: -SCREEN_HEIGHT/2,
   },
+  filterDialog: {
+    position: 'absolute',
+    zIndex: 10,
+    height: 300,
+    width: SCREEN_WIDTH - (40 * fontScale),
+    backgroundColor: 'white',
+    top: 35,
+    right: 20 * fontScale,
+    borderRadius: 10,
+    padding: 10 * fontScale,
 
+
+  },
+  filter: {
+    position: 'relative',
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+    paddingBottom: 5 * fontScale,
+    paddingRight: 20 * fontScale,
+    overflow: "visible"
+  },
 
   title: {
     flex: 6,
@@ -333,6 +409,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: '#1f6e21',
     paddingVertical: 5 * fontScale,
+    marginBottom: 5 * fontScale,
     textAlign: 'center',
     justifyContent: 'center',
     flexDirection: 'row'

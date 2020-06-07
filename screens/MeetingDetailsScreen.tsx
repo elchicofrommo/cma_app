@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { connect } from 'react-redux';
-
+import AppBanner from '../components/AppBanner'
 
 import MeetingDetailMenu from '../navigation/MeetingDetailMenu'
 import { useFocusEffect } from '@react-navigation/native';
@@ -117,7 +117,7 @@ function DetailsScreen({ route, navigation, ...props }) {
 
     return (
         <View style={styles.container}>
-
+            <AppBanner />
             <View style={styles.details}>
                 <View style={{ flexDirection: 'row',justifyContent: 'flex-start' }}>
                     <Text style={[styles.text, styles.title]}>{meeting.name}</Text>

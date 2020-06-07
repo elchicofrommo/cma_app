@@ -75,7 +75,7 @@ function DocumentScreenStack(props){
           },
         })}/>
       <DocumentStack.Screen 
-        name="Pamphlet"
+        name="Pamphlets"
         component={PamphletWrapper} 
         options={({navigation, route})=>({
 
@@ -112,7 +112,7 @@ function DocumentScreen({navigation, ...props}) {
   console.log(`rendering documentscreen`)
   return (
     <View style={styles.container}>
-
+      <AppBanner />
       <OptionButton
         icon="md-school"
         label="Meeting Formats"

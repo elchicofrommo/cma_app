@@ -25,6 +25,7 @@ const INITIAL_STATE: AppState = {
   paths: undefined,
   dailyReaders: undefined,
   readerDate: undefined,
+  banner: undefined,
 
   password: undefined,
   email: undefined,
@@ -43,6 +44,11 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
   switch (action.type) {
     case "AUTHENTICATE":
       newState.authenticated = true;
+      return newState;
+    case "SET_BANNER":
+      console.log(`set banner data is ${JSON.stringify(action)}`)
+      newState.banner = action.banner
+      console.log(`banner is now  ${JSON.stringify(newState.banner)}`)
       return newState;
     case "SAVE_AUTH":
 
@@ -122,9 +128,7 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       resetDataStore();
       return newState;
 
-    case "SAVE_PREFERENCES":
-      savePreferences(state)
-      return state;
+
     case "SAVE_MEETINGS":
         saveMeetings(state)
         return state;
@@ -283,38 +287,6 @@ async function saveMeetings(state){
 }
 
 
-async function savePreferences(state){
-  console.log("saving preferences 1")
-  const original = await DataStore.query(Preferences);
-
-  let pref = undefined;
-
-  try{
-    if(original.length>0){
-    //  console.log("saving preferences 3.1")
-      pref = Preferences.copyOf(original[0], updated => {
-        updated.email = state.email,
-        updated.screenName = state.screenName,
-        updated.soberietyDate= state.dos, 
-        updated.name= state.name
-      })
-    }else{
-   //   console.log("saving preferences 3.2")
-      pref = new Preferences({
-        email: state.email,
-        screenName: state.screenName, 
-        soberietyDate: state.dos, 
-        name: state.name
-      })
-    }
- //   console.log("saving preferences 4")
-    const result = await DataStore.save(pref)
- //   console.log(`result from save is ${result}`)
-  }catch(err){
-    alert(`Your data was not saved because your profile is incomplete.`)
-    console.log(`could not save for ${err}`)
-  }
-}
 export default combineReducers({
   general: generalReducer,
 });

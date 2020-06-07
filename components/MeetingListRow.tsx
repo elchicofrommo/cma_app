@@ -26,8 +26,8 @@ const MeetingListRow = memo(({ meeting, saved, action}) => {
     console.log("render MeetingComponent is saved " + saved)
     // object is [{name, active, category, start_time (as string), weekday, street, city,state, zip, dist.calculated}
     return (
-        <SharedElement id={meeting._id} key={meeting._id} >
-        <TouchableOpacity 
+
+        <TouchableOpacity  key={meeting._id} 
             
             onPress={(event) => {
                 
@@ -52,7 +52,7 @@ const MeetingListRow = memo(({ meeting, saved, action}) => {
                 
 
         </TouchableOpacity>
-        </SharedElement>
+
     )
 }, shouldUpdateMainRow)
 
@@ -65,13 +65,12 @@ const styles = StyleSheet.create({
         paddingVertical: 10 * fontScale,
         justifyContent: "space-between",
         flexDirection: "row",
+        position: 'relative',
 
-        zIndex: 10,
     },
     rowData: {
         flex: 15, 
 
-        zIndex: 20,
     },
     directions: {
         paddingVertical: 5 * fontScale,

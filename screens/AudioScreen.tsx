@@ -1,19 +1,19 @@
 
-import  React,  {useState, useEffect, memo, useCallback} from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import { StyleSheet, Text, View, Dimensions, FlatList } from 'react-native';
 import { RectButton, ScrollView, BorderlessButton } from 'react-native-gesture-handler';
-
-import {NavigationContainer } from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import AppBanner from '../components/AppBanner'
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import { connect } from 'react-redux';
 import Logo from '../assets/images/GreenLogo'
 import moment from 'moment'
-import {Audio} from 'expo-av'
+import { Audio } from 'expo-av'
 import axios from 'axios';
 
 const SpeakerStack = createStackNavigator();
 
-import { faPlayCircle, faPauseCircle} from '@fortawesome/free-regular-svg-icons'
+import { faPlayCircle, faPauseCircle } from '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faPause } from '@fortawesome/free-solid-svg-icons';
 const color = "#1f6e21"
@@ -24,19 +24,19 @@ const CLIENT_ID = "?client_id=pPoEnwUrlg2xU83gOZyN2AqPZ8kxkhBg"
 export const streamUrl = (trackUrl) => `${trackUrl}/stream?client_id=${SC_KEY}`;
 
 const {
-  width: SCREEN_WIDTH, 
+  width: SCREEN_WIDTH,
   height: SCREEN_HEIGHT
 } = Dimensions.get('window')
 const fontScale = SCREEN_WIDTH / 320;
 
-export default function SpeakerScreenStack(){
+export default function SpeakerScreenStack() {
   console.log(`render AudioScreenStack`)
   return (
     <SpeakerStack.Navigator>
-      <SpeakerStack.Screen 
-        name="Speakers Shares" 
-        component={SpeakerScreen} 
-        options={({navigation, route})=>({
+      <SpeakerStack.Screen
+        name="Speakers Shares"
+        component={SpeakerScreen}
+        options={({ navigation, route }) => ({
 
           headerStyle: {
             backgroundColor: '#1f6e21',
@@ -45,20 +45,20 @@ export default function SpeakerScreenStack(){
           headerTitleStyle: {
             fontWeight: 'bold',
             fontFamily: 'merriweather',
-            fontSize:  18 * fontScale
+            fontSize: 18 * fontScale
           },
 
-        })}/>
+        })} />
     </SpeakerStack.Navigator>
   )
 }
 
 
 
-  
-  
 
-const PlayerComponent = memo(({track, isPlaying, setPlayingTrack})=>{
+
+
+const PlayerComponent = memo(({ track, isPlaying, setPlayingTrack }) => {
 
   console.log(`new PlayerComponent past memo`)
   const [player, setPlayer] = useState();
@@ -67,98 +67,99 @@ const PlayerComponent = memo(({track, isPlaying, setPlayingTrack})=>{
   const time = moment.utc(duration.as('milliseconds')).format('mm:ss')
   let hours = ""
 
-  if(duration.hours() >0)
+  if (duration.hours() > 0)
     hours = `${duration.hours()}:`
 
   const created = moment(track.created_at);
 
-  const durationText = `${hours}${time}`; 
-  const description =  track.description;
+  const durationText = `${hours}${time}`;
+  const description = track.description;
   const title = track.title.replace(/\d\d.\d\d.\d\d\d\d$/, '');
-  const createdText= created.format("MM/DD/YYYY");
-  const url= track.media.transcodings[1].url
+  const createdText = created.format("MM/DD/YYYY");
+  const url = track.media.transcodings[1].url
 
 
   const buttons = [faPlayCircle, faPauseCircle]
 
 
-  function playbackStatus(status){
-  
+  function playbackStatus(status) {
+
     console.log(`playbackStatus`)
   }
 
-  function playerCallback(){
+  function playerCallback() {
     console.log(`player callback is called for ${url}`)
 
-    if(player){
-      if(isPlaying){
+    if (player) {
+      if (isPlaying) {
         player.pauseAsync().then(
-          (result)=>{ 
+          (result) => {
             console.log('pausing');
             setPlayingTrack(undefined)
           }
         )
-        
-      }else {
+
+      } else {
         player.playAsync().then(
-          (result)=>{
+          (result) => {
             console.log(`restarting track ${track.id}`);
             setPlayingTrack(track.id)
           }
         )
       }
-      
+
     }
 
 
-    else{
-        axios.get(url + CLIENT_ID)
-      .then( response => {
-       // console.log(`have playing url ${response.data.url}`)
-        Audio.Sound.createAsync(
-          {uri: response.data.url},
-          {shouldPlay: true},
-          playbackStatus,
-          false
-        ).then(({sound, status})=>{
-          console.log(`playing track ${track.id}`);
-          setPlayer(sound)
-          setPlayingTrack(track.id)
-        }).catch((err)=>{
-          console.log('problem playing the file ' + err)
+    else {
+      axios.get(url + CLIENT_ID)
+        .then(response => {
+          // console.log(`have playing url ${response.data.url}`)
+          Audio.Sound.createAsync(
+            { uri: response.data.url },
+            { shouldPlay: true },
+            playbackStatus,
+            false
+          ).then(({ sound, status }) => {
+            console.log(`playing track ${track.id}`);
+            setPlayer(sound)
+            setPlayingTrack(track.id)
+          }).catch((err) => {
+            console.log('problem playing the file ' + err)
+          })
+
+        }).catch(error => {
+          console.log("could not get network resources " + error)
         })
-        
-      }).catch( error =>{
-        console.log("could not get network resources " + error)
-      })
     }
-    
+
   }
 
 
   return (
-  <View style={{height: fontScale * 80, flexDirection: 'row',  backgroundColor: '#FFF', borderBottomWidth: 1,}}>
-          <View style={{ justifyContent: 'center', paddingHorizontal: 5}}>
-            <BorderlessButton style={[styles.button]} onPress={playerCallback}>
-              <FontAwesomeIcon icon={isPlaying ? faPauseCircle: faPlayCircle} style={{color: color}}  size={50* fontScale}/>
-            </BorderlessButton>
-            
-            <Text style={styles.duration}>{`${durationText}`}</Text>
-          </View>
-          <View key={title} style={{flex: 10,  borderColor: 'grey', }}>
-            <View style={styles.trackTitleGroup}>
-              <Text style={styles.title}>{title}</Text>
-              <Text style={styles.trackCreated}>{createdText}</Text>
-                
-            </View>
-            <Text style={styles.trackDescription}>{description}</Text>
-          </View>
-          </View>
+    <View style={{ height: fontScale * 80, flexDirection: 'row', backgroundColor: '#FFF', borderBottomWidth: 1, }}>
+      <AppBanner />
+      <View style={{ justifyContent: 'center', paddingHorizontal: 5 }}>
+        <BorderlessButton style={[styles.button]} onPress={playerCallback}>
+          <FontAwesomeIcon icon={isPlaying ? faPauseCircle : faPlayCircle} style={{ color: color }} size={50 * fontScale} />
+        </BorderlessButton>
+
+        <Text style={styles.duration}>{`${durationText}`}</Text>
+      </View>
+      <View key={title} style={{ flex: 10, borderColor: 'grey', }}>
+        <View style={styles.trackTitleGroup}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.trackCreated}>{createdText}</Text>
+
+        </View>
+        <Text style={styles.trackDescription}>{description}</Text>
+      </View>
+    </View>
   )
 
 }, compareStates)
 
-function compareStates(prev, next){
+function compareStates(prev, next) {
 
   return prev.isPlaying == next.isPlaying
 }
@@ -168,53 +169,53 @@ function compareStates(prev, next){
 function SpeakerScreen(props) {
   console.log(`rendering SpeakerScreen`)
   const [playingTrack, setPlayingTrack] = useState();
-  
 
-  const playerComponentWrapper = useCallback(({item})=>{
+
+  const playerComponentWrapper = useCallback(({ item }) => {
     //console.log(`playingTrack ${playingTrack} and this track is ${item.id}`)
-    return <PlayerComponent track={item} isPlaying={playingTrack == item.id} setPlayingTrack={setPlayingTrack}/>
+    return <PlayerComponent track={item} isPlaying={playingTrack == item.id} setPlayingTrack={setPlayingTrack} />
   }, [playingTrack])
-  const keyExtractorCallback = useCallback(({item})=>{return item.track.id}, [])
+  const keyExtractorCallback = useCallback(({ item }) => { return item.track.id }, [])
   return (
-    
-    <View style={styles.container}>
-      <View style={{flex: .2, flexDirection: 'row', paddingTop: 10, paddingBottom: 10}}>
-          <Logo style={{flex: 1, marginLeft: -10, marginRight: -40, }}/>
 
-          <View style={{flex: 2, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 * fontScale }}>
-            <Text>{props.soundCloudDetails.description}</Text>
-          </View>
+    <View style={styles.container}>
+      <View style={{ flex: .2, flexDirection: 'row', paddingTop: 10, paddingBottom: 10 }}>
+        <Logo style={{ flex: 1, marginLeft: -10, marginRight: -40, }} />
+
+        <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 * fontScale }}>
+          <Text>{props.soundCloudDetails.description}</Text>
+        </View>
       </View>
-      <FlatList data={props.soundCloudTracks} 
+      <FlatList data={props.soundCloudTracks}
 
         style={styles.container}
         extraData={playingTrack}
         maxToRenderPerBatch={10}
         renderItem={playerComponentWrapper} />
 
-    
+
     </View>
   );
 }
 
-SpeakerScreen =  connect(
-  function mapStateToProps(state, ownProps){
-      const {soundCloudDetails, soundCloudTracks} = state.general
-      return {soundCloudTracks, soundCloudDetails};
-    }, 
-    function mapDispatchToProps(dispatch, ownState){
-      return {
-        dispatchNameChange: (name) => {
-      //    console.log("dispatching name change with input " + name);
-          dispatch({type: "NAME_CHANGE", name})
-        },
-        dispatchDosChange: (date) => {
-         //   console.log(`dispatching dos change ${date}`)
-            dispatch({type: 'DOS_CHANGE', date})
-        }
-        
+SpeakerScreen = connect(
+  function mapStateToProps(state, ownProps) {
+    const { soundCloudDetails, soundCloudTracks } = state.general
+    return { soundCloudTracks, soundCloudDetails };
+  },
+  function mapDispatchToProps(dispatch, ownState) {
+    return {
+      dispatchNameChange: (name) => {
+        //    console.log("dispatching name change with input " + name);
+        dispatch({ type: "NAME_CHANGE", name })
+      },
+      dispatchDosChange: (date) => {
+        //   console.log(`dispatching dos change ${date}`)
+        dispatch({ type: 'DOS_CHANGE', date })
       }
+
     }
+  }
 )(SpeakerScreen)
 
 
@@ -234,21 +235,21 @@ function OptionButton({ icon, label, onPress, isLastOption }) {
 }
 
 const styles = StyleSheet.create({
-  trackTitleGroup:{
-    flex: 1, 
+  trackTitleGroup: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
-  title:{
+  title: {
     flex: 6
   },
-  duration:{
+  duration: {
     textAlign: 'center'
   },
-  trackDescription:{
+  trackDescription: {
 
   },
-  trackCreated:{
+  trackCreated: {
     flex: 2.1
   },
   container: {
@@ -261,8 +262,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'yellow',
   },
   logo: {
-    flex: 1, 
-    height: '55%', 
+    flex: 1,
+    height: '55%',
     width: '55%',
     marginLeft: -10,
     marginRight: -10,

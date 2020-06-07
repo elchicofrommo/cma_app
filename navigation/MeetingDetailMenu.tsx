@@ -64,11 +64,14 @@ const DetailsMenu = (props) => {
         const buttonSize = 45 * fontScale
 
         if (props.meetingMap.has(props.detail._id)) {
-            button = <TouchableOpacity onPress={(event) => { props.dispatchRemoveMeeting(props.detail) }}>
+            button = <TouchableOpacity onPress={(event) => { 
+                props.authenticated? props.dispatchRemoveMeeting(props.detail) : 
+                props.dispatchSetBanner(`You must sign in to add meetings.`)}}>
                 <FontAwesomeIcon icon={faMinusCircle} style={[styles.icon, styles.minus]} size={buttonSize} />
             </TouchableOpacity>
         } else {
-            button = <TouchableOpacity onPress={(event) => { props.dispatchAddMeeting(props.detail) }}>
+            button = <TouchableOpacity onPress={(event) => { props.authenticated? props.dispatchAddMeeting(props.detail): 
+                props.dispatchSetBanner(`You must sign in to add meetings.`) }}>
                 <FontAwesomeIcon icon={faPlusCircle} style={[styles.icon, styles.plus]} size={buttonSize} />
             </TouchableOpacity>
         }
@@ -136,7 +139,8 @@ export default connect(
         return {
             meetingMap: state.general.meetingMap,
             detail: state.general.meetingDetail,
-            showDetail: state.general.showDetail
+            showDetail: state.general.showDetail,
+            authenticated: state.general.authenticated
         };
     },
     function mapDispatchToProps(dispatch) {
@@ -149,6 +153,9 @@ export default connect(
                 console.log("dispatching remove meeting " + data)
                 dispatch({ type: "REMOVE_MEETING", data })
             },
+            dispatchSetBanner: (message)=>{
+                dispatch({type: "SET_BANNER", banner: message})
+            }
         }
     },
 

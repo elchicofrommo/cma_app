@@ -1,52 +1,52 @@
 
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, Dimensions, Animated, Easing } from 'react-native';
 import { RectButton, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-
-import {NavigationContainer } from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import AppBanner from '../components/AppBanner'
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
 const GratitudeStack = createStackNavigator();
 const {
-  width: SCREEN_WIDTH, 
+  width: SCREEN_WIDTH,
   height: SCREEN_HEIGHT
 } = Dimensions.get('window')
 const fontScale = SCREEN_WIDTH / 320;
 
 
 
-export default function GratitudeScreenStack(props){
+export default function GratitudeScreenStack(props) {
   console.log(`rendering gratitudestack`)
   return (
     <GratitudeStack.Navigator>
-      <GratitudeStack.Screen 
+      <GratitudeStack.Screen
         name="Growing Gratitude"
-        component={GratitudeScreen} 
-        options={({navigation, route, props})=>({
+        component={GratitudeScreen}
+        options={({ navigation, route, props }) => ({
 
           headerStyle: {
             backgroundColor: '#1f6e21',
             shadowRadius: 0,
             shadowOffset: {
-                height: 0,
+              height: 0,
             },
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontWeight: 'bold',
             fontFamily: 'merriweather',
-            fontSize:  18 * fontScale
+            fontSize: 18 * fontScale
           },
         })} />
 
     </GratitudeStack.Navigator>
   )
 }
-function Button({navigate}){ 
+function Button({ navigate }) {
   return <OptionButton
     icon="md-school"
     label="Read the Expo documentation"
-    onPress={() =>navigate("Detail")}
+    onPress={() => navigate("Detail")}
   />
 }
 
@@ -75,7 +75,7 @@ function GratitudeScreen(props) {
       "dist": {
         "calculated": 3671.772803710437
       }
-    },{
+    }, {
       "_id": "5ebef20af9a382798559f729",
       "name": "CMA Monday Nooner - Online Meeting",
       "active": 1,
@@ -96,7 +96,7 @@ function GratitudeScreen(props) {
       "dist": {
         "calculated": 4027.2561324519174
       }
-    },{
+    }, {
       "_id": "5ebef20af9a382798559f72a",
       "name": "12:00pm Pacific - CMA Monday Nooner - Online Meeting - San Francisco.CA",
       "active": 1,
@@ -118,24 +118,22 @@ function GratitudeScreen(props) {
         "calculated": 4027.2561324519174
       }
     }
-  ]
+    ]
   )
 
 
   return (
 
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <AppBanner />
 
-        
-
-
-        <View>
-          <Text>
-            gratitude page
+      <View>
+        <Text>
+          gratitude page
           </Text>
-        </View>
-        
       </View>
+
+    </View>
 
   );
 }
@@ -191,7 +189,7 @@ const styles = StyleSheet.create({
   optionIconContainer: {
     marginRight: 12,
   },
-  slideDown:{
+  slideDown: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -200,7 +198,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1f6e21',
     zIndex: 10,
   },
-  slideUp:{
+  slideUp: {
     position: 'absolute',
     top: SCREEN_HEIGHT,
     left: 0,

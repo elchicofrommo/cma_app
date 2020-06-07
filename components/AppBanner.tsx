@@ -1,0 +1,96 @@
+
+import React, { useState, useEffect, useCallback, memo } from 'react';
+import { Text, View , StyleSheet, Dimensions, Animated, Easing} from 'react-native';
+import { connect } from 'react-redux';
+import { Banner } from 'react-native-paper';
+import { faHandHolding } from '@fortawesome/free-solid-svg-icons';
+const {
+    width: SCREEN_WIDTH, 
+    height: SCREEN_HEIGHT
+  } = Dimensions.get('window')
+  const fontScale = SCREEN_WIDTH / 320;
+
+  
+function AppBanner(props){
+    const [visible, setVisible] = useState(false)
+    const [offset, setOffset] = useState(new Animated.Value(-100))
+    const transform = {
+        transform: [{ translateY: offset }]
+    }
+
+    function hold(){
+        console.log(`step 2`)
+        Animated.timing(offset, {
+            toValue: 0,
+            useNativeDriver: true,
+            duration: 1800,
+            easing: Easing.inOut(Easing.sin),
+        }).start(()=> slideOut())
+    }
+    function slideOut(){
+        console.log(`step 3`)
+        Animated.timing(offset, {
+            toValue: -100,
+            useNativeDriver: true,
+            duration: 400,
+            easing: Easing.inOut(Easing.sin),
+        }).start(()=>cleanUp())
+        
+    }
+
+    function cleanUp(){
+        props.dispatchSetBanner();
+    }
+
+    function slideIn(){
+        console.log(`step 1`)
+        Animated.timing(offset, {
+            toValue: 0,
+            useNativeDriver: true,
+            duration: 400,
+            easing: Easing.inOut(Easing.sin),
+        }).start(()=> hold())
+    }
+
+    useEffect(()=>{
+        if(props.banner && true){
+            console.log(`starting banner seque3nce`)
+            slideIn()
+        }
+
+    }, [props.banner])
+    return (
+    <Animated.View style={[styles.container, transform]}>
+        <Text style={styles.bannerText}>{props.banner}</Text>
+        
+    </Animated.View>
+    )
+}
+const styles = StyleSheet.create({
+    container: {
+      flex: 1, 
+      width: '100%',
+      backgroundColor: '#f36468',
+      padding: 5* fontScale,
+      position: 'absolute',
+      zIndex: 5,
+      top: 0,
+      left: 0,
+    },
+    bannerText: {
+        color: 'white',
+        fontSize: 15 * fontScale,
+    }
+})
+export default connect(
+    function mapStateToProps(state){
+        console.log(`inside AppBanner observe state change, the banner is ${JSON.stringify(state.general.banner)}`)
+        const {banner} = state.general;
+        return { banner: banner}
+    },
+    function mapDispatchToProps(dispatch){
+        return{
+            dispatchSetBanner:  ()=> dispatch({ type:"SET_BANNER", banner: undefined})
+        }
+    }
+)(AppBanner)

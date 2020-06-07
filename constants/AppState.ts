@@ -19,6 +19,7 @@ export type AppState = {
     meetingDetail: undefined| {},
     showDetail: boolean,
     showMenu: boolean,
+    banner: undefined|string,
     
     // Cognito details
     password: string|undefined,

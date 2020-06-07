@@ -19,6 +19,9 @@ import Amplify from '@aws-amplify/core'
 import config from '../aws-exports'
 import { Auth, auth0SignInButton } from 'aws-amplify'
 
+import { DataStore, Predicates } from "@aws-amplify/datastore";
+import { Preferences, AuthDetail, Meetings } from "../models/index";
+
 Amplify.configure(config)
 
 const {
@@ -39,13 +42,7 @@ function SettingsScreen({general: state, ...props}) {
     useFocusEffect(
 
       React.useCallback(() => {
-
-        console.log("creating savePreferences2")
-        function savePreferences2(){
-          props.dispatchSavePreferences('saving here');
-        }
-  
-        return () => savePreferences2();
+        return () => savePreferences(state, props.dispatchSetBanner);
       }, [])
     )
 
@@ -284,10 +281,7 @@ function SettingsScreen({general: state, ...props}) {
             console.log("dispatching email change with input " + data);
             dispatch({type: "EMAIL_CHANGE", data})
           },
-          dispatchSavePreferences:(data) =>{
-            console.log("dispatching save preferences, don't need data as it's all in redux")
-            dispatch({type: "SAVE_PREFERENCES", data})
-          },
+
           dispatchSignOut:(data)=>{
             console.log("dispatching sign out");
             dispatch({type: "SIGN_OUT", data})
@@ -295,12 +289,45 @@ function SettingsScreen({general: state, ...props}) {
           dispatchSaveAuth:(data)=>{
             console.log(`dispatching auth ${data}`)
             dispatch({type: "SAVE_AUTH", data})
-          }
+          },
+          dispatchSetBanner:  (data)=> dispatch({ type:"SET_BANNER", banner: data})
           
         }
       }
 )(SettingsScreen)
 
+
+async function savePreferences(state, errorCallback){
+  console.log("saving preferences 1")
+  const original = await DataStore.query(Preferences);
+
+  let pref = undefined;
+
+  try{
+    if(original.length>0){
+    //  console.log("saving preferences 3.1")
+      pref = Preferences.copyOf(original[0], updated => {
+        updated.email = state.email,
+        updated.screenName = state.screenName,
+        updated.soberietyDate= state.dos, 
+        updated.name= state.name
+      })
+    }else{
+   //   console.log("saving preferences 3.2")
+      pref = new Preferences({
+        email: state.email,
+        screenName: state.screenName, 
+        soberietyDate: state.dos, 
+        name: state.name
+      })
+    }
+ //   console.log("saving preferences 4")
+    const result = await DataStore.save(pref)
+ //   console.log(`result from save is ${result}`)
+  }catch(err){
+    errorCallback("Your data was not saved because your profile is incomplete.")
+  }
+}
 
 const styles = StyleSheet.create({
   trackTitleGroup:{

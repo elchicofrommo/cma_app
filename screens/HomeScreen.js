@@ -12,7 +12,7 @@ import {WebView} from 'react-native-webview';
 import { connect } from 'react-redux';
 import moment from 'moment'
 import { SwipeListView } from 'react-native-swipe-list-view';
-
+import AppBanner from '../components/AppBanner'
 import {MeetingList, sortMeetings} from './MeetingSearchScreen'
 import {DetailsScreen, DetailsBackButton, DetailTransition, } from './MeetingDetailsScreen'
 
@@ -163,6 +163,7 @@ function HomeScreen({navigation, ...props}) {
   }
   return (
     <View style={styles.container}>
+        <AppBanner />
         <View style={styles.readerSection}>
           <Text style={styles.sectionHeading}>Daily Reading {readerDate.format("MM/DD")}</Text>
           <DailyReading date={readerDate.format("MM-DD")} />
