@@ -370,17 +370,21 @@ function MeetingFilter({show, types, callback}){
             duration: 200,
             easing: Easing.in(Easing.quad),
         }).start();
-    } else {
-        console.log(`hiding`)
-        Animated.timing(opacity, {
-            toValue: 0,
-            useNativeDriver: true,
-            duration: 200,
-            easing: Easing.in(Easing.quad),
-        }).start();
-    }
+    } 
   }, [showDialog])
 
+  function hideDialog(){
+    console.log(`hiding`)
+    Animated.timing(opacity, {
+        toValue: 0,
+        useNativeDriver: true,
+        duration: 100,
+        easing: Easing.in(Easing.quad),
+    }).start(()=>{
+      setShowDialog(false)
+      setFilters(defaultFilters)
+    });
+  }
 
   const backgroundOpacity = opacity.interpolate({
     inputRange: [0, 1],
@@ -438,7 +442,7 @@ function MeetingFilter({show, types, callback}){
       <TouchableOpacity onPress={()=>setShowDialog(true)}>
         <FontAwesomeIcon icon={faFilter} style={styles.icon} size={18}/>
       </TouchableOpacity>
-      <TouchableWithoutFeedback onPress={()=>setShowDialog(false)}>
+      <TouchableWithoutFeedback onPress={()=>hideDialog()}>
         <Animated.View style={[styles.filterBackground, {opacity: backgroundOpacity, display: showDialog?"flex":"none"}]} >
         </Animated.View>
       </TouchableWithoutFeedback>
@@ -455,18 +459,19 @@ function MeetingFilter({show, types, callback}){
           <TouchableOpacity style={[styles.toggleButton,{backgroundColor: '#f36468'}]}
             onPress={()=>{
               
+              
+              hideDialog();
               callback({...defaultFilters})
-              setShowDialog(false)
-              setFilters(defaultFilters)
+              
             }}>
             <Text style={[styles.toggleText]}>Reset</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.toggleButton ,{backgroundColor: '#1f6e21'}]}
             onPress={()=>{
 
+              
+              hideDialog();
               callback({...filters})
-              setShowDialog(false)
-              setFilters(defaultFilters)
             }}>
             <Text style={[styles.toggleText]}>Filter</Text>
           </TouchableOpacity>
