@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import {
   Image, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback,
-  TextInput, View, Button, Dimensions, Keyboard, Linking, FlatList, Animated, Easing
+  TextInput, View, Button, Dimensions, Keyboard, Linking, FlatList, Animated, Easing, Switch
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import { connect } from 'react-redux';
@@ -15,6 +15,8 @@ import MeetingListRow from '../components/MeetingListRow'
 import {DetailsScreen, DetailsBackButton, DetailTransition} from './MeetingDetailsScreen'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faFilter, faStop} from '@fortawesome/free-solid-svg-icons';
+import { ToggleButton } from 'react-native-paper';
+import { ForceTouchGestureHandler } from 'react-native-gesture-handler';
 const {
   width: SCREEN_WIDTH,
   height: SCREEN_HEIGHT
@@ -88,6 +90,8 @@ export default function MeetingSearchScreenStack() {
   )
 }
 
+
+
 function sortMeetings(meetings) {
   meetings.sort((a, b) => {
 
@@ -141,6 +145,8 @@ function MeetingSearchScreen({ navigation, ...props }) {
   const emptyView = <View></View>
   const [address, setAddress] = useState(null);
   const [meetingData, setMeetingData] = useState();
+  const [filteredMeetingData, setFilteredMeetingData] = useState();
+  const [meetingTypes, setMeetingTypes] = useState([]);
   const [distance, setDistance] = useState(5)
   const [message, setMessage] = useState(null)
   const [meetingComponents, setMeetingComponents] = useState(emptyView)
@@ -157,8 +163,33 @@ function MeetingSearchScreen({ navigation, ...props }) {
     console.log(`meetingData changed`)
 
 
-  }, [meetingData])
+  }, [filteredMeetingData])
 
+  function filterMeetings(filters){
+    console.log(`filtering meetingData with ${filters}`)
+    const filtered = [];
+
+    meetingData.forEach(entry=>{
+      const dayOfWeek = moment().day(entry.weekday).day();
+      let step1 = false;
+      let step2 = false;
+      if(filters.daysOfWeek.size == 0 || filters.daysOfWeek.has(dayOfWeek)){
+        step1 = true
+      }
+      if(filters.types.size == 0 ){
+        step2 = true;
+      }else if(entry.type){
+        entry.type.forEach(type=>filters.types.has(type) && (step2=true))
+      }
+
+      if(step1 && step2){
+        console.log(`filter passed, here is the meeting ${JSON.stringify(entry)}`)
+        filtered.push(entry)
+      }
+    })
+
+    setFilteredMeetingData(filtered)
+  }
 
   async function getMeetings() {
 
@@ -168,6 +199,7 @@ function MeetingSearchScreen({ navigation, ...props }) {
     let long = 0
     setMessage("Working ...")
     setMeetingData(null)
+    setFilteredMeetingData(null)
     setMeetingComponents(emptyView)
 
     let { status } = await Location.requestPermissionsAsync();
@@ -199,7 +231,7 @@ function MeetingSearchScreen({ navigation, ...props }) {
 
     console.log(`runnign query ${query}`)
 
-    let response = ""
+    let response = undefined
     try {
       response = await axios.get(query)
     } catch{
@@ -214,12 +246,24 @@ function MeetingSearchScreen({ navigation, ...props }) {
 
 
       setMessage(`${response.data.length} meetings found`);
-      setMeetingData(sortMeetings(response.data))
+      let types = []
+      response.data.forEach(entry=> { entry.type && (types = types.concat(entry.type))})
+      let typeSet = new Set(types);
+      console.log(`meeting types generated is ${JSON.stringify(types)} ${JSON.stringify(typeSet.size)}`)
+      setMeetingTypes([...typeSet]);
+      const sorted = sortMeetings(response.data)
+      setMeetingData(sorted)
+      setFilteredMeetingData(sorted)
     }
 
   }
 
-
+  let finalMessage = message;
+  if(filteredMeetingData ){
+    console.log("filter message ther eis filtered data and the length is " + filteredMeetingData.length)
+    if(meetingData.length != filteredMeetingData.length)
+      finalMessage = `${filteredMeetingData.length} meetings of ${meetingData.length} (filtered)`
+  }
   return (
 
     <View style={styles.container}>
@@ -252,15 +296,15 @@ function MeetingSearchScreen({ navigation, ...props }) {
           </TouchableOpacity>
         </View>
         <View style={{ overflow:'visible', display: message ? "flex" : "none", justifyContent: 'space-between', flexDirection: "row", borderBottomWidth: 1, marginHorizontal: -10 * fontScale, paddingLeft: 10* fontScale }}>
-          <Text style={[styles.message,]}>{message}</Text>
-          <MeetingFilter show={meetingData && meetingData.length > 0} callback={undefined} />
+          <Text style={[styles.message,]}>{finalMessage}</Text>
+          <MeetingFilter show={meetingData && meetingData.length > 0} callback={filterMeetings} types={meetingTypes} />
         </View>
 
 
       </View>
 
 
-      <MeetingList meetingData={meetingData} 
+      <MeetingList meetingData={filteredMeetingData} 
         action={(row)=>{
          // props.dispatchHideMenu(); 
           navigation.navigate('Details', row)
@@ -306,11 +350,16 @@ MeetingSearchScreen = connect(
   }
 )(MeetingSearchScreen)
 
-function MeetingFilter({show, callback}){
+function MeetingFilter({show, types, callback}){
 
-  console.log(`building MeetingFilter`)
+  
+
+  const defaultFilters = {daysOfWeek: new Map(), paid: [], types: new Map()}
   const [showDialog, setShowDialog] = useState(false)
   const [opacity, setOpacity] = useState(new Animated.Value(0))
+  const [filters, setFilters] = useState(defaultFilters)
+
+  console.log(`building MeetingFilter, filters is ${JSON.stringify(filters)}`)
   useEffect(()=>{
     console.log(`showDialog changed`)
     if (showDialog) {
@@ -331,11 +380,58 @@ function MeetingFilter({show, callback}){
         }).start();
     }
   }, [showDialog])
+
+
   const backgroundOpacity = opacity.interpolate({
     inputRange: [0, 1],
     outputRange: [0, .2]
   });
 
+  const dayButtons = [];
+
+  for(let i=0; i< 7; i++){
+    const dayString = moment().day(i).format("dddd ");
+    const isSelected = filters.daysOfWeek.has(i)
+    dayButtons.push(
+
+        <TouchableOpacity style={[styles.toggleButton, 
+          isSelected && styles.toggleButtonSelected]}
+          onPress={()=>{
+            if(isSelected)
+              filters.daysOfWeek.delete(i);
+            else
+              filters.daysOfWeek.set(i, true);
+
+            setFilters({...filters})
+
+          }}>
+          <Text style={[styles.toggleText]}>{dayString}</Text>
+        </TouchableOpacity>
+    )
+  }
+  
+
+  console.log(`types is ${JSON.stringify(types)}`);
+  const typeComponents = []
+
+  types.forEach((entry)=>{
+    const isSelected = filters.types.has(entry)
+    typeComponents.push(
+
+      <TouchableOpacity style={[styles.toggleButton, 
+        isSelected && styles.toggleButtonSelected]}
+        onPress={()=>{
+          if(isSelected)
+            filters.types.delete(entry);
+          else
+            filters.types.set(entry, true);
+
+          setFilters({...filters})
+        }}>
+        <Text style={[styles.toggleText]}>{entry}</Text>
+      </TouchableOpacity>
+    )
+  })
 
   return(
     <View style={[styles.filter, {display: show?"flex":"none"}]}>
@@ -347,10 +443,34 @@ function MeetingFilter({show, callback}){
         </Animated.View>
       </TouchableWithoutFeedback>
       <Animated.View style={[styles.filterDialog, {opacity: opacity, display: showDialog?"flex":"none"}]}>
-        <Text>This is a filter modal</Text>
-        <TouchableOpacity onPress={()=>setShowDialog(false)}>
-          <FontAwesomeIcon icon={faStop} style={styles.icon} size={18}/>
-        </TouchableOpacity>
+        <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
+          <Text style={styles.textField}>Select days to view</Text>
+          <View style={styles.dayButtonContainer}>{dayButtons}</View>
+
+          <Text style={styles.textField}>Select meeting types</Text>
+          <View style={styles.dayButtonContainer}>{typeComponents}</View>
+        </View>
+        <View style={[styles.dayButtonContainer, ]}>
+          <View style={{flexBasis: '31%'}}/>
+          <TouchableOpacity style={[styles.toggleButton,{backgroundColor: '#f36468'}]}
+            onPress={()=>{
+              
+              callback({...defaultFilters})
+              setShowDialog(false)
+              setFilters(defaultFilters)
+            }}>
+            <Text style={[styles.toggleText]}>Reset</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.toggleButton ,{backgroundColor: '#1f6e21'}]}
+            onPress={()=>{
+
+              callback({...filters})
+              setShowDialog(false)
+              setFilters(defaultFilters)
+            }}>
+            <Text style={[styles.toggleText]}>Filter</Text>
+          </TouchableOpacity>
+        </View>
       </Animated.View>
     </View>
   )
@@ -360,6 +480,32 @@ const styles = StyleSheet.create({
   icon: {
     color: '#1f6e21',
     
+  },
+  dayButtonContainer: {
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    justifyContent: 'space-between'
+  },
+  toggleText: {
+    fontSize: 13 * fontScale,
+
+    textAlign: 'center',
+    color: 'white'
+  },
+  toggleButton:{
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 7 * fontScale,
+    flexBasis: '31%',
+    flexGrow: 0,
+    paddingVertical: 5 * fontScale,
+    width: 20 * fontScale,
+    backgroundColor: '#0273b1', 
+    shadowOffset: {width: 3, height: 3},
+    marginBottom: 5* fontScale,
+  },
+  toggleButtonSelected:{
+    backgroundColor: '#5fbfec', 
   },
   filterBackground: {
     position: 'absolute',
@@ -373,13 +519,15 @@ const styles = StyleSheet.create({
   filterDialog: {
     position: 'absolute',
     zIndex: 10,
-    height: 300,
+    height: 300 * fontScale,
     width: SCREEN_WIDTH - (40 * fontScale),
     backgroundColor: 'white',
     top: 35,
     right: 20 * fontScale,
     borderRadius: 10,
     padding: 10 * fontScale,
+    flexDirection: 'column',
+    justifyContent: 'space-between'
 
 
   },
