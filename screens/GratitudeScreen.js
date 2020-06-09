@@ -23,7 +23,10 @@ export default function GratitudeScreenStack(props) {
         name="Growing Gratitude"
         component={GratitudeScreen}
         options={({ navigation, route, props }) => ({
-
+          headerLeft: ()=>{
+            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * fontScale, paddingLeft: 10* fontScale}}>Growing Gratitude</Text>
+          },
+          title: "",
           headerStyle: {
             backgroundColor: '#1f6e21',
             shadowRadius: 0,

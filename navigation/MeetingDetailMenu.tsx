@@ -66,12 +66,12 @@ const DetailsMenu = (props) => {
         if (props.meetingMap.has(props.detail._id)) {
             button = <TouchableOpacity onPress={(event) => { 
                 props.authenticated? props.dispatchRemoveMeeting(props.detail) : 
-                props.dispatchSetBanner(`You must sign in to add meetings.`)}}>
+                props.dispatchSetBanner({message:`You must sign in to add meetings.`})}}>
                 <FontAwesomeIcon icon={faMinusCircle} style={[styles.icon, styles.minus]} size={buttonSize} />
             </TouchableOpacity>
         } else {
             button = <TouchableOpacity onPress={(event) => { props.authenticated? props.dispatchAddMeeting(props.detail): 
-                props.dispatchSetBanner(`You must sign in to add meetings.`) }}>
+                props.dispatchSetBanner({message:`You must sign in to add meetings.`}) }}>
                 <FontAwesomeIcon icon={faPlusCircle} style={[styles.icon, styles.plus]} size={buttonSize} />
             </TouchableOpacity>
         }

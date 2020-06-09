@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, memo, useCallback } from 'react';
 import { StyleSheet, Text, View, Dimensions, FlatList } from 'react-native';
-import { RectButton, ScrollView, BorderlessButton } from 'react-native-gesture-handler';
+import { RectButton, ScrollView, BorderlessButton, TouchableOpacity } from 'react-native-gesture-handler';
 import AppBanner from '../components/AppBanner'
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -16,6 +16,7 @@ const SpeakerStack = createStackNavigator();
 import { faPlayCircle, faPauseCircle } from '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faPause } from '@fortawesome/free-solid-svg-icons';
+import { Ionicons } from '@expo/vector-icons';
 const color = "#1f6e21"
 let playerReady = false
 
@@ -37,15 +38,16 @@ export default function SpeakerScreenStack() {
         name="Speakers Shares"
         component={SpeakerScreen}
         options={({ navigation, route }) => ({
-
+          headerLeft: ()=>{
+            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * fontScale, paddingLeft: 10* fontScale}}>Speaker Shares</Text>
+          },
+          title: '',
           headerStyle: {
             backgroundColor: '#1f6e21',
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
-            fontWeight: 'bold',
-            fontFamily: 'merriweather',
-            fontSize: 18 * fontScale
+
           },
 
         })} />
@@ -135,10 +137,20 @@ const PlayerComponent = memo(({ track, isPlaying, setPlayingTrack }) => {
 
   }
 
+  const button = isPlaying? 
+    <TouchableOpacity  onPress={playerCallback}
+    style={{ width: 34, height: 30, justifyContent: 'center', alignItems: 'center'}} >
+    <Ionicons name="ios-pause" color='#1f6e21' size={24} />
+    </TouchableOpacity> :
+
+    <TouchableOpacity  onPress={playerCallback}
+    style={{ width: 34, height: 30, justifyContent: 'center', alignItems: 'center'}} >
+    <Ionicons name="ios-play" color='#1f6e21' size={24} />
+    </TouchableOpacity>
 
   return (
     <View style={{ height: fontScale * 80, flexDirection: 'row', backgroundColor: '#FFF', borderBottomWidth: 1, }}>
-      <AppBanner />
+      
       <View style={{ justifyContent: 'center', paddingHorizontal: 5 }}>
         <BorderlessButton style={[styles.button]} onPress={playerCallback}>
           <FontAwesomeIcon icon={isPlaying ? faPauseCircle : faPlayCircle} style={{ color: color }} size={50 * fontScale} />
@@ -179,6 +191,7 @@ function SpeakerScreen(props) {
   return (
 
     <View style={styles.container}>
+      <AppBanner />
       <View style={{ flex: .2, flexDirection: 'row', paddingTop: 10, paddingBottom: 10 }}>
         <Logo style={{ flex: 1, marginLeft: -10, marginRight: -40, }} />
 

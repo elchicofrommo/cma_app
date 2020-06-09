@@ -1,6 +1,6 @@
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 import React, {useState} from 'react';
-import { StyleSheet, View, Animated, Easing} from 'react-native';
+import { StyleSheet, View, Animated, Easing, Platform} from 'react-native';
 import { MonoText } from '../components/StyledText';
 
 import TabBarIcon from '../components/TabBarIcon';
@@ -68,11 +68,16 @@ function BottomTabNavigator({ navigation, route, ...props }) {
     tabBarOptions={{
       activeTintColor: 'green',
       inactiveTintColor: 'gray',
-      showLabel: false,
+      showLabel: true,
       style: {
         borderTopWidth: 1,
-        backgroundColor: 'black',
+        backgroundColor: 'white',
       },
+      labelStyle:{
+        marginTop: Platform.OS==='ios'?-10: -5,
+        marginBottom: Platform.OS==='ios'?-5: 0,
+      },
+      
 
     }}>
       <BottomTab.Screen
@@ -84,7 +89,7 @@ function BottomTabNavigator({ navigation, route, ...props }) {
         }}
       />
       <BottomTab.Screen
-        name="Meeting"
+        name="Meetings"
         component={MeetingSearchScreen}
         options={{
           tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faChair} style={{color: color}}  size={25}/>,
@@ -92,7 +97,7 @@ function BottomTabNavigator({ navigation, route, ...props }) {
         }}
       />
       <BottomTab.Screen
-        name="Audio"
+        name="Speakers"
         component={AudioScreen}
         options={{
           tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faHeadphones} style={{color: color}}  size={25}/>,

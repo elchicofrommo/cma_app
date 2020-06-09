@@ -45,18 +45,20 @@ function DocumentScreenStack(props){
   return (
     <DocumentStack.Navigator>
       <DocumentStack.Screen 
-        name="Meeting Formats and more"
+        name="documents"
         component={DocumentScreen} 
         options={({navigation, route})=>({
-
+          headerLeft: ()=>{
+            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * fontScale, paddingLeft: 10* fontScale}}>CMA Resources</Text>
+          },
+          title:"",
           headerStyle: {
             backgroundColor: '#1f6e21',
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
-            fontWeight: 'bold',
-            fontFamily: 'merriweather',
-            fontSize:  18 * fontScale
+            fontFamily: 'opensans',
+            fontSize:  21 * fontScale
           },
         })}/>
       <DocumentStack.Screen 
@@ -69,9 +71,8 @@ function DocumentScreenStack(props){
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
-            fontWeight: 'bold',
-            fontFamily: 'merriweather',
-            fontSize:  18 * fontScale
+            fontFamily: 'opensans',
+            fontSize:  21 * fontScale
           },
         })}/>
       <DocumentStack.Screen 
@@ -84,9 +85,9 @@ function DocumentScreenStack(props){
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
-            fontWeight: 'bold',
-            fontFamily: 'merriweather',
-            fontSize:  18 * fontScale
+
+            fontFamily: 'opensans',
+            fontSize:  21 * fontScale
           },
         })}/>      
       <DocumentStack.Screen 
@@ -99,9 +100,8 @@ function DocumentScreenStack(props){
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
-            fontWeight: 'bold',
-            fontFamily: 'merriweather',
-            fontSize:  18 * fontScale
+            fontFamily: 'opensans',
+            fontSize:  21 * fontScale
           },
         })}/>
     </DocumentStack.Navigator>
@@ -112,7 +112,7 @@ function DocumentScreen({navigation, ...props}) {
   console.log(`rendering documentscreen`)
   return (
     <View style={styles.container}>
-      <AppBanner />
+
       <OptionButton
         icon="md-school"
         label="Meeting Formats"

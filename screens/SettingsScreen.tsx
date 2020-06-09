@@ -9,11 +9,11 @@ import Modal from 'react-native-modal';
 import {AppState} from '../constants/AppState'
 import Swiper from 'react-native-swiper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { Ionicons } from '@expo/vector-icons';
 
 import { connect } from 'react-redux';
-
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faSignOutAlt} from '@fortawesome/free-solid-svg-icons';
 
 import Amplify from '@aws-amplify/core'
 import config from '../aws-exports'
@@ -21,6 +21,8 @@ import { Auth, auth0SignInButton } from 'aws-amplify'
 
 import { DataStore, Predicates } from "@aws-amplify/datastore";
 import { Preferences, AuthDetail, Meetings } from "../models/index";
+import { HeaderBackButton } from '@react-navigation/stack';
+
 
 Amplify.configure(config)
 
@@ -39,16 +41,19 @@ function SettingsScreen({general: state, ...props}) {
     const [error, setSigninError] = useState({display: "none", message: ""})
     const [confirmEmail, setConfirmEmail] = useState(false)
 
-    useFocusEffect(
-
-      React.useCallback(() => {
-        return () => savePreferences(state, props.dispatchSetBanner);
-      }, [])
-    )
 
     async function signIn(){
       console.log(`signing in with userName: ${state.email} password: ${state.password}`)
 
+      if(!state.email||!state.password){
+        setSigninError({display: "flex", message: 'Fields not complete'})
+        return;
+      }
+      let pattern = new RegExp(/\S+?@\S+?\.\S+/)
+      if(!pattern.exec(state.email)){
+        setSigninError({display: "flex", message: 'Email address is not valid format.'})
+        return;
+      }
       
       try{
         const result = await Auth.signIn(state.email, state.password  )
@@ -111,9 +116,27 @@ function SettingsScreen({general: state, ...props}) {
       && state.password.length >= 8?
         "green" : "red"
 
+    function SettingsSignoutButton(){
+      return (
+        <View style={{paddingRight: 10 * fontScale, marginBottom: -5}}>
+          <TouchableOpacity onPress={signOut}>
+            <Ionicons name="ios-log-out" color="#1f6e21" size={36}/>
+          </TouchableOpacity>
+        </View>
+      )
+    }
+    React.useLayoutEffect(() => {
+      props.navigation.setOptions({
+        headerRight: () => (
+          <SettingsSignoutButton />
+        ),
+        headerLeft: () => <SettingsBackButton navigation={props.navigation}/>,
+      });
+    }, [props.navigation]);
     return (
       
       <KeyboardAwareScrollView contentContainerStyle={styles.container} enableOnAndroid={true} extraHeight={130} extraScrollHeight={130}>
+
         <Modal isVisible={!state.authenticated && !isCancel} 
             onModalHide={onModalHide} 
             onBackdropPress={cancel}
@@ -244,12 +267,11 @@ function SettingsScreen({general: state, ...props}) {
             />
             <Text style={styles.inputLabel}>Soberiety Date</Text>
           </View>
+
         </View>
         <View style={{ backgroundColor: '#fff',paddingHorizontal: 10* fontScale, 
           paddingVertical: 15* fontScale, display: state.authenticated ? "flex":"none" }}>
-          <TouchableOpacity style={styles.button} onPress={signOut}>
-                <Text style={styles.buttonText}> Sign Out</Text>
-          </TouchableOpacity>
+
         </View>
       </KeyboardAwareScrollView>
     );
@@ -290,44 +312,13 @@ function SettingsScreen({general: state, ...props}) {
             console.log(`dispatching auth ${data}`)
             dispatch({type: "SAVE_AUTH", data})
           },
-          dispatchSetBanner:  (data)=> dispatch({ type:"SET_BANNER", banner: data})
           
         }
       }
 )(SettingsScreen)
 
 
-async function savePreferences(state, errorCallback){
-  console.log("saving preferences 1")
-  const original = await DataStore.query(Preferences);
 
-  let pref = undefined;
-
-  try{
-    if(original.length>0){
-    //  console.log("saving preferences 3.1")
-      pref = Preferences.copyOf(original[0], updated => {
-        updated.email = state.email,
-        updated.screenName = state.screenName,
-        updated.soberietyDate= state.dos, 
-        updated.name= state.name
-      })
-    }else{
-   //   console.log("saving preferences 3.2")
-      pref = new Preferences({
-        email: state.email,
-        screenName: state.screenName, 
-        soberietyDate: state.dos, 
-        name: state.name
-      })
-    }
- //   console.log("saving preferences 4")
-    const result = await DataStore.save(pref)
- //   console.log(`result from save is ${result}`)
-  }catch(err){
-    errorCallback("Your data was not saved because your profile is incomplete.")
-  }
-}
 
 const styles = StyleSheet.create({
   trackTitleGroup:{
@@ -440,3 +431,71 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
 });
+
+
+function SettingsBackButton({ navigation, email, screenName, dos, name, dispatchBanner }) {
+  async function savePreferences(){
+    console.log("saving preferences 1")
+    const original = await DataStore.query(Preferences);
+  
+    let pref = undefined;
+    if(!screenName){
+      dispatchBanner({message: "To save a profile you must pick a screen name."})
+      return;
+    }
+  
+    try{
+      if(original.length>0){
+      //  console.log("saving preferences 3.1")
+        pref = Preferences.copyOf(original[0], updated => {
+          updated.email = email,
+          updated.screenName = screenName,
+          updated.soberietyDate= dos, 
+          updated.name= name
+        })
+      }else{
+     //   console.log("saving preferences 3.2")
+        pref = new Preferences({
+          email: email,
+          screenName: screenName, 
+          soberietyDate: dos, 
+          name: name
+        })
+      }
+   //   console.log("saving preferences 4")
+      const result = await DataStore.save(pref)
+      dispatchBanner({message: "Profile Saved", status: 'info'})
+   //   console.log(`result from save is ${result}`)
+    }catch(err){
+      console.log(`error is  ${err}`)
+      dispatchBanner({message: "Your data was not saved because your profile is incomplete."})
+    }
+  }
+  return (
+      <HeaderBackButton  label={"Save"} tintColor='#1f6e21'onPress={(event) => {
+          
+          navigation.goBack()
+          savePreferences()
+      }}
+          
+      />
+  )
+
+}
+
+SettingsBackButton = connect(
+  function mapStateToProps(state, ownProps) {
+      const {email, screenName, dos, name} = state.general;
+
+      return {email, screenName, dos, name}
+  },
+  function mapDispatchToProps(dispatch) {
+      return {
+          dispatchBanner:  (data)=> {
+            dispatch({ type:"SET_BANNER", banner: data})
+          }
+      }
+  })(SettingsBackButton)
+
+  export {SettingsBackButton}
+

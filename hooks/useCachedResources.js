@@ -19,6 +19,8 @@ export default function useCachedResources() {
           'merriweather': require('../assets/fonts/Merriweather/Merriweather-Regular.ttf'),
           'merriweather-bold': require('../assets/fonts/Merriweather/Merriweather-Bold.ttf'),
           'merriweather-italic': require('../assets/fonts/Merriweather/Merriweather-Italic.ttf'),
+          'opensans': require('../assets/fonts/OpenSans/OpenSans-Regular.ttf'),
+          'opensans-bold': require('../assets/fonts/OpenSans/OpenSans-SemiBold.ttf')
         });
       } catch (e) {
         // We might want to provide this error information to an error reporting service

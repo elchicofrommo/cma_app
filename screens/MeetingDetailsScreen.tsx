@@ -31,6 +31,13 @@ function DetailsScreen({ route, navigation, ...props }) {
         types.push(<Text key={entry} style={[styles.text, styles.type]}>{entry}</Text> )
     })
 
+    React.useLayoutEffect(() => {
+        navigation.setOptions({
+
+          headerLeft: () => <DetailsBackButton navigation={navigation}/>,
+        });
+      }, [props.navigation]);
+
     if(route.params.extra){
         const myurl = route.params.extra.match(/https?:\/\/\S+/g)
         const remainder = route.params.extra.replace(/https?:\/\/\S+/g, "")
@@ -123,7 +130,7 @@ function DetailsScreen({ route, navigation, ...props }) {
                     <Text style={[styles.text, styles.title]}>{meeting.name}</Text>
                     {badge}
                 </View>
-                <Text style={[styles.text,]}>{meeting.weekday + " " + meeting.start_time}</Text>
+                <Text style={[styles.text,{fontSize: 15 * fontScale}]}>{meeting.weekday + " " + meeting.start_time}</Text>
                 <Text style={[styles.text,styles.sectionHeader]}>Meeting Type</Text>
                 <View style={styles.typesContainer}>{types}</View>
                 {moreDetails}
@@ -177,7 +184,7 @@ const styles = StyleSheet.create({
     },
     text: {
         flexWrap: 'wrap',
-        fontSize: 15 * fontScale,
+        fontSize: 12 * fontScale,
         
     },
 

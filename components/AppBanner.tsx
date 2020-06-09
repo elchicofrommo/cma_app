@@ -60,8 +60,8 @@ function AppBanner(props){
 
     }, [props.banner])
     return (
-    <Animated.View style={[styles.container, transform]}>
-        <Text style={styles.bannerText}>{props.banner}</Text>
+    <Animated.View style={[styles.container, transform, props.banner && props.banner.status == 'info' && styles.infoContainer]}>
+        <Text style={[styles.bannerText, ]}>{props.banner && props.banner.message}</Text>
         
     </Animated.View>
     )
@@ -76,6 +76,9 @@ const styles = StyleSheet.create({
       zIndex: 5,
       top: 0,
       left: 0,
+    },
+    infoContainer:{
+        backgroundColor: '#0273b1',
     },
     bannerText: {
         color: 'white',

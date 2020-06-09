@@ -14,7 +14,7 @@ import moment from 'moment'
 import { SwipeListView } from 'react-native-swipe-list-view';
 import AppBanner from '../components/AppBanner'
 import {MeetingList, sortMeetings} from './MeetingSearchScreen'
-import {DetailsScreen, DetailsBackButton, DetailTransition, } from './MeetingDetailsScreen'
+import {DetailsScreen,  DetailTransition, } from './MeetingDetailsScreen'
 
 // Screens imported
 import SoberietyTime from '../components/SoberietyTime'
@@ -47,6 +47,7 @@ function openMap(lat, long, label){
 // assets imported
 import Logo from '../assets/images/LogoComponent'
 import SplashScreen  from './SplashScreen'
+import { Ionicons } from '@expo/vector-icons';
 const HomeStack = createStackNavigator();
 
 export default function HomeScreenStack(){
@@ -54,27 +55,34 @@ export default function HomeScreenStack(){
   return (
     <HomeStack.Navigator >
       <HomeStack.Screen 
-        name="Crystal Meth Anonymous" 
+        name="home" 
         component={HomeScreen} 
-        title="Crystal Meth Anonymous"
-        options={({navigation, route})=>({
 
+        options={({navigation, route})=>({
+          title:"",
           headerStyle: {
             backgroundColor: '#1f6e21',
-            
           },
+          headerLeft: ()=>{
+            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * fontScale, paddingLeft: 10* fontScale}}>Crystal Meth Anonymous</Text>
+          },
+
           headerTintColor: '#fff',
           headerTitleStyle: {
-            fontWeight: 'bold',
-            fontFamily: 'merriweather',
-            fontSize:  18 * fontScale
+
+            fontFamily: 'opensans-bold',
+            fontSize:  18 * fontScale,
+            textAlign: 'left',
           },
-          headerLeft: ()=>{ 
+          headerRight: ()=>{ 
             return (
-              <CustomButton icon={faUserCircle} 
-                callback={() => navigation.navigate('Settings')} 
-                style={{color: 'white', marginLeft: 10}}  
-                size={25} />
+              <TouchableOpacity  onPress={() => navigation.navigate('Settings')} 
+              style={{width: 34, height: 34, backgroundColor: '#1f6e21', borderColor:'#FFF', 
+              borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center',
+              marginRight: 10 * fontScale}}>
+              <Ionicons name="md-person" color='#FFF' size={22} style={{marginLeft: 1}} />
+              </TouchableOpacity>
+
             )},
 
         })}
@@ -83,19 +91,19 @@ export default function HomeScreenStack(){
         name="Settings"
         component={SettingsScreen} 
         title="Settings"
-
+        
         options={({navigation, route})=>({
-          ...DetailTransition,
           headerStyle: {
-            backgroundColor: '#1f6e21',
-            
+            backgroundColor: 'white',
+
           },
-          title: 'Settings',
-          headerTintColor: '#fff',
+
+          headerTintColor: '#1f6e21',
+          
+
           headerTitleStyle: {
-            fontWeight: 'bold',
-            fontFamily: 'merriweather',
-            fontSize:  18 * fontScale
+            fontFamily: 'opensans-bold',
+            fontSize:  18 * fontScale,
           },
         })}/>
       <HomeStack.Screen
@@ -106,20 +114,15 @@ export default function HomeScreenStack(){
 
           headerStyle: {
             backgroundColor: '#FFF',
-            shadowColor: 'transparent'
+
           },
           title: '',
           headerTintColor: '#1f6e21',
           headerTitleStyle: {
-            fontWeight: 'bold',
-            fontFamily: 'merriweather',
+            fontFamily: 'opensans-bold',
             fontSize: 18 * fontScale,
-            borderBottomWidth: 0,
-
-
           },
-          headerLeft: () => <DetailsBackButton navigation={navigation}/>,
-          ...DetailTransition
+
 
         })} />
       
@@ -276,23 +279,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5 * fontScale,
     color: 'blue',
   },
-  rowBack: {
-    backgroundColor: '#0273b1',
-    height: '100%',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    flexDirection: 'row'
-  },
-  rowBackRemove: {
-    backgroundColor: '#d15457',
-  },
-  rowBackText: {
-    fontSize: 17 * fontScale,
-    color: '#FFF',
-    textAlign: 'center',
 
-    width: 75 * fontScale
-  },
 
   
 

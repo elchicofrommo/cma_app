@@ -28,7 +28,7 @@
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
-    "description": "",
+    "description": "Meeting Search Filters now added",
     "androidStatusBar": {
       "backgroundColor": "#000000"
     }
