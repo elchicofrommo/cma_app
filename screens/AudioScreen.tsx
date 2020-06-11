@@ -11,6 +11,8 @@ import moment from 'moment'
 import { Audio } from 'expo-av'
 import axios from 'axios';
 
+import SoberietyTime from "../components/SoberietyTime"
+
 const SpeakerStack = createStackNavigator();
 
 import { faPlayCircle, faPauseCircle } from '@fortawesome/free-regular-svg-icons'
@@ -206,7 +208,7 @@ function SpeakerScreen(props) {
         maxToRenderPerBatch={10}
         renderItem={playerComponentWrapper} />
 
-
+      <SoberietyTime></SoberietyTime>
     </View>
   );
 }

@@ -3,22 +3,25 @@ import {
   Image, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback,
   TextInput, View, Button, Dimensions, Keyboard, Linking, FlatList, Animated, Easing, Switch
 } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { connect } from 'react-redux';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
-import { createStackNavigator,  } from '@react-navigation/stack';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
+import { createStackNavigator, } from '@react-navigation/stack';
 import AppBanner from '../components/AppBanner'
 import * as Location from 'expo-location';
 import axios from 'axios';
 import moment from 'moment'
 import MeetingListRow from '../components/MeetingListRow'
-import {DetailsScreen, DetailsBackButton, DetailTransition} from './MeetingDetailsScreen'
+import { DetailsScreen, DetailsBackButton, DetailTransition } from './MeetingDetailsScreen'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faFilter,faWindowClose, faStop} from '@fortawesome/free-solid-svg-icons';
+import { faFilter, faWindowClose, faStop } from '@fortawesome/free-solid-svg-icons';
 import { ToggleButton } from 'react-native-paper';
 import { ForceTouchGestureHandler } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
+import SoberietyTime from '../components/SoberietyTime';
+import symbolicateStackTrace from 'react-native/Libraries/Core/Devtools/symbolicateStackTrace';
+
 const {
   width: SCREEN_WIDTH,
   height: SCREEN_HEIGHT
@@ -37,7 +40,7 @@ const daysOfWeek = {
 
 
 const MeetingStack = createStackNavigator();
-export {MeetingList, sortMeetings}
+export { MeetingList, sortMeetings }
 export default function MeetingSearchScreenStack() {
   console.log(`rendering meetingstack`)
   return (
@@ -52,8 +55,8 @@ export default function MeetingSearchScreenStack() {
             backgroundColor: '#1f6e21',
 
           },
-          headerLeft: ()=>{
-            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * fontScale, paddingLeft: 10* fontScale}}>Meetings</Text>
+          headerLeft: () => {
+            return <Text style={{ color: 'white', fontFamily: 'opensans', fontSize: 21 * fontScale, paddingLeft: 10 * fontScale }}>Meetings</Text>
           },
           title: "",
           headerTintColor: '#fff',
@@ -63,11 +66,11 @@ export default function MeetingSearchScreenStack() {
             fontSize: 18 * fontScale
           },
 
-          
+
 
         })}
       />
-      <MeetingStack.Screen 
+      <MeetingStack.Screen
         name="location"
         component={LocationScreen}
         options={({ navigation, route }) => ({
@@ -83,11 +86,11 @@ export default function MeetingSearchScreenStack() {
             fontFamily: 'merriweather',
             fontSize: 18 * fontScale,
             borderBottomWidth: 0,
-            
+
 
           },
 
-        })} 
+        })}
 
       />
       <MeetingStack.Screen
@@ -107,10 +110,10 @@ export default function MeetingSearchScreenStack() {
             fontFamily: 'merriweather',
             fontSize: 18 * fontScale,
             borderBottomWidth: 0,
-            
+
 
           },
-          headerLeft: () => <DetailsBackButton navigation={navigation}/>,
+          headerLeft: () => <DetailsBackButton navigation={navigation} />,
           ...DetailTransition
         })} />
 
@@ -118,10 +121,10 @@ export default function MeetingSearchScreenStack() {
   )
 }
 
-function LocationScreen({ navigation, ...props }){
+function LocationScreen({ navigation, ...props }) {
   const [location, setLocation] = useState()
-  return(
-    <View style={{flex: 1}}>
+  return (
+    <View style={{ flex: 1 }}>
 
       <GooglePlacesAutocomplete
         query={{
@@ -178,7 +181,7 @@ function sortMeetings(meetings) {
 }
 
 
-function MeetingList({meetingData, action, style = {}}){
+function MeetingList({ meetingData, action, style = {} }) {
 
   const keyExtractorCallback = useCallback((data) => { return data._id })
 
@@ -187,18 +190,18 @@ function MeetingList({meetingData, action, style = {}}){
     //console.log(`item is :  index is: ${index} rowMap is ${rowMap} `)
     return <MeetingListRow meeting={item}
       saved={true}
-      action={action}/>
+      action={action} />
   }, [])
 
-  return(
+  return (
     <FlatList
-        data={meetingData}
-        renderItem={renderCallback}
-        keyExtractor={keyExtractorCallback}
-        initialNumToRender={5}
-        contentContainerStyle={style}
+      data={meetingData}
+      renderItem={renderCallback}
+      keyExtractor={keyExtractorCallback}
+      initialNumToRender={5}
+      contentContainerStyle={style}
 
-      />
+    />
   )
 }
 function MeetingSearchScreen({ navigation, ...props }) {
@@ -213,65 +216,66 @@ function MeetingSearchScreen({ navigation, ...props }) {
   const [message, setMessage] = useState(null)
   const [meetingComponents, setMeetingComponents] = useState(emptyView)
   const [expanded, setExpanded] = useState(false)
+  const [offset, setOffset] = useState(new Animated.Value(SCREEN_WIDTH *.008))
+  const [isVirtual, setIsVirtual] = useState(false);
 
 
 
+  useEffect(() => {
 
-  useEffect(()=>{
-
-    if(address && address != "" )
-      Location.geocodeAsync(address).then((resolve)=>{
+    if (address && address != "")
+      Location.geocodeAsync(address).then((resolve) => {
         console.log(`found address for ${JSON.stringify(resolve)} `)
-        resolve.data.forEach((entry)=>console.log(`Address match ${JSON.stringify(entry)}`))
-      }).catch((err)=>{
+        resolve.data.forEach((entry) => console.log(`Address match ${JSON.stringify(entry)}`))
+      }).catch((err) => {
         console.log(`caught an error with getting new geocode for this address. ${err}`)
       })
-      
+
 
   }, [address])
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log("use effect observed distance changed")
     getMeetings();
-    
+
 
   }, [distance])
 
 
 
-  async function filterMeetingsCallback(filters){
+  async function filterMeetingsCallback(filters) {
     console.log(`filterMeetingCallback  with ${JSON.stringify(filters)} `)
-    
 
-    if(distance != filters.distance){
 
-      console.log(`distance changed, setting ${distance } to ${filters.distance} filtered size is ${filteredMeetingData.length} and meetingData length is ${meetingData.length}`)
+    if (distance != filters.distance) {
+
+      console.log(`distance changed, setting ${distance} to ${filters.distance} filtered size is ${filteredMeetingData.length} and meetingData length is ${meetingData.length}`)
       setDistance(filters.distance)
-    //  getMeetings({filters: filters});
+      //  getMeetings({filters: filters});
 
     }
-    else{
+    else {
       filterMeetings(filters);
     }
   }
 
-  async function filterMeetings(filters){
+  async function filterMeetings(filters) {
     const filtered = [];
     console.log(`filtering meetings, meetingData length is ${meetingData.length}`)
-    meetingData.forEach(entry=>{
+    meetingData.forEach(entry => {
       const dayOfWeek = moment().day(entry.weekday).day();
       let step1 = false;
       let step2 = false;
-      if(filters.daysOfWeek.size == 0 || filters.daysOfWeek.has(dayOfWeek)){
+      if (filters.daysOfWeek.size == 0 || filters.daysOfWeek.has(dayOfWeek)) {
         step1 = true
       }
-      if(filters.types.size == 0 ){
+      if (filters.types.size == 0) {
         step2 = true;
-      }else if(entry.type){
-        entry.type.forEach(type=>filters.types.has(type) && (step2=true))
+      } else if (entry.type) {
+        entry.type.forEach(type => filters.types.has(type) && (step2 = true))
       }
 
-      if(step1 && step2){
+      if (step1 && step2) {
 
         filtered.push(entry)
       }
@@ -298,73 +302,96 @@ function MeetingSearchScreen({ navigation, ...props }) {
       return;
     }
     console.log("have location permission ");
-try{
-    if (!address) {
-      const location = await Location.getCurrentPositionAsync({});
-      lat = location.coords.latitude;
-      long = location.coords.longitude
-    } else {
+    try {
+      if (!address) {
+        const location = await Location.getCurrentPositionAsync({});
+        lat = location.coords.latitude;
+        long = location.coords.longitude
+      } else {
+        try {
+          const location = await Location.geocodeAsync(address)
+          console.log(`found address for ${address} ${JSON.stringify(location)}`)
+          lat = location[0].latitude;
+          long = location[0].longitude;
+        } catch (err) {
+          console.log(`problem looking for address ${JSON.stringify(err)}`)
+          props.dispatchSetBanner({ message: "Could not find address" })
+          return;
+        }
+      }
+
+      const query = `https://api.bit-word.com/api/cma/meeting?long=${lat}&lat=${long}&distance=${distance * 1609}`;
+
+      console.log(`runnign query ${query}`)
+
+      let response = undefined
       try {
-        const location = await Location.geocodeAsync(address)
-        console.log(`found address for ${address} ${JSON.stringify(location)}`)
-        lat = location[0].latitude;
-        long = location[0].longitude;
-      } catch (err) {
-        console.log(`problem looking for address ${JSON.stringify(err)}`)
-        props.dispatchSetBanner({message:"Could not find address"})
+        response = await axios.get(query)
+      } catch{
+        setMessage("Network problmes. Try again");
         return;
       }
-    }
 
-    const query = `https://api.bit-word.com/api/cma/meeting?long=${lat}&lat=${long}&distance=${distance * 1609}`;
-
-    console.log(`runnign query ${query}`)
-
-    let response = undefined
-    try {
-      response = await axios.get(query)
-    } catch{
-      setMessage("Network problmes. Try again");
-      return;
-    }
-
-    if (response.data.error) {
-      console.log(`problem getting data ${response.data.error}`)
-      setMessage("System problem finding meetings. Try again later")
-    } else {
+      if (response.data.error) {
+        console.log(`problem getting data ${response.data.error}`)
+        setMessage("System problem finding meetings. Try again later")
+      } else {
 
 
-      setMessage(`${response.data.length} meetings found`);
-      let types = []
-      response.data.forEach(entry=> { entry.type && (types = types.concat(entry.type))})
-      let typeSet = new Set(types);
-      console.log(`meeting types generated is ${JSON.stringify(types)} ${JSON.stringify(typeSet.size)}`)
-      setMeetingTypes([...typeSet]);
-      const sorted = sortMeetings(response.data)
-      setMeetingData(sorted)
-      console.log(`done getting meeting and sorting, meetingData length is ${sorted.length}`)
-     // if(filters){
-       // console.log(`observed there are filters to apply to the meeting search so doing so ${JSON.stringify(filters)}`)
-      //  filterMeetings(filters)
-   // }
-      
-   //   else{
+        setMessage(`${response.data.length} meetings found`);
+        let types = []
+        response.data.forEach(entry => { entry.type && (types = types.concat(entry.type)) })
+        let typeSet = new Set(types);
+        console.log(`meeting types generated is ${JSON.stringify(types)} ${JSON.stringify(typeSet.size)}`)
+        setMeetingTypes([...typeSet]);
+        const sorted = sortMeetings(response.data)
+        setMeetingData(sorted)
+        console.log(`done getting meeting and sorting, meetingData length is ${sorted.length}`)
+        // if(filters){
+        // console.log(`observed there are filters to apply to the meeting search so doing so ${JSON.stringify(filters)}`)
+        //  filterMeetings(filters)
+        // }
+
+        //   else{
         console.log(`observed there are no filters to apply to meeting search `)
         setFilteredMeetingData(sorted)
-    //  }
+        //  }
 
+      }
+    } catch (bigerr) {
+      console.log(`problem getting meeting data as follows ${JSON.stringify(bigerr)}`)
     }
-  }catch(bigerr){
-    console.log(`problem getting meeting data as follows ${JSON.stringify(bigerr)}`)
+
   }
 
+  function searchTraditional(){
+    setIsVirtual(false)
+    Animated.timing(offset, {
+      toValue: (SCREEN_WIDTH *.008),
+      useNativeDriver: true,
+      duration: 200,
+      easing: Easing.inOut(Easing.ease)
+    }).start();
+  }
+
+  function searchVirtual(){
+    setIsVirtual(true)
+    Animated.timing(offset, {
+      toValue: SCREEN_WIDTH * .47,
+      useNativeDriver: true,
+      duration: 200,
+      easing: Easing.inOut(Easing.ease)
+    }).start();
   }
 
   let finalMessage = message;
-  if(filteredMeetingData ){
-   
-    if(meetingData.length != filteredMeetingData.length)
+  if (filteredMeetingData) {
+
+    if (meetingData.length != filteredMeetingData.length)
       finalMessage = `${filteredMeetingData.length} meetings of ${meetingData.length} (filtered)`
+  }
+  const transform = {
+    transform: [{ translateX: offset }]
   }
 
   // component for meeting search
@@ -374,40 +401,49 @@ try{
     <View style={styles.container}>
 
       <View style={{ backgroundColor: '#fff', paddingHorizontal: 10 * fontScale, }}>
-        <View style={{ backgroundColor: '#fff', paddingVertical: 10 * fontScale }}>
-          <View style={{flexDirection: 'row', paddingVertical: 0, height: 34, justifyContent: 'space-between', borderColor:'#1f6e21', borderWidth: 2, borderRadius: 17,}}>
-          <TextInput
-            placeholder="Current Location"
-            autoCapitalize="none"
-            style={[styles.textField, {textAlign: 'center', flex: 10, marginRight: -34, }]}
-            onChangeText={(location) => { (setAddress(location)) }}
-            onSubmitEditing={getMeetings}
-          />
-          <TouchableOpacity  onPress={getMeetings} 
-          style={{ width: 34, height: 30, justifyContent: 'center', alignItems: 'center'}} >
-          <Ionicons name="md-search" color='#1f6e21' size={24} />
-          </TouchableOpacity>
+        <View style={{ backgroundColor: '#fff', paddingTop: 10 * fontScale }}>
+          <View style={{position: 'relative', zIndex: 1,  flexDirection: 'row', paddingVertical: 0, height: 34, justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#d1d7dd',  borderRadius: 17, }}>
+            <TouchableWithoutFeedback onPress={searchTraditional}><Text style={[{position: 'relative', zIndex: 5, flex: 1, textAlign: 'center', color: (isVirtual?'black':'#1f6e21'), }, styles.textField]}>Traditional</Text></TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={searchVirtual}><Text style={[{position: 'relative', zIndex: 5, flex: 1, textAlign: 'center', color: (isVirtual?'#1f6e21':'black'), }, styles.textField]}>Virtual</Text></TouchableWithoutFeedback>
+            <Animated.View style={[{position: 'absolute', zIndex: 3, height: 29, width: '49%', backgroundColor: 'white', top: 2.5, left: 0, borderRadius: 16 ,...transform } ]}></Animated.View>
           </View>
-          
-          
+
+
+        </View>
+        <View style={{ backgroundColor: '#fff', paddingVertical: 10 * fontScale }}>
+          <View style={{ flexDirection: 'row', paddingVertical: 0, height: 34, justifyContent: 'space-between', borderColor: '#1f6e21', borderWidth: 2, borderRadius: 17, }}>
+            <TextInput
+              placeholder="Current Location"
+              autoCapitalize="none"
+              style={[styles.textField, { textAlign: 'center', flex: 10, marginRight: -34, }]}
+              onChangeText={(location) => { (setAddress(location)) }}
+              onSubmitEditing={getMeetings}
+            />
+            <TouchableOpacity onPress={getMeetings}
+              style={{ width: 34, height: 30, justifyContent: 'center', alignItems: 'center' }} >
+              <Ionicons name="md-search" color='#1f6e21' size={24} />
+            </TouchableOpacity>
+          </View>
+
+
         </View>
 
 
-        <MeetingFilter show={meetingData && meetingData.length > 0} callback={filterMeetingsCallback} types={meetingTypes} message={finalMessage} distance={distance}/>
+        <MeetingFilter show={meetingData && meetingData.length > 0} callback={filterMeetingsCallback} types={meetingTypes} message={finalMessage} distance={distance} />
 
 
 
       </View>
 
 
-      <MeetingList meetingData={filteredMeetingData} 
-        action={(row)=>{
-         // props.dispatchHideMenu(); 
+      <MeetingList meetingData={filteredMeetingData}
+        action={(row) => {
+          // props.dispatchHideMenu(); 
           navigation.navigate('Details', row)
-        }}/>
+        }} />
 
-
-      </View>
+      <SoberietyTime />
+    </View>
 
 
   );
@@ -439,53 +475,53 @@ MeetingSearchScreen = connect(
         console.log("dispatching hide menu ")
         dispatch({ type: "HIDE_MENU" })
       },
-      dispatchSetBanner: (message)=>{
-        dispatch({type: "SET_BANNER", banner: message})
+      dispatchSetBanner: (message) => {
+        dispatch({ type: "SET_BANNER", banner: message })
       }
     }
   }
 )(MeetingSearchScreen)
 
-function MeetingFilter({show, types, callback, message, distance}){
+function MeetingFilter({ show, types, callback, message, distance }) {
 
-  
 
-  const defaultFilters = {daysOfWeek: new Map(), paid: [], types: new Map(), distance: distance}
+
+  const defaultFilters = { daysOfWeek: new Map(), paid: [], types: new Map(), distance: distance }
   const [visible, setVisible] = useState(false)
   const [opacity, setOpacity] = useState(new Animated.Value(0))
   const [filters, setFilters] = useState(defaultFilters)
 
   console.log(`building MeetingFilter, filters is ${JSON.stringify(filters)} distance ${distance}`)
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log(`observed distance changed, setting new distance `)
-    const newFilter = {...filters}
+    const newFilter = { ...filters }
     newFilter.distance = distance;
     setFilters(newFilter);
-  },[distance])
+  }, [distance])
 
 
-  const showDialog = ()=>{
+  const showDialog = () => {
     console.log(`showing`)
     setVisible(true)
     Animated.timing(opacity, {
-        toValue: 1,
-        useNativeDriver: true,
-        duration: 200,
-        easing: Easing.in(Easing.quad),
+      toValue: 1,
+      useNativeDriver: true,
+      duration: 200,
+      easing: Easing.in(Easing.quad),
     }).start();
   }
 
-  const hideDialog = ()=>{
+  const hideDialog = () => {
     console.log(`hiding`)
     Animated.timing(opacity, {
-        toValue: 0,
-        useNativeDriver: true,
-        duration: 200,
-        easing: Easing.in(Easing.quad),
-    }).start(()=>{
+      toValue: 0,
+      useNativeDriver: true,
+      duration: 200,
+      easing: Easing.in(Easing.quad),
+    }).start(() => {
       setVisible(false)
-      const newFilters = {...defaultFilters}
+      const newFilters = { ...defaultFilters }
       newFilters.distance = filters.distance
       setFilters(newFilters)
     });
@@ -498,103 +534,103 @@ function MeetingFilter({show, types, callback, message, distance}){
 
   const dayButtons = [];
 
-  for(let i=0; i< 7; i++){
+  for (let i = 0; i < 7; i++) {
     const dayString = moment().day(i).format("dddd ");
     const isSelected = filters.daysOfWeek.has(i)
     dayButtons.push(
 
-        <TouchableOpacity style={[styles.toggleButton, 
-          isSelected && styles.toggleButtonSelected]}
-          onPress={()=>{
-            if(isSelected)
-              filters.daysOfWeek.delete(i);
-            else
-              filters.daysOfWeek.set(i, true);
+      <TouchableOpacity style={[styles.toggleButton,
+      isSelected && styles.toggleButtonSelected]}
+        onPress={() => {
+          if (isSelected)
+            filters.daysOfWeek.delete(i);
+          else
+            filters.daysOfWeek.set(i, true);
 
-            setFilters({...filters})
+          setFilters({ ...filters })
 
-          }}>
-          <Text style={[styles.toggleText]}>{dayString}</Text>
-        </TouchableOpacity>
+        }}>
+        <Text style={[styles.toggleText]}>{dayString}</Text>
+      </TouchableOpacity>
     )
   }
-  
+
 
   console.log(`types is ${JSON.stringify(types)}`);
   const typeComponents = []
 
-  types.forEach((entry)=>{
+  types.forEach((entry) => {
     const isSelected = filters.types.has(entry)
     typeComponents.push(
 
-      <TouchableOpacity style={[styles.toggleButton, 
-        isSelected && styles.toggleButtonSelected]}
-        onPress={()=>{
-          if(isSelected)
+      <TouchableOpacity style={[styles.toggleButton,
+      isSelected && styles.toggleButtonSelected]}
+        onPress={() => {
+          if (isSelected)
             filters.types.delete(entry);
           else
             filters.types.set(entry, true);
 
-          setFilters({...filters})
+          setFilters({ ...filters })
         }}>
         <Text style={[styles.toggleText]}>{entry}</Text>
       </TouchableOpacity>
     )
   })
 
-  function reset(){
-    callback({...defaultFilters})
+  function reset() {
+    callback({ ...defaultFilters })
     hideDialog();
   }
 
-  let dialog = visible? 
+  let dialog = visible ?
     <View >
 
-        <View style={{flexDirection: 'row', justifyContent: 'space-between',}}>
-          <Text style={[styles.message,]}>{message}</Text>
-          <View style={[styles.filter, {display: show?"flex":"none"}]}>
-          <TouchableOpacity  onPress={hideDialog} 
-            style={{width: 34, height: 34, backgroundColor: '#FFF', borderColor:'#1f6e21', borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center'}} >
-            <Ionicons name="ios-close" color='#1f6e21' size={35} style={{marginTop: -2.5, marginLeft: 1}} />
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
+        <Text style={[styles.message,]}>{message}</Text>
+        <View style={[styles.filter, { display: show ? "flex" : "none" }]}>
+          <TouchableOpacity onPress={hideDialog}
+            style={{ width: 34, height: 34, backgroundColor: '#FFF', borderColor: '#1f6e21', borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center' }} >
+            <FontAwesomeIcon icon={faFilter} style={styles.icon} size={17} />
           </TouchableOpacity>
 
-          </View>
         </View>
-        <Modal isVisible={visible}  
-            onBackdropPress={reset}
-            onSwipeComplete={reset}
-            onBackButtonPress={reset}
-            swipeDirection={['up', 'down', 'left', 'right']}>
-        <Animated.View style={[styles.filterDialog, {opacity: opacity, display: visible?"flex":"none"}]}>
+      </View>
+      <Modal isVisible={visible}
+        onBackdropPress={reset}
+        onSwipeComplete={reset}
+        onBackButtonPress={reset}
+        swipeDirection={['up', 'down', 'left', 'right']}>
+        <Animated.View style={[styles.filterDialog, { opacity: opacity, display: visible ? "flex" : "none" }]}>
 
-          
-          <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
-          <Text style={styles.textField}>Distance</Text>
+
+          <View style={{ flexDirection: 'column', justifyContent: 'flex-start' }}>
+            <Text style={styles.textField}>Distance</Text>
             <View style={styles.dayButtonContainer}>
-              <TouchableOpacity style={[styles.toggleButton, 
-                filters.distance == 5 && styles.toggleButtonSelected]}
-                onPress={()=>{
+              <TouchableOpacity style={[styles.toggleButton,
+              filters.distance == 5 && styles.toggleButtonSelected]}
+                onPress={() => {
                   filters.distance = 5
 
-                  setFilters({...filters})
+                  setFilters({ ...filters })
                 }}>
                 <Text style={[styles.toggleText]}>5</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.toggleButton, 
-                filters.distance == 15  && styles.toggleButtonSelected]}
-                onPress={()=>{
+              <TouchableOpacity style={[styles.toggleButton,
+              filters.distance == 15 && styles.toggleButtonSelected]}
+                onPress={() => {
                   filters.distance = 15
 
-                  setFilters({...filters})
+                  setFilters({ ...filters })
                 }}>
                 <Text style={[styles.toggleText]}>15</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.toggleButton, 
-                filters.distance == 30  && styles.toggleButtonSelected]}
-                onPress={()=>{
+              <TouchableOpacity style={[styles.toggleButton,
+              filters.distance == 30 && styles.toggleButtonSelected]}
+                onPress={() => {
                   filters.distance = 30
 
-                  setFilters({...filters})
+                  setFilters({ ...filters })
                 }}>
                 <Text style={[styles.toggleText]}>30</Text>
               </TouchableOpacity>
@@ -605,38 +641,38 @@ function MeetingFilter({show, types, callback, message, distance}){
             <Text style={styles.textField}>Select meeting types</Text>
             <View style={styles.dayButtonContainer}>{typeComponents}</View>
           </View>
-          <View style={[styles.dayButtonContainer, ]}>
-            <View style={{flexBasis: '31%'}}/>
-            <TouchableOpacity style={[styles.toggleButton,{backgroundColor: '#f36468'}]}
+          <View style={[styles.dayButtonContainer,]}>
+            <View style={{ flexBasis: '31%' }} />
+            <TouchableOpacity style={[styles.toggleButton, { backgroundColor: '#f36468' }]}
               onPress={reset}>
               <Text style={[styles.toggleText]}>Reset</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.toggleButton ,{backgroundColor: '#1f6e21'}]}
-              onPress={()=>{
+            <TouchableOpacity style={[styles.toggleButton, { backgroundColor: '#1f6e21' }]}
+              onPress={() => {
 
-                
-                
-                callback({...filters})
+
+
+                callback({ ...filters })
                 hideDialog();
               }}>
               <Text style={[styles.toggleText]}>Filter</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
-        </Modal>
+      </Modal>
+    </View>
+    :
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: show ? 1 : 0, paddingBottom: 5 * fontScale }}>
+      <Text style={[styles.message,]}>{message}</Text>
+      <View style={[styles.filter, { display: show ? "flex" : "none" }]}>
+        <TouchableOpacity onPress={showDialog}
+          style={{ width: 34, height: 34, backgroundColor: '#FFF', borderColor: '#1f6e21', borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center' }} >
+          <FontAwesomeIcon icon={faFilter} style={styles.icon} size={17} />
+        </TouchableOpacity>
       </View>
-      :
-      <View style={{flexDirection: 'row', justifyContent: 'space-between',  borderBottomWidth: show? 1:0, paddingBottom: 5 * fontScale}}>
-        <Text style={[styles.message,]}>{message}</Text>
-        <View style={[styles.filter, {display: show?"flex":"none"}]}>
-          <TouchableOpacity  onPress={showDialog} 
-              style={{width: 34, height: 34, backgroundColor: '#FFF', borderColor:'#1f6e21', borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center'}} >
-              <FontAwesomeIcon icon={faFilter} style={styles.icon} size={17}/>
-            </TouchableOpacity>
-        </View>
-      </View>
+    </View>
 
-  return(
+  return (
     dialog
   )
 }
@@ -644,11 +680,11 @@ const styles = StyleSheet.create({
 
   icon: {
     color: '#1f6e21',
-    
+
   },
   dayButtonContainer: {
-    flexDirection: 'row', 
-    flexWrap: 'wrap', 
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between'
   },
   toggleText: {
@@ -657,7 +693,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'white'
   },
-  toggleButton:{
+  toggleButton: {
     borderWidth: 1,
     borderColor: 'gray',
     borderRadius: 7 * fontScale,
@@ -665,20 +701,20 @@ const styles = StyleSheet.create({
     flexGrow: 0,
     paddingVertical: 5 * fontScale,
     width: 20 * fontScale,
-    backgroundColor: '#0273b1', 
-    shadowOffset: {width: 3, height: 3},
-    marginBottom: 5* fontScale,
+    backgroundColor: '#0273b1',
+    shadowOffset: { width: 3, height: 3 },
+    marginBottom: 5 * fontScale,
   },
-  toggleButtonSelected:{
-    backgroundColor: '#5fbfec', 
+  toggleButtonSelected: {
+    backgroundColor: '#5fbfec',
   },
   filterBackground: {
 
     height: SCREEN_HEIGHT + 200,
     width: SCREEN_WIDTH + 200,
     backgroundColor: 'black',
-    left: -SCREEN_WIDTH, 
-    top: -SCREEN_HEIGHT/2,
+    left: -SCREEN_WIDTH,
+    top: -SCREEN_HEIGHT / 2,
   },
   filterDialog: {
 
@@ -744,6 +780,7 @@ const styles = StyleSheet.create({
   },
 
   textField: {
-    fontSize: 19 * fontScale,
+    fontSize: 17 * fontScale,
+    fontFamily: 'opensans'
   },
 });

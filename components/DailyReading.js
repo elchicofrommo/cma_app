@@ -13,6 +13,7 @@ const {
   height: SCREEN_HEIGHT
 } = Dimensions.get('window')
 const fontScale = SCREEN_WIDTH / 320;
+const heightScale = SCREEN_HEIGHT / 680;
 const longScreen = (SCREEN_WIDTH / SCREEN_HEIGHT )  *2
 
 function DailyReading(props){
@@ -47,8 +48,8 @@ function DailyReading(props){
             dotColor={"lightgray"}
             activeDotColor={"#87A287"}
             index={0}
-            dotStyle={{marginBottom: -10 * fontScale}}
-            activeDotStyle={{marginBottom: -10 * fontScale}}
+            dotStyle={{marginBottom: -7 * heightScale}}
+            activeDotStyle={{marginBottom: -7 * heightScale}}
             containerStyle={styles.swiping}>
             {sections}
           </Swiper>
@@ -117,18 +118,16 @@ function ReadingSection({title, subtitle, section, reading}){
       </View>
   )
 }
+const shadow = Platform.OS === 'ios' ? {
+  shadowColor: 'black',
+  shadowOffset: { width: 4, height: 4 },
+  shadowRadius: 3,
+  shadowOpacity: .4,
+} : { elevation: 15 }
+
 const styles = StyleSheet.create({
     
 
-    readingContainer: {
-      color: 'rgba(96,100,109, 0.8)',
-      flexDirection: 'column',
-      paddingHorizontal: 10,
-      paddingTop: 10,
-      paddingBottom: 30,
-      borderColor: '#FFF',
-    
-    },
     title: {
       fontFamily: 'merriweather-italic',
       textAlign: 'left',
@@ -141,9 +140,14 @@ const styles = StyleSheet.create({
     section: {
       paddingHorizontal: 10* fontScale,
       flexDirection: 'column',
-      height: 200 * fontScale,
+      height: '94%',
+      alignSelf: 'center',
       justifyContent: 'flex-start',
-      paddingBottom: 20,
+      width: '95%',
+      backgroundColor: '#dfe2e2',
+
+      borderRadius: 15,
+      ...shadow,
     },
     sectionText: {
       fontSize: fontScale *  12,
@@ -158,7 +162,12 @@ const styles = StyleSheet.create({
     },
     swiping:  {
 
+      paddingTop: 5,
       flexDirection: 'column',
+  
+      marginTop: 5, 
+      marginBottom: -5,
+
     },  
     modalText:{
       fontSize: 14 *fontScale,
@@ -170,27 +179,6 @@ const styles = StyleSheet.create({
       backgroundColor: '#FFF',
       borderRadius: 5 * fontScale,
      },
-    tabBarInfoContainer: {
-      position: 'absolute',
-      bottom: 0, 
-      left: 0,
-      right: 0,
-      ...Platform.select({
-        ios: {
-          shadowColor: 'black',
-          shadowOffset: { width: 0, height: -3 },
-          shadowOpacity: 0.1,
-          shadowRadius: 3,
-        },
-        android: {
-          elevation: 20,
-        },
-      }),
-      alignItems: 'center',
-      backgroundColor: '#fbfbfb',
-      paddingVertical: 15,
-      flex: 1,
-      flexDirection: 'row'
-    },
+    
 
   });

@@ -8,6 +8,8 @@ import {NavigationContainer } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import { connect } from 'react-redux';
 import DocumentBrowserScreen from './DocumentBrowserScreen'
+
+
 const DocumentStack = createStackNavigator();
 const {
   width: SCREEN_WIDTH, 
@@ -132,7 +134,7 @@ function DocumentScreen({navigation, ...props}) {
         isLastOption
       />
 
-
+      <SoberietyTime/>
     </View>
     
   );

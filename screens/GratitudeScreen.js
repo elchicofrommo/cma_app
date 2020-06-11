@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Dimensions, Animated, Easing } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Animated, Easing, Platform } from 'react-native';
 import { RectButton, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import AppBanner from '../components/AppBanner'
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-
+import SoberietyTime from '../components/SoberietyTime'
 const GratitudeStack = createStackNavigator();
 const {
   width: SCREEN_WIDTH,
@@ -134,8 +134,12 @@ function GratitudeScreen(props) {
         <Text>
           gratitude page
           </Text>
-      </View>
 
+
+          
+
+      </View>
+      <SoberietyTime/>
     </View>
 
   );
@@ -181,10 +185,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#D4DAD4',
-    marginHorizontal: 15,
-    position: 'relative',
 
-    zIndex: 20,
+
   },
   contentContainer: {
     paddingTop: 15,
@@ -227,4 +229,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginTop: 1,
   },
+  
+  
+
 });

@@ -20,6 +20,7 @@ export type AppState = {
     showDetail: boolean,
     showMenu: boolean,
     banner: undefined|string,
+    soberietyFormat: number,
     
     // Cognito details
     password: string|undefined,

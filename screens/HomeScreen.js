@@ -169,10 +169,13 @@ function HomeScreen({navigation, ...props}) {
         <AppBanner />
         <View style={styles.readerSection}>
           <Text style={styles.sectionHeading}>Daily Reading {readerDate.format("MM/DD")}</Text>
+          <View style={{borderBottomColor: 'slategray', borderBottomWidth: 1, padding:0, marginBottom: -3}}></View>
           <DailyReading date={readerDate.format("MM-DD")} />
+          
         </View>
         <View style={styles.meetingSection}>
           <Text style={styles.sectionHeading}>Saved Seats</Text>
+          <View style={{borderBottomColor: 'slategray', borderBottomWidth: 1, padding:0, }}></View>
           {meetingSection}
   
 
@@ -211,13 +214,16 @@ HomeScreen.navigationOptions = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
+    backgroundColor: 'white'
   },
   meetingSection:{
     flex: 20,
+    borderTopWidth: 1,
+    borderTopColor: 'slategray',
   },
   readerSection: {
-    flex: 10.2* fontScale * longScreen 
+    flex: 10.7* fontScale * longScreen ,
+    marginBottom: 5,
   },
   section:{
     paddingHorizontal: 10 * fontScale,
@@ -226,9 +232,9 @@ const styles = StyleSheet.create({
   sectionHeading: {
     fontSize: 18 * fontScale,
     paddingLeft: 10* fontScale,
-
-    backgroundColor: '#D4DAD4',
+    paddingVertical: 3,
     width: '100%',
+   
   },
   meetings:{
     height: '30%',
@@ -263,11 +269,7 @@ const styles = StyleSheet.create({
   codeHighlightText: {
     color: 'rgba(96,100,109, 0.8)',
   },
-  codeHighlightContainer: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 3,
-    paddingHorizontal: 4,
-  },
+
 
   helpContainer: {
     alignItems: 'center',

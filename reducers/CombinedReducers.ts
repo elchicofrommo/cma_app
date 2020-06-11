@@ -26,6 +26,7 @@ const INITIAL_STATE: AppState = {
   dailyReaders: undefined,
   readerDate: undefined,
   banner: undefined,
+  soberietyFormat: 0,
 
   password: undefined,
   email: undefined,
@@ -50,6 +51,10 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       newState.banner = action.banner
       console.log(`banner is now  ${JSON.stringify(newState.banner)}`)
       return newState;
+    case "SET_SOBERIETY_FORMAT":
+      newState.soberietyFormat = action.data;
+      return newState
+      
     case "SAVE_AUTH":
 
       newState.username = action.data

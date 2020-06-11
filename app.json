@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "cma app beta 0.2",
-    "slug": "cma-app-beta-02",
+    "name": "cma app beta 0.3",
+    "slug": "cma-app-beta-03",
     "platforms": [
       "ios",
       "android",
@@ -28,7 +28,7 @@
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
-    "description": "Meeting Search Filters now added",
+    "description": "Second UX design with page headers shifted, sub menu button put on right, and a sans serif font. ",
     "androidStatusBar": {
       "backgroundColor": "#000000"
     }
