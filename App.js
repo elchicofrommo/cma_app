@@ -12,7 +12,7 @@ import thunk from "redux-thunk";
 import BackgroundColor from 'react-native-background-color';
 import { DataStore, Predicates } from "@aws-amplify/datastore";
 import { Preferences, AuthDetail, Meetings } from "./models/index";
-
+import Colors from "./constants/Colors"
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware,  } from 'redux';
 import { AppLoading, SplashScreen } from 'expo';
@@ -57,9 +57,9 @@ async function getNetworkResources(){
       console.log("could not get network resources " + error)
   })
 
-  const CMA_DETAILS = "https://api-v2.soundcloud.com/users/295522782?client_id=pPoEnwUrlg2xU83gOZyN2AqPZ8kxkhBg&linked_partitioning=1"
+  const CMA_DETAILS = "https://api-v2.soundcloud.com/users/295522782?client_id=ort1mNnec7uBq15sMpCNm5oPUYUpu1oV&linked_partitioning=1"
 
-  const CMA_TRACKS = "https://api-v2.soundcloud.com/users/295522782/tracks?client_id=pPoEnwUrlg2xU83gOZyN2AqPZ8kxkhBg&limit=100"
+  const CMA_TRACKS = "https://api-v2.soundcloud.com/users/295522782/tracks?client_id=ort1mNnec7uBq15sMpCNm5oPUYUpu1oV&limit=100"
 
   console.log("getting cma soundcloud details")
   axios.get(CMA_DETAILS)
@@ -191,6 +191,6 @@ export default function App(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.background,
   },
 });

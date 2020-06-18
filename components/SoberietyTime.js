@@ -4,7 +4,7 @@ import { MonoText } from '../components/StyledText';
 import { connect } from 'react-redux';
 import moment from "moment";
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-
+import Colors from '../constants/Colors';
 
 function SoberietyTime(props) {
 
@@ -105,11 +105,8 @@ function SoberietyTime(props) {
 
 
 }
-const {
-  width: SCREEN_WIDTH,
-  height: SCREEN_HEIGHT
-} = Dimensions.get('window')
-const fontScale = SCREEN_WIDTH / 320;
+
+import Layout from '../constants/Layout';
 
 function calcDate(date1, date2) {
 
@@ -222,8 +219,8 @@ const styles = StyleSheet.create({
   cal2Border: {
 
     height: 22,
-    backgroundColor: '#339135',
-    borderBottomColor: '#1f6e21',
+    backgroundColor: Colors.primaryL2,
+    borderBottomColor: Colors.primary,
     borderBottomWidth: 5,
     width: '100%',
     flexDirection: 'row',
@@ -247,7 +244,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexGrow: 1,
     backgroundColor: 'white',
-    borderColor: '#1f6e21',
+    borderColor: Colors.primary,
     borderWidth: 1,
     borderBottomLeftRadius: borderRadius,
     borderBottomRightRadius: borderRadius,

@@ -21,12 +21,8 @@ import { Ionicons } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
 import SoberietyTime from '../components/SoberietyTime';
 import symbolicateStackTrace from 'react-native/Libraries/Core/Devtools/symbolicateStackTrace';
-
-const {
-  width: SCREEN_WIDTH,
-  height: SCREEN_HEIGHT
-} = Dimensions.get('window')
-const fontScale = SCREEN_WIDTH / 320;
+import Colors from '../constants/Colors';
+import Layout from '../constants/Layout';
 
 const daysOfWeek = {
   Sunday: 0,
@@ -52,18 +48,18 @@ export default function MeetingSearchScreenStack() {
         options={({ navigation, route }) => ({
 
           headerStyle: {
-            backgroundColor: '#1f6e21',
+            backgroundColor: Colors.primary,
 
           },
           headerLeft: () => {
-            return <Text style={{ color: 'white', fontFamily: 'opensans', fontSize: 21 * fontScale, paddingLeft: 10 * fontScale }}>Meetings</Text>
+            return <Text style={{ color: 'white', fontFamily: 'opensans', fontSize: 21 * Layout.scale.width, paddingLeft: 10 * Layout.scale.width }}>Meetings</Text>
           },
           title: "",
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontWeight: 'bold',
             fontFamily: 'merriweather',
-            fontSize: 18 * fontScale
+            fontSize: 18 * Layout.scale.width
           },
 
 
@@ -80,11 +76,11 @@ export default function MeetingSearchScreenStack() {
             shadowColor: 'transparent'
           },
           title: 'Location Search',
-          headerTintColor: '#1f6e21',
+          headerTintColor: Colors.primary,
           headerTitleStyle: {
             fontWeight: 'bold',
             fontFamily: 'merriweather',
-            fontSize: 18 * fontScale,
+            fontSize: 18 * Layout.scale.width,
             borderBottomWidth: 0,
 
 
@@ -104,11 +100,11 @@ export default function MeetingSearchScreenStack() {
             shadowColor: 'transparent'
           },
           title: '',
-          headerTintColor: '#1f6e21',
+          headerTintColor: Colors.primary,
           headerTitleStyle: {
             fontWeight: 'bold',
             fontFamily: 'merriweather',
-            fontSize: 18 * fontScale,
+            fontSize: 18 * Layout.scale.width,
             borderBottomWidth: 0,
 
 
@@ -216,7 +212,7 @@ function MeetingSearchScreen({ navigation, ...props }) {
   const [message, setMessage] = useState(null)
   const [meetingComponents, setMeetingComponents] = useState(emptyView)
   const [expanded, setExpanded] = useState(false)
-  const [offset, setOffset] = useState(new Animated.Value(SCREEN_WIDTH *.008))
+  const [offset, setOffset] = useState(new Animated.Value(Layout.window.width *.008))
   const [isVirtual, setIsVirtual] = useState(false);
 
 
@@ -367,7 +363,7 @@ function MeetingSearchScreen({ navigation, ...props }) {
   function searchTraditional(){
     setIsVirtual(false)
     Animated.timing(offset, {
-      toValue: (SCREEN_WIDTH *.008),
+      toValue: (Layout.window.width *.008),
       useNativeDriver: true,
       duration: 200,
       easing: Easing.inOut(Easing.ease)
@@ -377,7 +373,7 @@ function MeetingSearchScreen({ navigation, ...props }) {
   function searchVirtual(){
     setIsVirtual(true)
     Animated.timing(offset, {
-      toValue: SCREEN_WIDTH * .47,
+      toValue: Layout.window.width * .47,
       useNativeDriver: true,
       duration: 200,
       easing: Easing.inOut(Easing.ease)
@@ -393,6 +389,11 @@ function MeetingSearchScreen({ navigation, ...props }) {
   const transform = {
     transform: [{ translateX: offset }]
   }
+  const shadow = Platform.OS === 'ios' ? {
+    shadowColor: 'black',
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: .3,
+  } : { elevation: 3 }
 
   // component for meeting search
   // <TouchableOpacity onPress={()=>navigation.navigate('location')} ><Text>location search</Text></TouchableOpacity>
@@ -400,18 +401,18 @@ function MeetingSearchScreen({ navigation, ...props }) {
 
     <View style={styles.container}>
 
-      <View style={{ backgroundColor: '#fff', paddingHorizontal: 10 * fontScale, }}>
-        <View style={{ backgroundColor: '#fff', paddingTop: 10 * fontScale }}>
+      <View style={{ backgroundColor: '#fff', paddingHorizontal: 10 * Layout.scale.width, }}>
+        <View style={{ backgroundColor: '#fff', paddingTop: 10 * Layout.scale.width }}>
           <View style={{position: 'relative', zIndex: 1,  flexDirection: 'row', paddingVertical: 0, height: 34, justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#d1d7dd',  borderRadius: 17, }}>
-            <TouchableWithoutFeedback onPress={searchTraditional}><Text style={[{position: 'relative', zIndex: 5, flex: 1, textAlign: 'center', color: (isVirtual?'black':'#1f6e21'), }, styles.textField]}>Traditional</Text></TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={searchVirtual}><Text style={[{position: 'relative', zIndex: 5, flex: 1, textAlign: 'center', color: (isVirtual?'#1f6e21':'black'), }, styles.textField]}>Virtual</Text></TouchableWithoutFeedback>
-            <Animated.View style={[{position: 'absolute', zIndex: 3, height: 29, width: '49%', backgroundColor: 'white', top: 2.5, left: 0, borderRadius: 16 ,...transform } ]}></Animated.View>
+            <TouchableWithoutFeedback onPress={searchTraditional}><Text style={[{position: 'relative', zIndex: 5, flex: 1, textAlign: 'center', color: (isVirtual?'black':Colors.primary), }, styles.textField]}>Traditional</Text></TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={searchVirtual}><Text style={[{position: 'relative', zIndex: 5, flex: 1, textAlign: 'center', color: (isVirtual?Colors.primary:'black'), }, styles.textField]}>Virtual</Text></TouchableWithoutFeedback>
+            <Animated.View style={[{position: 'absolute', zIndex: 3, height: 29, width: '49%', backgroundColor: 'white', top: 2.5, left: 0, borderRadius: 16 ,...shadow,...transform } ]}></Animated.View>
           </View>
 
 
         </View>
-        <View style={{ backgroundColor: '#fff', paddingVertical: 10 * fontScale }}>
-          <View style={{ flexDirection: 'row', paddingVertical: 0, height: 34, justifyContent: 'space-between', borderColor: '#1f6e21', borderWidth: 2, borderRadius: 17, }}>
+        <View style={{ backgroundColor: '#fff', paddingVertical: 10 * Layout.scale.width }}>
+          <View style={{ flexDirection: 'row', paddingVertical: 0, height: 34, justifyContent: 'space-between', borderColor: Colors.primary, borderWidth: 2, borderRadius: 17, }}>
             <TextInput
               placeholder="Current Location"
               autoCapitalize="none"
@@ -421,7 +422,7 @@ function MeetingSearchScreen({ navigation, ...props }) {
             />
             <TouchableOpacity onPress={getMeetings}
               style={{ width: 34, height: 30, justifyContent: 'center', alignItems: 'center' }} >
-              <Ionicons name="md-search" color='#1f6e21' size={24} />
+              <Ionicons name="md-search" color={Colors.primary} size={24} />
             </TouchableOpacity>
           </View>
 
@@ -590,7 +591,7 @@ function MeetingFilter({ show, types, callback, message, distance }) {
         <Text style={[styles.message,]}>{message}</Text>
         <View style={[styles.filter, { display: show ? "flex" : "none" }]}>
           <TouchableOpacity onPress={hideDialog}
-            style={{ width: 34, height: 34, backgroundColor: '#FFF', borderColor: '#1f6e21', borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center' }} >
+            style={{ width: 34, height: 34, backgroundColor: '#FFF', borderColor: Colors.primary, borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center' }} >
             <FontAwesomeIcon icon={faFilter} style={styles.icon} size={17} />
           </TouchableOpacity>
 
@@ -647,7 +648,7 @@ function MeetingFilter({ show, types, callback, message, distance }) {
               onPress={reset}>
               <Text style={[styles.toggleText]}>Reset</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.toggleButton, { backgroundColor: '#1f6e21' }]}
+            <TouchableOpacity style={[styles.toggleButton, { backgroundColor: Colors.primary }]}
               onPress={() => {
 
 
@@ -662,11 +663,11 @@ function MeetingFilter({ show, types, callback, message, distance }) {
       </Modal>
     </View>
     :
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: show ? 1 : 0, paddingBottom: 5 * fontScale }}>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: show ? 1 : 0, paddingBottom: 5 * Layout.scale.width }}>
       <Text style={[styles.message,]}>{message}</Text>
       <View style={[styles.filter, { display: show ? "flex" : "none" }]}>
         <TouchableOpacity onPress={showDialog}
-          style={{ width: 34, height: 34, backgroundColor: '#FFF', borderColor: '#1f6e21', borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center' }} >
+          style={{ width: 34, height: 34, backgroundColor: '#FFF', borderColor: Colors.primary, borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center' }} >
           <FontAwesomeIcon icon={faFilter} style={styles.icon} size={17} />
         </TouchableOpacity>
       </View>
@@ -679,7 +680,7 @@ function MeetingFilter({ show, types, callback, message, distance }) {
 const styles = StyleSheet.create({
 
   icon: {
-    color: '#1f6e21',
+    color: Colors.primary,
 
   },
   dayButtonContainer: {
@@ -688,7 +689,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   toggleText: {
-    fontSize: 13 * fontScale,
+    fontSize: 13 * Layout.scale.width,
 
     textAlign: 'center',
     color: 'white'
@@ -696,31 +697,31 @@ const styles = StyleSheet.create({
   toggleButton: {
     borderWidth: 1,
     borderColor: 'gray',
-    borderRadius: 7 * fontScale,
+    borderRadius: 7 * Layout.scale.width,
     flexBasis: '31%',
     flexGrow: 0,
-    paddingVertical: 5 * fontScale,
-    width: 20 * fontScale,
+    paddingVertical: 5 * Layout.scale.width,
+    width: 20 * Layout.scale.width,
     backgroundColor: '#0273b1',
     shadowOffset: { width: 3, height: 3 },
-    marginBottom: 5 * fontScale,
+    marginBottom: 5 * Layout.scale.width,
   },
   toggleButtonSelected: {
     backgroundColor: '#5fbfec',
   },
   filterBackground: {
 
-    height: SCREEN_HEIGHT + 200,
-    width: SCREEN_WIDTH + 200,
+    height: Layout.window.height + 200,
+    width: Layout.window.width+ 200,
     backgroundColor: 'black',
-    left: -SCREEN_WIDTH,
-    top: -SCREEN_HEIGHT / 2,
+    left: -Layout.window.width,
+    top: -Layout.window.height / 2,
   },
   filterDialog: {
 
     backgroundColor: 'white',
     borderRadius: 10,
-    padding: 10 * fontScale,
+    padding: 10 * Layout.scale.width,
     flexDirection: 'column',
     justifyContent: 'space-between'
 
@@ -739,18 +740,18 @@ const styles = StyleSheet.create({
   },
 
   message: {
-    fontSize: 14 * fontScale,
-    paddingTop: 10 * fontScale,
+    fontSize: 14 * Layout.scale.width,
+    paddingTop: 10 * Layout.scale.width,
   },
   buttonText: {
-    fontSize: 20 * fontScale,
+    fontSize: 20 * Layout.scale.width,
     color: 'white',
   },
 
   button: {
-    backgroundColor: '#1f6e21',
-    paddingVertical: 5 * fontScale,
-    marginBottom: 5 * fontScale,
+    backgroundColor: Colors.primary,
+    paddingVertical: 5 * Layout.scale.width,
+    marginBottom: 5 * Layout.scale.width,
     textAlign: 'center',
     justifyContent: 'center',
     flexDirection: 'row'
@@ -780,7 +781,7 @@ const styles = StyleSheet.create({
   },
 
   textField: {
-    fontSize: 17 * fontScale,
+    fontSize: 17 * Layout.scale.width,
     fontFamily: 'opensans'
   },
 });

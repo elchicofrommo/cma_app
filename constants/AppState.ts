@@ -18,6 +18,7 @@ export type AppState = {
     submenus: {},
     meetingDetail: undefined| {},
     showDetail: boolean,
+    showEditor: boolean,
     showMenu: boolean,
     banner: undefined|string,
     soberietyFormat: number,

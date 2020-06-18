@@ -1,7 +1,7 @@
 import {  BottomTabBar } from '@react-navigation/bottom-tabs';
 import React, {useState, useEffect,} from 'react';
 import { StyleSheet, View, Animated, Easing, TouchableOpacity, Text} from 'react-native';
-
+import Colors from '../constants/Colors';
 import { connect } from 'react-redux';
 
 

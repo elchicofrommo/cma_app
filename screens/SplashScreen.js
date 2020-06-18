@@ -4,7 +4,7 @@ import {  StyleSheet, View, Text, Animated } from 'react-native';
 import Logo from '../assets/images/LogoComponent'
 import LogoNoAnimation from '../assets/images/LogoComponetNoAnimation'
 import WhiteLogo from '../assets/images/whiteLogo2.png'
-
+import Colors from '../constants/Colors';
 export default function SplashScreen(props ){
 
   console.log(`rendering SplashScreen`)
@@ -42,7 +42,7 @@ export default function SplashScreen(props ){
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1f6e21',
+    backgroundColor: Colors.primary,
     justifyContent: "center"
   },
   labelView: {
@@ -53,14 +53,14 @@ const styles = StyleSheet.create({
   topLine: {
     fontFamily: 'merriweather',
     fontSize: 50,
-    color: 'white',
+    color: Colors.primaryContrast,
     lineHeight: 65,
     textAlign: 'center',
   },
   bottomLine: {
     fontFamily: 'merriweather',
     fontSize: 50,
-    color: 'white',
+    color: Colors.primaryContrast,
     lineHeight: 65,
     textAlign: 'center',
     marginLeft: 40,

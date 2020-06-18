@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import {NavigationContainer } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import { connect } from 'react-redux';
+import Colors from '../constants/Colors';
 
 const DocumentStack = createStackNavigator();
 

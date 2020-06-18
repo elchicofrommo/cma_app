@@ -7,14 +7,8 @@ import Modal from 'react-native-modal';
 import { connect } from 'react-redux';
 import moment from "moment";
 import { faGratipay } from '@fortawesome/free-brands-svg-icons';
-
-const {
-  width: SCREEN_WIDTH, 
-  height: SCREEN_HEIGHT
-} = Dimensions.get('window')
-const fontScale = SCREEN_WIDTH / 320;
-const heightScale = SCREEN_HEIGHT / 680;
-const longScreen = (SCREEN_WIDTH / SCREEN_HEIGHT )  *2
+import Layout from '../constants/Layout';
+import Colors from '../constants/Colors';
 
 function DailyReading(props){
   console.log(`rendering DailyReading`)
@@ -48,8 +42,8 @@ function DailyReading(props){
             dotColor={"lightgray"}
             activeDotColor={"#87A287"}
             index={0}
-            dotStyle={{marginBottom: -7 * heightScale}}
-            activeDotStyle={{marginBottom: -7 * heightScale}}
+            dotStyle={{marginBottom: -7 * Layout.scale.height}}
+            activeDotStyle={{marginBottom: -7 * Layout.scale.height}}
             containerStyle={styles.swiping}>
             {sections}
           </Swiper>
@@ -83,7 +77,7 @@ export default DailyReading
 
 function ReadingSection({title, subtitle, section, reading}){
   console.log(`rendering ReadingSection`)
-  let lines = Platform.OS ==='ios'? 5.5* fontScale: 4.7 * fontScale
+  let lines = Platform.OS ==='ios'? 5.5* Layout.scale.width: 4.7 * Layout.scale.width
   const [visible, setVisible] = useState(false)
 
   return(
@@ -131,14 +125,14 @@ const styles = StyleSheet.create({
     title: {
       fontFamily: 'merriweather-italic',
       textAlign: 'left',
-      fontSize: fontScale *  17,
+      fontSize: Layout.scale.width *  17,
     },
     viewMore:{
-      paddingTop: 6 * fontScale,
+      paddingTop: 6 * Layout.scale.width,
       color: 'blue',
     },  
     section: {
-      paddingHorizontal: 10* fontScale,
+      paddingHorizontal: 10* Layout.scale.width,
       flexDirection: 'column',
       height: '94%',
       alignSelf: 'center',
@@ -150,15 +144,15 @@ const styles = StyleSheet.create({
       ...shadow,
     },
     sectionText: {
-      fontSize: fontScale *  12,
+      fontSize: Layout.scale.width *  12,
       flex: 85,
     },
     sectionHeading: {
       textAlign: 'center',
-      fontSize: fontScale *  15,
+      fontSize: Layout.scale.width *  15,
       fontWeight: 'bold',
       textAlignVertical: "bottom",
-      paddingTop: 10* fontScale,
+      paddingTop: 10* Layout.scale.width,
     },
     swiping:  {
 
@@ -170,14 +164,14 @@ const styles = StyleSheet.create({
 
     },  
     modalText:{
-      fontSize: 14 *fontScale,
-      paddingVertical: 20* fontScale,
-      paddingHorizontal: 10* fontScale,
+      fontSize: 14 *Layout.scale.width,
+      paddingVertical: 20* Layout.scale.width,
+      paddingHorizontal: 10* Layout.scale.width,
       textAlign: 'left',
     },
      modalTextContainer: {
-      backgroundColor: '#FFF',
-      borderRadius: 5 * fontScale,
+      backgroundColor: Colors.background,
+      borderRadius: 5 * Layout.scale.width,
      },
     
 

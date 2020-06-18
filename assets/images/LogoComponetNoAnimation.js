@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import Svg, { Circle, G, Path, Rect } from "react-native-svg";
-
+import Colors from "../../constants/Colors"
 
 export default function Logo(props) {
   
@@ -19,20 +19,20 @@ export default function Logo(props) {
 
 
         
-        <G stroke="white" fill="none" strokeWidth={6}>
+        <G stroke={Colors.primaryContrast} fill="none" strokeWidth={6}>
          
         <Circle
              cx="309.99999" 
              cy="216.99999" 
              fill="none" 
              r="214.424" 
-             stroke="#FFF" stroke-width="5"/>
+             stroke={Colors.primaryContrast} stroke-width="5"/>
 
 
           <Path
 
             strokeWidth={5}
-            strokeColor={"white"}
+            strokeColor={Colors.primaryContrast}
             strokeLinecap={"round"}
             strokeLinejoin={"bevel"}
             d={"M150.75 322.75s158.5-96 158.25-96.25 155.75 97.25 155.5 97"}
@@ -43,7 +43,7 @@ export default function Logo(props) {
 
 
             strokeWidth={5}
-            strokeColor={"white"}
+            strokeColor={Colors.primaryContrast}
             d={"M244.73 265.896h127.246"}
             strokeLinecap={"round"}
             strokeLinejoin={"bevel"}
@@ -51,7 +51,7 @@ export default function Logo(props) {
 
           <Path
             strokeWidth={5}
-            strokeColor={"white"}
+            strokeColor={Colors.primaryContrast}
             d={"M181.5 265.146l63.5-109.5s64 63 63.75 62.75 60.75-64.75 60.5-65 64.75 112.75 64.5 112.5"}
             strokeLinecap={"round"}
             strokeLinejoin={""}
@@ -62,7 +62,7 @@ export default function Logo(props) {
             strokeWidth={5}
             strokeLinecap={"round"}
             strokeLinejoin={""}
-            strokeColor={"white"}
+            strokeColor={Colors.primaryContrast}
             d={"M332.458 88.68s-23.505-39.646-24.5-39.63c-.996.015-58.198 100.9-58.198 100.9s118.469-.81 117.473-.794"}
 
             transform={{translate:'0, -6'}}

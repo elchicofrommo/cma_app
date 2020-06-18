@@ -1,15 +1,11 @@
 
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { Text, View , StyleSheet, Dimensions, Animated, Easing} from 'react-native';
+import { Text, View , StyleSheet, Animated, Easing} from 'react-native';
 import { connect } from 'react-redux';
 import { Banner } from 'react-native-paper';
 import { faHandHolding } from '@fortawesome/free-solid-svg-icons';
-const {
-    width: SCREEN_WIDTH, 
-    height: SCREEN_HEIGHT
-  } = Dimensions.get('window')
-  const fontScale = SCREEN_WIDTH / 320;
-
+import Layout from '../constants/Layout';
+import Colors from '../constants/Colors';
   
 function AppBanner(props){
     const [visible, setVisible] = useState(false)
@@ -70,19 +66,19 @@ const styles = StyleSheet.create({
     container: {
       flex: 1, 
       width: '100%',
-      backgroundColor: '#f36468',
-      padding: 5* fontScale,
+      backgroundColor: Colors.appRed,
+      padding: 5 * Layout.scale.width,
       position: 'absolute',
       zIndex: 5,
       top: 0,
       left: 0,
     },
     infoContainer:{
-        backgroundColor: '#0273b1',
+        backgroundColor: Colors.appBlue,
     },
     bannerText: {
         color: 'white',
-        fontSize: 15 * fontScale,
+        fontSize: 15 * Layout.scale.width,
     }
 })
 export default connect(

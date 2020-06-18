@@ -19,15 +19,11 @@ import {DetailsScreen,  DetailTransition, } from './MeetingDetailsScreen'
 // Screens imported
 import SoberietyTime from '../components/SoberietyTime'
 import SettingsScreen from './SettingsScreen';
+import Layout from '../constants/Layout';
+import Colors from '../constants/Colors';
 
 import DailyReading from '../components/DailyReading';
-const {
-  width: SCREEN_WIDTH, 
-  height: SCREEN_HEIGHT
-} = Dimensions.get('window')
-const fontScale = SCREEN_WIDTH / 320;
 
-const longScreen = (SCREEN_WIDTH / SCREEN_HEIGHT )  *2
 
 function openMap(lat, long, label){
   const androidLabel =  encodeURIComponent(`(${label})`)
@@ -61,25 +57,25 @@ export default function HomeScreenStack(){
         options={({navigation, route})=>({
           title:"",
           headerStyle: {
-            backgroundColor: '#1f6e21',
+            backgroundColor: Colors.primary,
           },
           headerLeft: ()=>{
-            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * fontScale, paddingLeft: 10* fontScale}}>Crystal Meth Anonymous</Text>
+            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * Layout.scale.width, paddingLeft: 10* Layout.scale.width}}>Crystal Meth Anonymous</Text>
           },
 
           headerTintColor: '#fff',
           headerTitleStyle: {
 
             fontFamily: 'opensans-bold',
-            fontSize:  18 * fontScale,
+            fontSize:  18 * Layout.scale.width,
             textAlign: 'left',
           },
           headerRight: ()=>{ 
             return (
               <TouchableOpacity  onPress={() => navigation.navigate('Settings')} 
-              style={{width: 34, height: 34, backgroundColor: '#1f6e21', borderColor:'#FFF', 
+              style={{width: 34, height: 34, backgroundColor: Colors.primary, borderColor:'#FFF', 
               borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center',
-              marginRight: 10 * fontScale}}>
+              marginRight: 10 * Layout.scale.width}}>
               <Ionicons name="md-person" color='#FFF' size={22} style={{marginLeft: 1}} />
               </TouchableOpacity>
 
@@ -98,12 +94,12 @@ export default function HomeScreenStack(){
 
           },
 
-          headerTintColor: '#1f6e21',
+          headerTintColor: Colors.primary,
           
 
           headerTitleStyle: {
             fontFamily: 'opensans-bold',
-            fontSize:  18 * fontScale,
+            fontSize:  18 * Layout.scale.width,
           },
         })}/>
       <HomeStack.Screen
@@ -117,10 +113,10 @@ export default function HomeScreenStack(){
 
           },
           title: '',
-          headerTintColor: '#1f6e21',
+          headerTintColor: Colors.primary,
           headerTitleStyle: {
             fontFamily: 'opensans-bold',
-            fontSize: 18 * fontScale,
+            fontSize: 18 * Layout.scale.width,
           },
 
 
@@ -222,16 +218,16 @@ const styles = StyleSheet.create({
     borderTopColor: 'slategray',
   },
   readerSection: {
-    flex: 10.7* fontScale * longScreen ,
+    flex: 10.7* Layout.scale.width * Layout.ratio ,
     marginBottom: 5,
   },
   section:{
-    paddingHorizontal: 10 * fontScale,
-    paddingTop: 10 * fontScale,
+    paddingHorizontal: 10 * Layout.scale.width,
+    paddingTop: 10 * Layout.scale.width,
   },  
   sectionHeading: {
-    fontSize: 18 * fontScale,
-    paddingLeft: 10* fontScale,
+    fontSize: 18 * Layout.scale.width,
+    paddingLeft: 10* Layout.scale.width,
     paddingVertical: 3,
     width: '100%',
    
@@ -278,7 +274,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   directions:{
-    paddingVertical: 5 * fontScale,
+    paddingVertical: 5 * Layout.scale.width,
     color: 'blue',
   },
 

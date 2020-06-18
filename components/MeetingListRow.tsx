@@ -7,11 +7,8 @@ import { SharedElement} from 'react-native-shared-element'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCertificate } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment'
-const {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT
-} = Dimensions.get('window')
-const fontScale = SCREEN_WIDTH / 320;
+import Colors from '../constants/Colors';
+import Layout from '../constants/Layout';
 
 function shouldUpdateMainRow(prev, next) {
     return prev.meeting._id == next.meeting._id &&
@@ -24,7 +21,7 @@ const MeetingListRow = memo(({ meeting, saved, action}) => {
 
     const badge = meeting.paid ? <FontAwesomeIcon icon={faCertificate} style={styles.badge}  size={15}/> : undefined
     console.log("render MeetingComponent is saved " + saved)
-    let meetingName = meeting.name.substring(0, Math.floor(20 * fontScale ))
+    let meetingName = meeting.name.substring(0, Math.floor(20 * Layout.scale.width ))
     let day = moment().day(meeting.weekday).format('ddd').toLocaleUpperCase();
     let time = meeting.start_time.replace(/[\sm]/gi, "")
     if(meetingName.length < meeting.name.length)
@@ -44,16 +41,16 @@ const MeetingListRow = memo(({ meeting, saved, action}) => {
 
             <View style={styles.rowData}>
                 <View style={{flex: 2.2, alignItems: 'flex-start', justifyContent: 'center', }}>
-                    <Text style={[styles.title, styles.day,  {flex: 1, color: '#1f6e21', fontWeight: 'bold',  width: '100%', textAlign: 'center'}]}>{day}</Text>
-                    <Text style={[styles.title, {flex: 1, color: '#1f6e21', fontWeight: 'bold', textTransform: 'lowercase',  width: '100%', textAlign: 'center'}]}>{time}</Text>
+                    <Text style={[styles.title, styles.day,  {flex: 1, color: Colors.primary, fontWeight: 'bold',  width: '100%', textAlign: 'center'}]}>{day}</Text>
+                    <Text style={[styles.title, {flex: 1, color: Colors.primary, fontWeight: 'bold', textTransform: 'lowercase',  width: '100%', textAlign: 'center'}]}>{time}</Text>
                 </View>
                 <View style={{flex: 1.2, alignItems: 'flex-end'}}>
                     {badge}
                 </View>
                 <View style={{ flexDirection: 'row', flex: 13, alignItems: 'center'}}>
-                    <Text style={[styles.title, {fontFamily: 'opensans-bold',  fontSize: 14 * fontScale, fontWeight: 'bold' }]}>{meetingName}</Text>
+                    <Text style={[styles.title, {fontFamily: 'opensans-bold',  fontSize: 14 * Layout.scale.width, fontWeight: 'bold' }]}>{meetingName}</Text>
                 </View>
-                <View style={{flex: 2, paddingRight: 10 * fontScale, alignItems: 'flex-start', justifyContent: 'center'}}>
+                <View style={{flex: 2, paddingRight: 10 * Layout.scale.width, alignItems: 'flex-start', justifyContent: 'center'}}>
                     <Text style={styles.title}>{(meeting.dist.calculated / 1609).toFixed(2)} miles</Text>
                 </View>
                 
@@ -75,8 +72,8 @@ const styles = StyleSheet.create({
     rowContainer:{
         backgroundColor: '#FFF',
         borderBottomWidth: 1,
-        paddingLeft: 10 * fontScale,
-        paddingVertical: 15 * fontScale,
+        paddingLeft: 10 * Layout.scale.width,
+        paddingVertical: 15 * Layout.scale.width,
         
         justifyContent: "space-between",
         flexDirection: "row",
@@ -88,16 +85,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row'
     },
     directions: {
-        paddingVertical: 5 * fontScale,
+        paddingVertical: 5 * Layout.scale.width,
         color: 'blue',
     },
     title: {
         flexWrap: 'nowrap',
-        fontSize: 10 * fontScale,
+        fontSize: 10 * Layout.scale.width,
     },
     day: {
-        fontSize: 12 * fontScale,
-        marginBottom: -2 * fontScale,
+        fontSize: 12 * Layout.scale.width,
+        marginBottom: -2 * Layout.scale.width,
     },
     badge: {
         color: '#f4b813',

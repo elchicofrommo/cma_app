@@ -14,11 +14,8 @@ import { HeaderStyleInterpolators, HeaderBackButton } from '@react-navigation/st
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCertificate } from '@fortawesome/free-solid-svg-icons';
 
-const {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT
-} = Dimensions.get('window')
-const fontScale = SCREEN_WIDTH / 320;
+import Colors from '../constants/Colors';
+import Layout from "../constants/Layout"
 
 function DetailsScreen({ route, navigation, ...props }) {
     console.log(`rendering DetailsScreen route is ${route.params} `)
@@ -116,7 +113,7 @@ function DetailsScreen({ route, navigation, ...props }) {
         longitude: meeting.location.coordinates[0],
     }
     const badge = meeting.paid && <FontAwesomeIcon icon={faCertificate} style={styles.badge}  size={20}/> 
-    const meetingSignup = meeting.paid || <Text style={[styles.text, {paddingTop: 5* fontScale}]}>
+    const meetingSignup = meeting.paid || <Text style={[styles.text, {paddingTop: 5* Layout.scale.width}]}>
             Would you like this meeting to get access to additional features like group gratitude, 
             online meeting documents, and your own speaker recordings? Bring it up at a business 
             meeting and see if your group would like to sign up. 
@@ -130,7 +127,7 @@ function DetailsScreen({ route, navigation, ...props }) {
                     <Text style={[styles.text, styles.title]}>{meeting.name}</Text>
                     {badge}
                 </View>
-                <Text style={[styles.text,{fontSize: 15 * fontScale}]}>{meeting.weekday + " " + meeting.start_time}</Text>
+                <Text style={[styles.text,{fontSize: 15 * Layout.scale.width}]}>{meeting.weekday + " " + meeting.start_time}</Text>
                 <Text style={[styles.text,styles.sectionHeader]}>Meeting Type</Text>
                 <View style={styles.typesContainer}>{types}</View>
                 {moreDetails}
@@ -160,18 +157,18 @@ const styles = StyleSheet.create({
     address:{
         flex: 2,
         justifyContent: "flex-end",
-        paddingHorizontal: 10 * fontScale,
+        paddingHorizontal: 10 * Layout.scale.width,
     },
     sectionHeader: {
         fontWeight: 'bold',
-        paddingTop: 10* fontScale
+        paddingTop: 10* Layout.scale.width
     },
     directions: {
-        paddingVertical: 5 * fontScale,
+        paddingVertical: 5 * Layout.scale.width,
         color: 'blue',
     },
     title: {
-        fontSize: 22 * fontScale, 
+        fontSize: 22 * Layout.scale.width, 
         fontWeight: 'bold' 
     },
     typesContainer:{
@@ -184,13 +181,13 @@ const styles = StyleSheet.create({
     },
     text: {
         flexWrap: 'wrap',
-        fontSize: 12 * fontScale,
+        fontSize: 12 * Layout.scale.width,
         
     },
 
     details: {
         flex: 5,
-        paddingHorizontal: 10 * fontScale,
+        paddingHorizontal: 10 * Layout.scale.width,
     },
     badge: {
         color: '#f4b813',
@@ -199,7 +196,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1, 
         backgroundColor: '#FFF' ,
-        paddingTop: 5 * fontScale,
+        paddingTop: 5 * Layout.scale.width,
     }
 
 });
@@ -297,7 +294,7 @@ function DetailsBackButton({ navigation, ...props }) {
             props.dispatchHideDetail()
             navigation.goBack()
         }}
-            tintColor='#1f6e21'
+            tintColor={Colors.primary}
         />
     )
 

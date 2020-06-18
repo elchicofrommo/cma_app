@@ -8,14 +8,14 @@ import {NavigationContainer } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import { connect } from 'react-redux';
 import DocumentBrowserScreen from './DocumentBrowserScreen'
-
+import Colors from '../constants/Colors';
 
 const DocumentStack = createStackNavigator();
 const {
   width: SCREEN_WIDTH, 
   height: SCREEN_HEIGHT
 } = Dimensions.get('window')
-const fontScale = SCREEN_WIDTH / 320;
+import Layout from '../constants/Layout';
 
 export default connect(
   function mapStateToProps(state, ownProps){
@@ -51,16 +51,16 @@ function DocumentScreenStack(props){
         component={DocumentScreen} 
         options={({navigation, route})=>({
           headerLeft: ()=>{
-            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * fontScale, paddingLeft: 10* fontScale}}>CMA Resources</Text>
+            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * Layout.scale.width, paddingLeft: 10* Layout.scale.width}}>CMA Resources</Text>
           },
           title:"",
           headerStyle: {
-            backgroundColor: '#1f6e21',
+            backgroundColor: Colors.primary,
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontFamily: 'opensans',
-            fontSize:  21 * fontScale
+            fontSize:  21 * Layout.scale.width
           },
         })}/>
       <DocumentStack.Screen 
@@ -69,12 +69,12 @@ function DocumentScreenStack(props){
         options={({navigation, route})=>({
 
           headerStyle: {
-            backgroundColor: '#1f6e21',
+            backgroundColor: Colors.primary,
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontFamily: 'opensans',
-            fontSize:  21 * fontScale
+            fontSize:  21 * Layout.scale.width
           },
         })}/>
       <DocumentStack.Screen 
@@ -83,13 +83,13 @@ function DocumentScreenStack(props){
         options={({navigation, route})=>({
 
           headerStyle: {
-            backgroundColor: '#1f6e21',
+            backgroundColor: Colors.primary,
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
 
             fontFamily: 'opensans',
-            fontSize:  21 * fontScale
+            fontSize:  21 * Layout.scale.width
           },
         })}/>      
       <DocumentStack.Screen 
@@ -98,12 +98,12 @@ function DocumentScreenStack(props){
         options={({navigation, route})=>({
 
           headerStyle: {
-            backgroundColor: '#1f6e21',
+            backgroundColor: Colors.primary,
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontFamily: 'opensans',
-            fontSize:  21 * fontScale
+            fontSize:  21 * Layout.scale.width
           },
         })}/>
     </DocumentStack.Navigator>

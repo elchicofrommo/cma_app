@@ -10,7 +10,7 @@ import {AppState} from '../constants/AppState'
 import Swiper from 'react-native-swiper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { Ionicons } from '@expo/vector-icons';
-
+import Colors from '../constants/Colors';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faSignOutAlt} from '@fortawesome/free-solid-svg-icons';
@@ -30,7 +30,7 @@ const {
   width: SCREEN_WIDTH, 
   height: SCREEN_HEIGHT
 } = Dimensions.get('window')
-const fontScale = SCREEN_WIDTH / 320;
+import Layout from '../constants/Layout';
 
 function SettingsScreen({general: state, ...props}) {
 
@@ -118,9 +118,9 @@ function SettingsScreen({general: state, ...props}) {
 
     function SettingsSignoutButton(){
       return (
-        <View style={{paddingRight: 10 * fontScale, marginBottom: -5}}>
+        <View style={{paddingRight: 10 * Layout.scale.width, marginBottom: -5}}>
           <TouchableOpacity onPress={signOut}>
-            <Ionicons name="ios-log-out" color="#1f6e21" size={36}/>
+            <Ionicons name="ios-log-out" color={Colors.primary} size={36}/>
           </TouchableOpacity>
         </View>
       )
@@ -151,7 +151,7 @@ function SettingsScreen({general: state, ...props}) {
             </View>
 
               <View style={{display: (!confirmEmail)? "flex": "none"}}>
-                <View style={{backgroundColor: '#fff', paddingHorizontal: 10* fontScale, paddingVertical: 15* fontScale}}>
+                <View style={{backgroundColor: '#fff', paddingHorizontal: 10* Layout.scale.width, paddingVertical: 15* Layout.scale.width}}>
                   
                   <TextInput 
                     placeholder="bill@cma.com" 
@@ -162,7 +162,7 @@ function SettingsScreen({general: state, ...props}) {
                   />
                   <Text style={styles.inputLabel}>Email</Text>
                 </View>
-                <View style={{backgroundColor: '#fff',paddingHorizontal: 10* fontScale, paddingVertical: 15* fontScale}}>
+                <View style={{backgroundColor: '#fff',paddingHorizontal: 10* Layout.scale.width, paddingVertical: 15* Layout.scale.width}}>
                     
                   <TextInput 
                   placeholder="*******" secureTextEntry={true}
@@ -172,9 +172,9 @@ function SettingsScreen({general: state, ...props}) {
                   onChangeText={(name)=>{props.dispatchPasswordChange(name)}}
                   />
                   <Text style={styles.inputLabel}>Password</Text>
-                  <Text style={{fontSize: 10 * fontScale, color: passwordColor, paddingTop: 6* fontScale}}>must include a uppercase, a lowercase, a number, and a special character and be more than 8 characters.</Text>
+                  <Text style={{fontSize: 10 * Layout.scale.width, color: passwordColor, paddingTop: 6* Layout.scale.width}}>must include a uppercase, a lowercase, a number, and a special character and be more than 8 characters.</Text>
                 </View>  
-                <View style={{backgroundColor: '#fff', paddingHorizontal: 10* fontScale, paddingVertical: 15* fontScale, display: error.display}}>
+                <View style={{backgroundColor: '#fff', paddingHorizontal: 10* Layout.scale.width, paddingVertical: 15* Layout.scale.width, display: error.display}}>
                   <Text style={styles.inputLabel}>{error.message}</Text>
                 </View> 
                 <TouchableOpacity style={[styles.button, styles.modalButton]} onPress={signIn}>
@@ -193,7 +193,7 @@ function SettingsScreen({general: state, ...props}) {
               autoCapitalize="none"
               editable={false}
               
-              style={[styles.textField, styles.disabledText, {height: 30* fontScale}]}
+              style={[styles.textField, styles.disabledText, {height: 30* Layout.scale.width}]}
               onChangeText={(name)=>{props.dispatchEmailChange(name)}}
               />
               <Text style={styles.inputLabel}>Email</Text>
@@ -254,11 +254,11 @@ function SettingsScreen({general: state, ...props}) {
                   display: 'none'
                 },  
                 dateText: {
-                  fontSize: 20 * fontScale,
+                  fontSize: 20 * Layout.scale.width,
                   alignSelf: 'flex-start'
                 },
                 placeholderText: {
-                  fontSize: 20 * fontScale,
+                  fontSize: 20 * Layout.scale.width,
                   alignSelf: 'flex-start'
                 }
 
@@ -269,8 +269,8 @@ function SettingsScreen({general: state, ...props}) {
           </View>
 
         </View>
-        <View style={{ backgroundColor: '#fff',paddingHorizontal: 10* fontScale, 
-          paddingVertical: 15* fontScale, display: state.authenticated ? "flex":"none" }}>
+        <View style={{ backgroundColor: '#fff',paddingHorizontal: 10* Layout.scale.width, 
+          paddingVertical: 15* Layout.scale.width, display: state.authenticated ? "flex":"none" }}>
 
         </View>
       </KeyboardAwareScrollView>
@@ -337,53 +337,53 @@ const styles = StyleSheet.create({
 
   },
   inputLabel: {
-    fontSize: 10 * fontScale, 
+    fontSize: 10 * Layout.scale.width, 
     color: 'red', 
-    height: 20* fontScale
+    height: 20* Layout.scale.width
   },
   textFieldContainer:{
 
-    paddingHorizontal: 10* fontScale, 
-    paddingVertical: 5* fontScale,
+    paddingHorizontal: 10* Layout.scale.width, 
+    paddingVertical: 5* Layout.scale.width,
     flexDirection: 'column',
-    height: 50* fontScale,
+    height: 50* Layout.scale.width,
   },
   buttonText: {
-    fontSize: 20 * fontScale, 
+    fontSize: 20 * Layout.scale.width, 
     color: 'white',     
   },
   modalButton: {
-    borderBottomLeftRadius: 5 * fontScale,
-    borderBottomRightRadius: 5 * fontScale,
+    borderBottomLeftRadius: 5 * Layout.scale.width,
+    borderBottomRightRadius: 5 * Layout.scale.width,
   },
   button: {
-    backgroundColor: '#1f6e21',
-    paddingVertical: 5* fontScale,
+    backgroundColor: Colors.primary,
+    paddingVertical: 5* Layout.scale.width,
     textAlign: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    height: 40* fontScale
+    height: 40* Layout.scale.width
   },
   trackCreated:{
     flex: 2.1
   },
   modalText:{
-    fontSize: 21 *fontScale,
-    paddingVertical: 20* fontScale,
-    paddingHorizontal: 10* fontScale,
+    fontSize: 21 *Layout.scale.width,
+    paddingVertical: 20* Layout.scale.width,
+    paddingHorizontal: 10* Layout.scale.width,
     textAlign: 'center',
   },
    modalTextContainer: {
     borderBottomWidth: 1,
     borderBottomColor: 'grey',
     backgroundColor: '#FFF',
-    borderTopLeftRadius: 5 * fontScale,
-    borderTopRightRadius: 5 * fontScale,
+    borderTopLeftRadius: 5 * Layout.scale.width,
+    borderTopRightRadius: 5 * Layout.scale.width,
    },
   container: {
     flex: 1,
     justifyContent: "space-between",
-    backgroundColor: "#FFF"
+    backgroundColor: Colors.background
   },
   header: {
     flex: 1,
@@ -402,8 +402,8 @@ const styles = StyleSheet.create({
     borderWidth: 1
   },
   textField: {
-    fontSize: 19 * fontScale,
-    height: 30 * fontScale,
+    fontSize: 19 * Layout.scale.width,
+    height: 30 * Layout.scale.width,
   },
   disabledText: {
     color: 'grey'
@@ -472,7 +472,7 @@ function SettingsBackButton({ navigation, email, screenName, dos, name, dispatch
     }
   }
   return (
-      <HeaderBackButton  label={"Save"} tintColor='#1f6e21'onPress={(event) => {
+      <HeaderBackButton  label={"Save"} tintColor={Colors.primary}onPress={(event) => {
           
           navigation.goBack()
           savePreferences()

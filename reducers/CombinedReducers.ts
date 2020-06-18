@@ -18,6 +18,7 @@ const INITIAL_STATE: AppState = {
   authenticated: false,
   meetingDetail: undefined,
   showDetail: false,
+  showEditor: false, 
   showMenu: true,
   role: 'basic',
   soundCloudDetails: undefined,

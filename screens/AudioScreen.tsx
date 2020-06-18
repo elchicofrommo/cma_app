@@ -10,7 +10,7 @@ import Logo from '../assets/images/GreenLogo'
 import moment from 'moment'
 import { Audio } from 'expo-av'
 import axios from 'axios';
-
+import Colors from '../constants/Colors';
 import SoberietyTime from "../components/SoberietyTime"
 
 const SpeakerStack = createStackNavigator();
@@ -19,18 +19,18 @@ import { faPlayCircle, faPauseCircle } from '@fortawesome/free-regular-svg-icons
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faPause } from '@fortawesome/free-solid-svg-icons';
 import { Ionicons } from '@expo/vector-icons';
-const color = "#1f6e21"
+const color = Colors.primary
 let playerReady = false
 
 
-const CLIENT_ID = "?client_id=pPoEnwUrlg2xU83gOZyN2AqPZ8kxkhBg"
+const CLIENT_ID = "?client_id=ort1mNnec7uBq15sMpCNm5oPUYUpu1oV"
 export const streamUrl = (trackUrl) => `${trackUrl}/stream?client_id=${SC_KEY}`;
 
 const {
   width: SCREEN_WIDTH,
   height: SCREEN_HEIGHT
 } = Dimensions.get('window')
-const fontScale = SCREEN_WIDTH / 320;
+import Layout from '../constants/Layout';
 
 export default function SpeakerScreenStack() {
   console.log(`render AudioScreenStack`)
@@ -41,11 +41,11 @@ export default function SpeakerScreenStack() {
         component={SpeakerScreen}
         options={({ navigation, route }) => ({
           headerLeft: ()=>{
-            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * fontScale, paddingLeft: 10* fontScale}}>Speaker Shares</Text>
+            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * Layout.scale.width, paddingLeft: 10* Layout.scale.width}}>Speaker Shares</Text>
           },
           title: '',
           headerStyle: {
-            backgroundColor: '#1f6e21',
+            backgroundColor: Colors.primary,
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -142,20 +142,20 @@ const PlayerComponent = memo(({ track, isPlaying, setPlayingTrack }) => {
   const button = isPlaying? 
     <TouchableOpacity  onPress={playerCallback}
     style={{ width: 34, height: 30, justifyContent: 'center', alignItems: 'center'}} >
-    <Ionicons name="ios-pause" color='#1f6e21' size={24} />
+    <Ionicons name="ios-pause" color={Colors.primary} size={24} />
     </TouchableOpacity> :
 
     <TouchableOpacity  onPress={playerCallback}
     style={{ width: 34, height: 30, justifyContent: 'center', alignItems: 'center'}} >
-    <Ionicons name="ios-play" color='#1f6e21' size={24} />
+    <Ionicons name="ios-play" color={Colors.primary} size={24} />
     </TouchableOpacity>
 
   return (
-    <View style={{ height: fontScale * 80, flexDirection: 'row', backgroundColor: '#FFF', borderBottomWidth: 1, }}>
+    <View style={{ height: Layout.scale.width * 80, flexDirection: 'row', backgroundColor: '#FFF', borderBottomWidth: 1, }}>
       
       <View style={{ justifyContent: 'center', paddingHorizontal: 5 }}>
         <BorderlessButton style={[styles.button]} onPress={playerCallback}>
-          <FontAwesomeIcon icon={isPlaying ? faPauseCircle : faPlayCircle} style={{ color: color }} size={50 * fontScale} />
+          <FontAwesomeIcon icon={isPlaying ? faPauseCircle : faPlayCircle} style={{ color: color }} size={50 * Layout.scale.width} />
         </BorderlessButton>
 
         <Text style={styles.duration}>{`${durationText}`}</Text>
@@ -197,7 +197,7 @@ function SpeakerScreen(props) {
       <View style={{ flex: .2, flexDirection: 'row', paddingTop: 10, paddingBottom: 10 }}>
         <Logo style={{ flex: 1, marginLeft: -10, marginRight: -40, }} />
 
-        <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 * fontScale }}>
+        <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 * Layout.scale.width }}>
           <Text>{props.soundCloudDetails.description}</Text>
         </View>
       </View>

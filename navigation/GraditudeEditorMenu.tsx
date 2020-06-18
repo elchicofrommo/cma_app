@@ -6,10 +6,7 @@ import Colors from '../constants/Colors';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlusCircle, faMinusCircle, faDirections } from '@fortawesome/free-solid-svg-icons';
-const {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT
-} = Dimensions.get('window')
+
 import Layout from '../constants/Layout';
 
 function openMap(lat, long, label) {
@@ -33,8 +30,7 @@ const DetailsMenu = (props) => {
 
     
 
-    console.log(`show detail changed ${JSON.stringify(props.detail)} meetingmap size is ${props.meetingMap.size}`)
-    if (props.showDetail) {
+   if (props.showEditor) {
         console.log(`going to 0`)
         Animated.timing(offset, {
             toValue: 0,
@@ -57,45 +53,19 @@ const DetailsMenu = (props) => {
         transform: [{ translateY: offset }]
     }
 
-    if (props.detail) {
-
         let button = undefined;
 
         const buttonSize = 45 * Layout.scale.width
 
-        if (props.meetingMap.has(props.detail._id)) {
-            button = <TouchableOpacity onPress={(event) => { 
-                props.authenticated? props.dispatchRemoveMeeting(props.detail) : 
-                props.dispatchSetBanner({message:`You must sign in to add meetings.`})}}>
-                <FontAwesomeIcon icon={faMinusCircle} style={[styles.icon, styles.minus]} size={buttonSize} />
-            </TouchableOpacity>
-        } else {
-            button = <TouchableOpacity onPress={(event) => { props.authenticated? props.dispatchAddMeeting(props.detail): 
-                props.dispatchSetBanner({message:`You must sign in to add meetings.`}) }}>
-                <FontAwesomeIcon icon={faPlusCircle} style={[styles.icon, styles.plus]} size={buttonSize} />
-            </TouchableOpacity>
-        }
         return (
             <Animated.View style={[styles.menuStyle, transform]}>
-                {button}
-                <TouchableOpacity onPress={(event) => {
-                    openMap(
-                        props.detail.location.coordinates[1],
-                        props.detail.location.coordinates[0],
-                        props.detail.name)
-                }}>
-                    <FontAwesomeIcon icon={faDirections} style={[styles.icon, styles.directions]} size={buttonSize} />
+                <TouchableOpacity onPress={(event) => { alert('adding gratitude')}}>
+                    <FontAwesomeIcon icon={faPlusCircle} style={[styles.icon, styles.plus]} size={buttonSize} />
                 </TouchableOpacity>
-            </Animated.View>
-        )
-    } else {
-        return (
-            <Animated.View style={[styles.menuStyle, transform]}>
-                <Text> Blank menu</Text>
 
             </Animated.View>
         )
-    }
+
 }
 
 const topPadding = Platform.OS == 'ios' ? 19 : 8
@@ -137,9 +107,7 @@ export default connect(
         console.log(`DetailsMenu connect observed redux change, detail ${state.general.meetingDetail}`)
 
         return {
-            meetingMap: state.general.meetingMap,
-            detail: state.general.meetingDetail,
-            showDetail: state.general.showDetail,
+            showEditor: state.general.showEditor,
             authenticated: state.general.authenticated
         };
     },

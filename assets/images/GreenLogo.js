@@ -2,7 +2,7 @@
 import * as React from 'react';
 import Svg, { Circle, G, Path, Rect } from "react-native-svg";
 import { AnimatedSVGPath } from 'react-native-svg-animations'
-
+import Colors from "../../constants/Colors"
 export default function Logo(props) {
   
     const circleD = describeArc(306.965,226.5, 194, 0, 359.99999)
@@ -20,11 +20,11 @@ export default function Logo(props) {
         <Circle
              cx="300" 
              cy="225" 
-             fill="#1f6e21" 
+             fill={Colors.primary}
              r="205" 
-             stroke="#FFF" strokeWidth={10}/>
+             stroke={Colors.primaryContrast} strokeWidth={10}/>
         
-        <G stroke="white" fill="none" strokeWidth={6} 
+        <G stroke={Colors.primaryContrast} fill="none" strokeWidth={6} 
           transform={{
             scale:'.9, .9',
             translate:'30, 30'

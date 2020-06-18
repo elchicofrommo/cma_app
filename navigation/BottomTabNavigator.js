@@ -2,7 +2,7 @@ import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom
 import React, {useState} from 'react';
 import { StyleSheet, View, Animated, Easing, Platform} from 'react-native';
 import { MonoText } from '../components/StyledText';
-
+import Colors from '../constants/Colors'
 import TabBarIcon from '../components/TabBarIcon';
 import AudioScreen from '../screens/AudioScreen';
 import DocumentScreen from '../screens/DocumentScreen';
@@ -66,7 +66,7 @@ function BottomTabNavigator({ navigation, route, ...props }) {
     <BottomTab.Navigator  
     tabBar={MyTabBar}
     tabBarOptions={{
-      activeTintColor: 'green',
+      activeTintColor: Colors.primary,
       inactiveTintColor: 'gray',
       showLabel: true,
       style: {
