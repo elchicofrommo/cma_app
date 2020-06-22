@@ -12,6 +12,7 @@ import { Audio } from 'expo-av'
 import axios from 'axios';
 import Colors from '../constants/Colors';
 import SoberietyTime from "../components/SoberietyTime"
+import {LinearGradient} from "expo-linear-gradient"
 
 const SpeakerStack = createStackNavigator();
 
@@ -194,7 +195,19 @@ function SpeakerScreen(props) {
 
     <View style={styles.container}>
       <AppBanner />
-      <View style={{ flex: .2, flexDirection: 'row', paddingTop: 10, paddingBottom: 10 }}>
+      <View style={{ backgroundColor: Colors.primaryL2, flex: .2, flexDirection: 'row', paddingTop: 10, paddingBottom: 10 }}>
+        <LinearGradient 
+          colors={[Colors.primaryL2, Colors.primaryL1]}
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+          }}
+          start={[0,0]}
+          end={[1.8, 1.8]}
+        />
         <Logo style={{ flex: 1, marginLeft: -10, marginRight: -40, }} />
 
         <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 * Layout.scale.width }}>
@@ -269,7 +282,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#D4DAD4',
   },
   header: {
     flex: 1,

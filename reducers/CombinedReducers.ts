@@ -2,7 +2,8 @@ import { combineReducers } from 'redux';
 import NowPlaying from './NowPlayingReducer'
 
 import { DataStore, Predicates } from "@aws-amplify/datastore";
-import { Preferences, AuthDetail, Meetings } from "../models/index";
+import { Preferences, AuthDetail, Meetings, Gratitude ,
+  GratitudeEntry as GratitudeEntryModel, GratitudeComment} from "../models/index";
 
 import {AppState} from "../constants/AppState";
 
@@ -32,7 +33,8 @@ const INITIAL_STATE: AppState = {
   password: undefined,
   email: undefined,
   username: undefined,
-  submenus: {}
+  submenus: {},
+  gratitude: []
 };
 
 function logState(state){
@@ -55,7 +57,13 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
     case "SET_SOBERIETY_FORMAT":
       newState.soberietyFormat = action.data;
       return newState
-      
+    case "ADD_GRATITUDE":
+      console.log(`adding gratitude, data is ${JSON.stringify(action.data, null, 2)}`)
+      const list: Gratitude[] = [...newState.gratitude];
+  
+      list.unshift(action.data)
+      newState.gratitude = list;
+      return newState;
     case "SAVE_AUTH":
 
       newState.username = action.data
@@ -74,6 +82,8 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       console.log('just returning new state but same objects')
       return newState;
 
+      
+
     case "SHOW_DETAIL":
       console.log(`in show detail, old: ${state.showDetail}`)
       newState.showDetail = true
@@ -81,6 +91,16 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
     case "HIDE_DETAIL":
       console.log(`in show detail, old: ${state.showDetail}`)
       newState.showDetail = false
+      return newState;
+    
+    case "SHOW_EDITOR":
+        console.log(`in show menu, old: ${state.showEditor}`)
+        newState.showMenu = false
+        return newState;
+
+    case "HIDE_EDITOR":
+      console.log(`in show detail, old: ${state.showEditor}`)
+      newState.showMenu = true
       return newState;
     
     case "SHOW_MENU":
@@ -144,8 +164,11 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
     case "SYNC_AUTH":
       return syncAuthWithDS(newState, action.data)
 
-      case "SYNC_MEETINGS":
-        return syncMeetingsWithDS(newState, action.data)
+    case "SYNC_MEETINGS":
+      return syncMeetingsWithDS(newState, action.data)
+
+    case "SYNC_GRATITUDE":
+      return syncGratitudeWithDS(newState, action.data )
 
     case "NAME_CHANGE":
       newState.name = action.name;
@@ -193,10 +216,31 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
 async function resetDataStore(){
 
  // console.log("Here in resetDataStore")
-  const prefDelete = await DataStore.delete(Preferences, Predicates.ALL);
-  const authDelete = await DataStore.delete(AuthDetail, Predicates.ALL);
+  const prefDelete = await DataStore.clear()
 
   
+}
+
+function syncGratitudeWithDS(state, gratitudes: Gratitude[]){
+  const list = new Array<Gratitude>();
+  /*gratitudes.forEach((gratitude)=>{
+    console.log(`syncing with DS, ${JSON.stringify(gratitude)} start by pulling out entries and comments`)
+
+    const entries = new Array<GratitudeEntry>()
+
+
+    const grat = <Gratitude> {
+      title: gratitude.title,
+      date: new Date(gratitude.time),
+      id: gratitude.id,
+      entries: gratitude.entries
+    }
+    list.push(grat)
+  }) */
+  state.gratitude = list
+
+  console.log(`finished syncing gratitude, here are the results: ${JSON.stringify(list, null, 2)}`)
+  return state;
 }
 
 function syncPrefWithDS(state, datastore){

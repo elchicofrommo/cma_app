@@ -55,3 +55,47 @@ export declare class Meetings {
   constructor(init: ModelInit<Meetings>);
   static copyOf(source: Meetings, mutator: (draft: MutableModel<Meetings>) => MutableModel<Meetings> | void): Meetings;
 }
+
+export declare class GratitudeComment {
+  readonly id: string;
+  readonly user: string;
+  readonly text: string;
+  readonly created: number;
+  readonly gratitudeEntryCommentsId?: string;
+  readonly gratitudeCommentsId?: string;
+  constructor(init: ModelInit<GratitudeComment>);
+  static copyOf(source: GratitudeComment, mutator: (draft: MutableModel<GratitudeComment>) => MutableModel<GratitudeComment> | void): GratitudeComment;
+}
+
+export declare class GratitudeLike {
+  readonly id: string;
+  readonly user: string;
+  readonly created: number;
+  readonly gratitudeEntryLikesId?: string;
+  readonly gratitudeLikesId?: string;
+  constructor(init: ModelInit<GratitudeLike>);
+  static copyOf(source: GratitudeLike, mutator: (draft: MutableModel<GratitudeLike>) => MutableModel<GratitudeLike> | void): GratitudeLike;
+}
+
+export declare class GratitudeEntry {
+  readonly id: string;
+  readonly index: number;
+  readonly content: string;
+  readonly likes?: GratitudeLike[];
+  readonly comments?: GratitudeComment[];
+  readonly gratitudeEntriesId?: string;
+  constructor(init: ModelInit<GratitudeEntry>);
+  static copyOf(source: GratitudeEntry, mutator: (draft: MutableModel<GratitudeEntry>) => MutableModel<GratitudeEntry> | void): GratitudeEntry;
+}
+
+export declare class Gratitude {
+  readonly id: string;
+  readonly email: string;
+  readonly title: string;
+  readonly time: number;
+  readonly entries?: GratitudeEntry[];
+  readonly comments?: GratitudeComment[];
+  readonly likes?: GratitudeLike[];
+  constructor(init: ModelInit<Gratitude>);
+  static copyOf(source: Gratitude, mutator: (draft: MutableModel<Gratitude>) => MutableModel<Gratitude> | void): Gratitude;
+}

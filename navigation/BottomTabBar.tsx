@@ -9,13 +9,15 @@ let TabBar  = function ({ state, descriptors, navigation, style, ...props }) {
   
   console.log('rendering TabBar')
   console.log(`showMenu is ${props.showMenu}`)
-  const [offset, setOffset] = useState(new Animated.Value(0))
+  const [offset, setOffset] = useState(new Animated.Value(90))
+  const [isVisible, setIsVisible] = useState(true)
 
+  
   function show(){
 
     Animated.timing(offset, {
-      toValue: 0,
-      useNativeDriver: true,
+      toValue: 90,
+      useNativeDriver: false,
       duration: 200,
       easing: Easing.inOut(Easing.sin),
     }).start();
@@ -23,23 +25,27 @@ let TabBar  = function ({ state, descriptors, navigation, style, ...props }) {
   }
 
   function hide(){
-
+    console.log('hiding menu')
     Animated.timing(offset, {
-      toValue: 100,
-      useNativeDriver: true, 
+      toValue: 0,
+      useNativeDriver: false, 
       duration: 200,
     }).start();
 
   }
 
-  if(props.showMenu){
-    show()
-  }else{
-    hide()
-  }
+
+    if(props.showMenu){
+      show()
+    }else{
+      hide()
+    }
+
+
+  
 
   const transform = {
-    transform: [{ translateY: offset }]
+    height: offset
   }
   const submenu = []
 
@@ -50,7 +56,7 @@ let TabBar  = function ({ state, descriptors, navigation, style, ...props }) {
  console.log(`submenu list has been built and is this long: ${submenu.length}`)
   
   return (
-      <View>
+      <View style={{display: isVisible? "flex": "none"}}>
         <Animated.View style={[{position: 'relative'}, transform]}>
             <BottomTabBar state={state} navigation={navigation} descriptors={descriptors} style={[style, {position: 'relative'}]} {...props}/>
         </Animated.View>

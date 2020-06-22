@@ -7,11 +7,10 @@ import useCachedResources from './hooks/useCachedResources';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import LinkingConfiguration from './navigation/LinkingConfiguration';
 import reducers from './reducers/CombinedReducers';
-import { SharedElement, SharedElementRenderer } from 'react-native-motion';
 import thunk from "redux-thunk";
 import BackgroundColor from 'react-native-background-color';
 import { DataStore, Predicates } from "@aws-amplify/datastore";
-import { Preferences, AuthDetail, Meetings } from "./models/index";
+import { Preferences, AuthDetail, Meetings, Gratitude as GratitudeModel, GratitudeEntry as GratitudeEntryModel, GratitudeComment as GratitudeCommentModel } from "./models/index";
 import Colors from "./constants/Colors"
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware,  } from 'redux';
@@ -105,30 +104,47 @@ async function getNetworkResources(){
         store.dispatch({type: "SYNC_AUTH", data: result[0]})
         // try to sign in
 
+        const email = result[0].email;
         const userName = await signIn(result[0].email, result[0].password)
 
         if(userName){
 
           store.dispatch({type: "SAVE_AUTH", data: userName})
 
-          DataStore.query(Preferences, Predicates.ALL)
-          .then((result)=>{
+          DataStore.query(Preferences, c => {
+            c.email("eq", email)
+          }).then((result)=>{
 
             if(result.length >0)
               store.dispatch({type: "SYNC_PREFRENCES", data: result[0]})
-          })
-          .catch((err)=> {
+          }).catch((err)=> {
             console.log(`err out of datastore are ${JSON.stringify(err)}`)
           })
 
-          DataStore.query(Meetings, Predicates.ALL)
+          DataStore.query(Meetings, c =>{ c.email("eq", email)})
           .then((result)=>{
 
             if(result.length >0)
               store.dispatch({type: "SYNC_MEETINGS", data: result[0]})
           })
           .catch((err)=> {
-            console.log(`err out of datastore are ${JSON.stringify(err)}`)
+            console.log(`err getting meetings out of datastore are ${JSON.stringify(err)}`)
+          })
+
+          DataStore.query(GratitudeModel, c=>{c.email("eq", email)} )
+          .then((result)=>{
+            console.log('gratitude sync made, length is ' + JSON.stringify(result))
+            if(result.length >0)
+            /*
+              result.sort((a, b)=>{
+                if(a.time == b.time)
+                  return 0
+                return a.time > b.time ?  -1 :1
+              }) */
+              store.dispatch({type: "SYNC_GRATITUDE", data: result})
+          })
+          .catch((err)=> {
+            console.log(`err getting gratitude out of datastore are ${JSON.stringify(err)}`)
           })
         }else{
           console.log(`signin failed `)
@@ -172,6 +188,7 @@ export default function App(props) {
         <Provider store={store} >
           <View style={styles.container}>
             {Platform.OS === 'ios' && <StatusBar barStyle="dark-content" />}
+            <StatusBar barStyle={"light-content"}/>
             <NavigationContainer linking={LinkingConfiguration}>
               <BottomTabNavigator />
             </NavigationContainer>

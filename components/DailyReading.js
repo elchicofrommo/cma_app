@@ -9,6 +9,7 @@ import moment from "moment";
 import { faGratipay } from '@fortawesome/free-brands-svg-icons';
 import Layout from '../constants/Layout';
 import Colors from '../constants/Colors';
+import {LinearGradient} from "expo-linear-gradient"
 
 function DailyReading(props){
   console.log(`rendering DailyReading`)
@@ -82,6 +83,18 @@ function ReadingSection({title, subtitle, section, reading}){
 
   return(
   <View key={section} style={styles.section}>
+       <LinearGradient 
+          colors={[Colors.primaryL2, Colors.primaryL1]}
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+          }}
+          start={[0,0]}
+          end={[0, 3]}
+        />
         <Text style={styles.sectionHeading}>{section}</Text>
 
         <ReadMore
@@ -141,6 +154,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#dfe2e2',
 
       borderRadius: 15,
+      overflow: 'hidden',
       ...shadow,
     },
     sectionText: {

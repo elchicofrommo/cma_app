@@ -395,6 +395,7 @@ function MeetingSearchScreen({ navigation, ...props }) {
     shadowOpacity: .3,
   } : { elevation: 3 }
 
+
   // component for meeting search
   // <TouchableOpacity onPress={()=>navigation.navigate('location')} ><Text>location search</Text></TouchableOpacity>
   return (
@@ -404,9 +405,11 @@ function MeetingSearchScreen({ navigation, ...props }) {
       <View style={{ backgroundColor: '#fff', paddingHorizontal: 10 * Layout.scale.width, }}>
         <View style={{ backgroundColor: '#fff', paddingTop: 10 * Layout.scale.width }}>
           <View style={{position: 'relative', zIndex: 1,  flexDirection: 'row', paddingVertical: 0, height: 34, justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#d1d7dd',  borderRadius: 17, }}>
-            <TouchableWithoutFeedback onPress={searchTraditional}><Text style={[{position: 'relative', zIndex: 5, flex: 1, textAlign: 'center', color: (isVirtual?'black':Colors.primary), }, styles.textField]}>Traditional</Text></TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={searchVirtual}><Text style={[{position: 'relative', zIndex: 5, flex: 1, textAlign: 'center', color: (isVirtual?Colors.primary:'black'), }, styles.textField]}>Virtual</Text></TouchableWithoutFeedback>
-            <Animated.View style={[{position: 'absolute', zIndex: 3, height: 29, width: '49%', backgroundColor: 'white', top: 2.5, left: 0, borderRadius: 16 ,...shadow,...transform } ]}></Animated.View>
+          <Animated.View style={[{position: 'absolute', zIndex: 3, height: 29, width: '49%', backgroundColor: 'white', top: 2.5, left: 0, borderRadius: 16 ,...shadow,...transform } ]}></Animated.View>
+            
+            <TouchableWithoutFeedback onPress={searchTraditional} ><Text style={[{position: 'relative', zIndex: 5, elevation: 4, flex: 1, textAlign: 'center', color: (isVirtual?'black':Colors.primary), }, styles.textField]}>Traditional</Text></TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={searchVirtual} ><Text style={[{position: 'relative', zIndex: 5, elevation: 4, flex: 1, textAlign: 'center', color: (isVirtual?Colors.primary:'black'), }, styles.textField]}>Virtual</Text></TouchableWithoutFeedback>
+
           </View>
 
 

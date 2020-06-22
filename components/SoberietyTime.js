@@ -53,19 +53,24 @@ function SoberietyTime(props) {
       transform: [{ translateY: pressOffset }, {translateX: pressOffset}],
     }
 
-    return (
+    /*
+    Need to integrate the rungs back into the calendar at some point
 
-      
-      <View style={styles.cal2Outer}>
-        <TouchableWithoutFeedback underlayColor="transparent" onPress={() => props.dispatchSetFormat((props.format + 1) % 3)} 
-        onPressIn={pressDown} onPressOut={pressUp} style={[transform, {padding: 3}]} >
-        <View style={styles.cal2Rungs}>
+            <View style={styles.cal2Rungs}>
           <View style={styles.rung}>
 
           </View>
           <View style={styles.rungSpacer}></View>
           <View style={styles.rung} ></View>
         </View>
+    */
+
+    return (
+
+      
+      <View style={styles.cal2Outer}>
+        <TouchableWithoutFeedback underlayColor="transparent" onPress={() => props.dispatchSetFormat((props.format + 1) % 3)} 
+        onPressIn={pressDown} onPressOut={pressUp} style={[transform, {padding: 3}]} >
         <View style={styles.cal2}>
           <View style={styles.cal2Border}>
 
@@ -84,13 +89,6 @@ function SoberietyTime(props) {
   } else {
     return (
       <View style={styles.cal2Outer}>
-        <View style={styles.cal2Rungs}>
-          <View style={styles.rung}>
-
-          </View>
-          <View style={styles.rungSpacer}></View>
-          <View style={styles.rung} ></View>
-        </View>
         <View style={styles.cal2}>
           <View style={styles.cal2Border}>
 
@@ -157,11 +155,16 @@ const borderRadius = 20
 const middleFlex = 1
 const calWidth = 80
 const calHeight = 70
-const shadow = Platform.OS === 'ios' ? {
+const iosShadow = Platform.OS === 'ios' ? {
   shadowColor: 'black',
-  shadowOffset: { width: 2, height: 4 },
-  shadowOpacity: .3,
-} : { elevation: 7 }
+  shadowOffset: { width: 4, height: 4 },
+  shadowOpacity: .1,
+  shadowRadius: 6,
+} : { shadowOpacity: 0 }
+
+const androidShadow = Platform.OS === 'android' ? {
+  elevation: 3
+} : { elevation: 0 }
 
 const styles = StyleSheet.create({
 
@@ -169,15 +172,14 @@ const styles = StyleSheet.create({
   cal2Outer: {
 
     position: 'absolute',
-
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: borderRadius,
     bottom: 10,
     right: 10,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
 
     padding: 0,
-    ...shadow,
+    ...iosShadow
 
   },
   cal2Rungs: {
@@ -191,17 +193,15 @@ const styles = StyleSheet.create({
   cal2: {
     width: calWidth,
     height: calHeight,
-    borderTopLeftRadius: borderRadius,
-    borderTopRightRadius: borderRadius,
-
+    borderRadius: borderRadius,
     position: 'relative',
     zIndex: 5,
-
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    marginTop: 5,
-    overflow: "hidden"
+    margin: 5, 
+    overflow: "hidden",
+    ...androidShadow,
 
   },
   rung: {
@@ -227,8 +227,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
     borderTopLeftRadius: borderRadius,
-    borderTopRightRadius: borderRadius
-
+    borderTopRightRadius: borderRadius,
+    margin: 0,
   },
   dateText: {
     fontSize: 22,
@@ -249,7 +249,8 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: borderRadius,
     borderBottomRightRadius: borderRadius,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    margin: 0,
   },
 
 });

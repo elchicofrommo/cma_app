@@ -1,6 +1,6 @@
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
-import React, {useState} from 'react';
-import { StyleSheet, View, Animated, Easing, Platform} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import { StyleSheet, View, Animated, Easing, Platform, Keyboard} from 'react-native';
 import { MonoText } from '../components/StyledText';
 import Colors from '../constants/Colors'
 import TabBarIcon from '../components/TabBarIcon';
@@ -30,7 +30,25 @@ function BottomTabNavigator({ navigation, route, ...props }) {
   const [tabHeight, setTabHeight] = useState(
     new Animated.Value(0),
   );
+  const [visible, setVisible] = useState(true)
 
+  function hideMenu(){
+    setVisible(false)
+  }
+
+  function showMenu(){
+    setVisible(true)
+  }
+
+  useEffect(()=>{
+    const keyboardShow = Keyboard.addListener('keyboardDidShow', hideMenu);
+    const keyboardHide = Keyboard.addListener('keyboardDidHide', showMenu);
+
+    return  ()=>{
+      keyboardShow.remove();
+      keyboardHide.remove();
+    }
+  }, [])
   function show(){
 
     Animated.timing(tabHeight, {
@@ -61,10 +79,18 @@ function BottomTabNavigator({ navigation, route, ...props }) {
 
   toggleTab()
 
+    console.log(`tab navigator visibility: ${visible}`)
+    const gratitude = props.authenticated ? 
+      <BottomTab.Screen name="Gratitude" component={GratitudeScreen}
+        options={{
+          tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faPagelines} style={{color: color}}  size={25}/>,
+        }}/> : undefined
+    const display = Platform.OS==='android'? {display: visible? 'flex': 'none'}:{}
   return (
 
     <BottomTab.Navigator  
     tabBar={MyTabBar}
+    
     tabBarOptions={{
       activeTintColor: Colors.primary,
       inactiveTintColor: 'gray',
@@ -72,6 +98,7 @@ function BottomTabNavigator({ navigation, route, ...props }) {
       style: {
         borderTopWidth: 1,
         backgroundColor: 'white',
+        ...display
       },
       labelStyle:{
         marginTop: Platform.OS==='ios'?-10: -5,
@@ -103,13 +130,7 @@ function BottomTabNavigator({ navigation, route, ...props }) {
           tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faHeadphones} style={{color: color}}  size={25}/>,
         }}
       />
-      <BottomTab.Screen
-        name="Gratitude"
-        component={GratitudeScreen}
-        options={{
-          tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faPagelines} style={{color: color}}  size={25}/>,
-        }}
-      />
+      {gratitude}
       <BottomTab.Screen
         name="Document"
         component={DocumentScreen}
@@ -119,12 +140,15 @@ function BottomTabNavigator({ navigation, route, ...props }) {
       />
     </BottomTab.Navigator>
 
+
   );
 }
 export default connect(
   function mapStateToProps(state, ownProps){
     console.log(`toggletab ${state.general.tabExpanded}`)
-      return {tabExpanded: state.general.tabExpanded};
+      return {tabExpanded: state.general.tabExpanded,
+        authenticated: state.general.authenticated
+      };
     }, 
     function mapDispatchToProps(dispatch){
       return {

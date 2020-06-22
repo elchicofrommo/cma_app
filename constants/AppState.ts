@@ -1,11 +1,13 @@
+import { Gratitude } from "../models/index";
+
 export type AppState = {
     name: string| undefined,
     dos: string|undefined,
-    meetings: [string] | [],
+    meetings: string[] | [],
     meetingMap: Map<string, any>,
     
     homegroup: string|undefined,
-    gratitudeLists: [string] | [],
+    gratitudeLists: string[] | [],
     screenName: string|undefined,
     
     authenticated: boolean|undefined,
@@ -27,5 +29,6 @@ export type AppState = {
     password: string|undefined,
     email: string|undefined,
     username: string|undefined
+    gratitude: Gratitude[]|[]
     
   }

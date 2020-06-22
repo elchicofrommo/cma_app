@@ -7,7 +7,7 @@ import {NavigationContainer } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import {  faPlusCircle} from '@fortawesome/free-solid-svg-icons';
-import { EvilIcons, AntDesign } from '@expo/vector-icons';
+import { EvilIcons, AntDesign, Ionicons,FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { connect } from 'react-redux';
 import moment from 'moment'
 import AppBanner from '../components/AppBanner'
@@ -26,7 +26,6 @@ import Layout from '../constants/Layout';
 // assets imported
 import Logo from '../assets/images/LogoComponent'
 import SplashScreen  from './SplashScreen'
-import { Ionicons } from '@expo/vector-icons';
 const GratitudeStack = createStackNavigator();
 const JournalStack = createStackNavigator();
 
@@ -48,11 +47,9 @@ export default function GratitudeScreenStack(){
           },
           headerRight: ()=>{ 
             return (
-              <TouchableOpacity  onPress={() => navigation.navigate('editor')} 
-              style={{width: 34, height: 34, backgroundColor: Colors.primary, borderColor:'#FFF', 
-              borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center',
-              marginRight: 10 * Layout.scale.width}}>
-              <AntDesign icon="pluscircleo" color='yellow' size={22} style={{color: 'white'}}/>
+              <TouchableOpacity  onPress={() => navigation.navigate('editor')} >
+
+                <MaterialCommunityIcons name="feather" color={Colors.primaryContrast} size={22} style={{marginRight: 10 * Layout.scale.width, paddingTop: 4, height: 34, width: 34, borderWidth: 2, borderColor: Colors.primaryContrast, borderRadius: 17, paddingLeft: 4}} />
               </TouchableOpacity>
 
           )},
@@ -189,10 +186,11 @@ function GratitudeScreen({navigation, ...props}) {
         <AppBanner />
         <View style={{ backgroundColor: '#fff', paddingTop: 10 * Layout.scale.width,  paddingHorizontal: 10 * Layout.scale.width, }}>
           <View style={{position: 'relative', zIndex: 1,  flexDirection: 'row', paddingVertical: 0, height: 34, justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#d1d7dd',  borderRadius: 17, }}>
-            <TouchableWithoutFeedback onPress={goToJournal}><Text style={[{position: 'relative', zIndex: 5, flex: 1, textAlign: 'center', color: (isJournal?'black':Colors.primary), }, styles.textField]}>Journal</Text></TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={goToCircle}><Text style={[{position: 'relative', zIndex: 5, flex: 1, textAlign: 'center', color: (isJournal?Colors.primary:'black'), }, styles.textField]}>Circle</Text></TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={goToJournal}><Text style={[{position: 'relative', zIndex: 5, elevation: 4, flex: 1, textAlign: 'center', color: (isJournal?Colors.primary:'black'), }, styles.textField]}>Journal</Text></TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={goToCircle}><Text style={[{position: 'relative', zIndex: 5, elevation: 4, flex: 1, textAlign: 'center', color: (isJournal?'black':Colors.primary), }, styles.textField]}>Circle</Text></TouchableWithoutFeedback>
             <Animated.View style={[{position: 'absolute', zIndex: 3, height: 29, width: '49%', backgroundColor: 'white', top: 2.5, left: 0, borderRadius: 16 ,...shadow,...transform } ]}></Animated.View>
           </View>
+          
         </View>
         <JournalScreenStack />
       <SoberietyTime />
@@ -259,6 +257,28 @@ const styles = StyleSheet.create({
   codeHighlightText: {
     color: 'rgba(96,100,109, 0.8)',
   },
+  headerButton: {
+
+    backgroundColor: Colors.primary, 
+    borderColor:Colors.primaryContrast, 
+    borderWidth: 2, 
+    borderRadius: 17,
+    marginRight: 10 * Layout.scale.width, 
+    marginTop: 0,
+    paddingTop: 0,
+    lineHeight: 0,
+  },
+  plusButton:{
+    backgroundColor: Colors.appRed, 
+    borderColor:Colors.primaryContrast, 
+
+    fontFamily: "opensans",
+    color: Colors.primaryContrast,
+    fontSize: 30 * Layout.scale.width,
+
+
+
+  },  
   icon: {
 
   },

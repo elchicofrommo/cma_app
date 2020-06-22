@@ -43,7 +43,7 @@ function SettingsScreen({general: state, ...props}) {
 
 
     async function signIn(){
-      console.log(`signing in with userName: ${state.email} password: ${state.password}`)
+      console.log(`signing in with email: ${state.email} password: ${state.password}`)
 
       if(!state.email||!state.password){
         setSigninError({display: "flex", message: 'Fields not complete'})

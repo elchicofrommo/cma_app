@@ -17,15 +17,13 @@ import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 
 import moment from 'moment'
-import { TouchableWithoutFeedback, ScrollView } from 'react-native-gesture-handler';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Modal from 'react-native-modal';
 import KeyboardStickyView from "rn-keyboard-sticky-view"
 import { FontAwesome5, Entypo, Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { DataStore, Predicates } from "@aws-amplify/datastore";
-import { Gratitude , GratitudeEntry , GratitudeComment, GratitudeLike } from "../models/index";
+import { Gratitude } from "../models/index";
 import { enableNetworkProviderAsync } from 'expo-location';
-
-
 
 const defaultEntry = {
     date: new Date(),
@@ -36,31 +34,36 @@ const defaultEntry = {
 function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props }) {
 
     const [entryEdit, setEntryEdit] = useState(entry);
-    const [editCount, setEditCount] = useState(0)
-    const defaultRowEntry = {index: -1, text:""}
-    const [rowEdit, setRowEdit] = useState(defaultRowEntry);
-    const textInput = useRef(null);
-    const [keyboardHeight, setKeyboardHeight] = useState(new Animated.Value(-30))
-    const [opacity, setOpacity] = useState(new Animated.Value(0))
 
+    const [rowEdit, setRowEdit] = useState<{index: number, text:string}>();
+    const textInput = useRef(null);
+    const [keyboardHeight, setKeyboardHeight] = useState(new Animated.Value(30))
+    const [opacity, setOpacity] = useState(new Animated.Value(0))
 
     
 
+    React.useLayoutEffect(() => {
+        navigation.setOptions({
+
+          headerLeft: () => <GratitudeSaveButton navigation={navigation} entryEdit={entryEdit}/>,
+        });
+        
+    }, [entryEdit]);
     
     function startEntry(index=-1, text:string=""){
         setRowEdit({index, text});
-        textInput.current.focus();
+
     }
 
     function showKeyboard(event){
         console.log(`showing keyboard height is ${event.endCoordinates.height}`)
 
-            Animated.stagger( event.duration , 
+            Animated.stagger( event.duration /7 * 4, 
                 [Animated.timing(keyboardHeight, {
                     duration: event.duration, 
                     useNativeDriver: true,
                     toValue: - event.endCoordinates.height ,
-                    easing: Easing.inOut(Easing.linear),
+                    easing: Easing.in(Easing.quad),
                 }),
                 Animated.timing(opacity, {
                     duration: event.duration, 
@@ -76,14 +79,14 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
         console.log('hide keybaord')
         if(Platform.OS==='android'){
             props.dispatchShowEditor();
-            setRowEdit(defaultRowEntry)
+            setRowEdit(undefined)
         }else{
             Animated.parallel([
                 Animated.timing(keyboardHeight, {
                     duration: event.duration,
                     useNativeDriver: true, 
-                    toValue: -30,
-                    easing: Easing.inOut(Easing.linear),
+                    toValue: 30,
+                    easing: Easing.in(Easing.quad),
                 }),
                 Animated.timing(opacity, {
                     duration: event.duration/7 * 5, 
@@ -92,7 +95,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
                     easing: Easing.out(Easing.exp),
                 })], {stopTogether: false}
                 )
-            .start(()=>{setRowEdit(defaultRowEntry)})
+            .start(()=>{setRowEdit(undefined)})
         }
         
     }
@@ -129,14 +132,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
 
     function commitEntry(){
         
-        console.log("committing entry")
-        setEditCount((editCount)=>editCount + 1)
         setRowEdit({index: -1, text:""});
-        // if it is -2 then the title is being edited
-        if(rowEdit.index == -2){
-            setEntryEdit((entryEdit)=>{entryEdit.title = rowEdit.text; return entryEdit})
-            return;
-        }
         setEntryEdit(()=>{
             const {date, entries, title} = entryEdit;
             if(rowEdit.index > -1)
@@ -153,7 +149,6 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
     }
 
     function deleteEntry(){
-        setEditCount((editCount)=>editCount + 1)
         setRowEdit({index: -1, text:""});
         setEntryEdit(()=>{
            // entries.delete
@@ -175,7 +170,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
 
     const transform = {
         transform: [{ translateY: keyboardHeight,  }],
-
+        opacity: opacity
     }
 
     let textEntry = undefined;
@@ -184,8 +179,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
     if(Platform.OS === "ios"){
         console.log(`so the platform is ios??`)
         textEntry =                     
-        <Animated.View style={[styles.keyboardEntryContainer, transform]}>
-            <View style={styles.keyboardEntryBorder}>
+        <Animated.View style={[transform, styles.keyboardEntryContainer]}>
             <TextInput
                 ref={textInput}
                 value={rowEdit ? rowEdit.text: ""}
@@ -194,13 +188,13 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
                 style={[styles.keyboardEntry, ] }
                 multiline={true}
                 onChangeText={(value)=>setRowEdit({index: rowEdit.index, text: value})}
-            /></View>
+            />
              <TouchableOpacity style={styles.addEntryButton} onPress={rowEdit &&rowEdit.index > -1?deleteEntry: undefined}>
                 <MaterialCommunityIcons name={"delete-circle"} size={38} color={rowEdit &&rowEdit.index > -1?Colors.primary:'gray'} style={styles.deleteEntryButton}/>
             </TouchableOpacity>  
-            <TouchableOpacity style={styles.addEntryButton} onPress={rowEdit && rowEdit.text != "" ? commitEntry: undefined}>
+            <TouchableOpacity style={styles.addEntryButton} onPress={commitEntry}>
                 
-                <FontAwesome5 name={"arrow-circle-up"} size={32} color={rowEdit && rowEdit.text != "" ? Colors.appBlue: 'gray'} style={styles.addEntryButton}/>
+                <FontAwesome5 name={"arrow-circle-up"} size={32} color={Colors.appBlue} style={styles.addEntryButton}/>
             </TouchableOpacity>
         </Animated.View>
     }else{
@@ -230,21 +224,15 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
         <View style={styles.container}>
 
 
-            <TouchableWithoutFeedback style={styles.title} onPress={()=>startEntry(-2,  entryEdit.title)}>
-                <Text style={[styles.text]}>{entryEdit.title} </Text>
+            <View style={styles.title}>
+                <TextInput style={[styles.text]}>{entryEdit.title}</TextInput>
                 
-            </TouchableWithoutFeedback>
-            
-            <GratitudeList gratitudeData={entryEdit.entries}
-                action={startEntry} editCount={editCount}/>
-            {textEntry}
-           
 
-        </View>
-    )
-}
-/*
- <Modal 
+            </View>
+
+            <GratitudeList gratitudeData={entryEdit.entries}
+                action={startEntry}/>
+            <Modal 
    
                 animationInTiming={1}
                 useNativeDriver={true}
@@ -259,7 +247,6 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
                         setTimeout(()=>textInput.current.focus(), 200)
                         props.dispatchHideEditor();
                     }else{
-                        console.log("focusing on text")
                         textInput.current.focus()
                     }
                 }}
@@ -271,11 +258,15 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
                 style={{margin: 0, justifyContent: 'flex-end' }}>
                     
       
-                    
+                    {textEntry}
 
               
           </Modal>
-*/
+
+        </View>
+    )
+}
+
 GratitudeEditorScreen = connect(
     function mapStateToProps(state, ownProps) {
         console.log(`DetailsScreen connect observed redux change, detail ${state.general.meetingDetail}`)
@@ -316,16 +307,11 @@ GratitudeEditorScreen = connect(
 
 )(GratitudeEditorScreen)
 
-function listCompare(prevProps, nextProps){
-    return prevProps.editCount == nextProps.editCount
-}
 
+function GratitudeList({ gratitudeData, action, style = {} }) {
 
-const GratitudeList = memo(({ gratitudeData, action })=> {
-
-    console.log(`erndering grattitudelist ....`)
   
-    const renderCallback = ({ item, index }, rowMap) => {
+    const renderCallback = useCallback(({ item, index }, rowMap) => {
       //renderBackRow({data, rowMaps, props}),[])
       console.log(`item is :  index is: ${index} rowMap is ${rowMap} `)
       return (
@@ -334,36 +320,18 @@ const GratitudeList = memo(({ gratitudeData, action })=> {
             <Text style={[styles.keyboardEntry]}>{item}</Text>
         </TouchableWithoutFeedback>
       )
-    }
+    }, [])
 
-    const keyExtractor = (item, index) =>{
-        console.log("nre key extractor ")
+    const keyExtractor = useCallback((item, index) =>{
+
         return index
-    }
+    }, [])
 
     return (
-        
         <FlatList
             data={gratitudeData}
             renderItem={renderCallback}
-            keyExtractor={keyExtractor}
-            initialNumToRender={5}
-            keyboardShouldPersistTaps={'always'}
-            onScroll={(event)=>{Keyboard.dismiss()}}
-
-            ListFooterComponent={<TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()} style={{ height: Layout.window.height}}/>}
-            ListEmptyComponent={<Text style={styles.keyboardEntry}>Add your first entry</Text>}
-            contentContainerStyle={styles.gratitudeList} />
-
-
-    )
-  }, listCompare)
-
-
-
-function _GratitudeSaveButton({ navigation, entryEdit, email, ...props }) {
-    
-    async function saveGratitude(){
+            keyExtra
 
         if(entryEdit.entries.length == 0){
             console.log('nothign saved cuz no changes')
@@ -378,34 +346,16 @@ function _GratitudeSaveButton({ navigation, entryEdit, email, ...props }) {
 
     
       try{
-          const gratEntries = new Array<GratitudeEntry>();
-
-          entryEdit.entries.forEach((item, index)=>{
-              const entry = new GratitudeEntry({
-                  index: index, 
-                  content: item,
-                  comments: new Array<GratitudeComment>(),
-                  likes: new Array<GratitudeLike>()
-              })
-
-              entry.likes.push(new GratitudeLike({user: 'mario', created: new Date().getTime()}))
-              gratEntries.push(entry)
-          })
         
-          const comment = new GratitudeComment({user: "Mario", created: new Date().getTime(), text: "comment 1"})
           const grat = new Gratitude({
             email: email,
             title: entryEdit.title,
             time: entryEdit.date.getTime(),
-            entries: gratEntries,
-            comments: new Array<GratitudeComment>()
+            entries: entryEdit.entries
           }) 
-          grat.comments.push(comment);
 
         console.log("saving gratitude 2")
         const result = await DataStore.save(grat)
-        entryEdit.id = result.id;
-        entryEdit
         props.dispatchBanner({message: "Gratitude Saved", status: 'info'})
         props.dispatchAddGratitude(entryEdit)
         
@@ -494,32 +444,18 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         paddingHorizontal: 10 * Layout.scale.width,
         paddingVertical: 3 * Layout.scale.width,
-        borderTopWidth: .3,
-        borderTopColor: 'gray'
-
     },
     keyboardView:{
         alignItems: 'flex-end'
     },
-    keyboardEntryBorder:{
-        borderRadius: 18,
-        borderWidth: 1,
-        borderColor: 'gray',
-        marginRight: 5,
-        marginLeft: -5,
-        paddingHorizontal: 8,
-        paddingVertical: 0,
-        flex: 10,
-    },
     keyboardEntry: {
-        
         flex: 10,
+        
         margin: 0,
         flexWrap: 'wrap',
         fontSize: 18,
         fontFamily: 'opensans',
         paddingBottom: 5,
-
     }
 
 });

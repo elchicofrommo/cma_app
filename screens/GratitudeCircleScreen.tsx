@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import {
     Image, Platform, StyleSheet, Text, TouchableOpacity,
-    TextInput, View, Button, Dimensions, Keyboard, Linking, FlatList
+    TextInput, View, Button, Dimensions, Keyboard, Linking, FlatList, StatusBar
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { connect } from 'react-redux';
@@ -27,12 +27,14 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
     return (
         <View style={styles.container}>
             <AppBanner />
+
             <View style={styles.details}>
 
                 
                 <Text style={[styles.text,styles.sectionHeader]}>Circle SCreen</Text>
 
             </View>
+
 
             
 
