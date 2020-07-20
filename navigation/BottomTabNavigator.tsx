@@ -1,9 +1,9 @@
-import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, View, Animated, Easing, Platform, Keyboard} from 'react-native';
-import { MonoText } from '../components/StyledText';
+
 import Colors from '../constants/Colors'
-import TabBarIcon from '../components/TabBarIcon';
+
 import AudioScreen from '../screens/AudioScreen';
 import DocumentScreen from '../screens/DocumentScreen';
 import GratitudeScreen from '../screens/GratitudeScreen';
@@ -11,13 +11,13 @@ import HomeScreen from '../screens/HomeScreen';
 import MeetingSearchScreen from '../screens/MeetingSearchScreen';
 import { connect } from 'react-redux';
 import MyTabBar from './BottomTabBar';
-
+import log from '../util/Logging'
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = 'Meeting';
+
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faHeadphones, faHome, faBook, faHandsHelping, faChair} from '@fortawesome/free-solid-svg-icons'
+import { faHeadphones, faHome, faBook, faChair} from '@fortawesome/free-solid-svg-icons'
 import { faPagelines} from '@fortawesome/free-brands-svg-icons'
-import { relativeTimeRounding } from 'moment';
+
 
 
 function BottomTabNavigator({ navigation, route, ...props }) {
@@ -25,11 +25,9 @@ function BottomTabNavigator({ navigation, route, ...props }) {
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
 
-  console.log(`rendering BottomTabNavigator`)
+  log.info(`rendering BottomTabNavigator`)
   
-  const [tabHeight, setTabHeight] = useState(
-    new Animated.Value(0),
-  );
+ 
   const [visible, setVisible] = useState(true)
 
   function hideMenu(){
@@ -49,37 +47,11 @@ function BottomTabNavigator({ navigation, route, ...props }) {
       keyboardHide.remove();
     }
   }, [])
-  function show(){
 
-    Animated.timing(tabHeight, {
-      toValue: 0,
-      useNativeDriver: true,
-      duration: 500,
-      easing: Easing.inOut(Easing.sin),
-    }).start();
-  }
 
-  function hide(){
 
-    Animated.timing(tabHeight, {
-      toValue: -100,
-      useNativeDriver: true, 
-      duration: 500,
-    }).start();
-  }
 
-  function toggleTab(){
-    console.log(`toggle tab is ${props.tabExpanded}`)
-    if(props.tabExpanded)
-      show()
-    else
-      hide()
-
-  }
-
-  toggleTab()
-
-    console.log(`tab navigator visibility: ${visible}`)
+    log.info(`tab navigator visibility: ${visible}`)
     const gratitude = props.authenticated ? 
       <BottomTab.Screen name="Gratitude" component={GratitudeScreen}
         options={{
@@ -95,14 +67,16 @@ function BottomTabNavigator({ navigation, route, ...props }) {
       activeTintColor: Colors.primary,
       inactiveTintColor: 'gray',
       showLabel: true,
+
       style: {
         borderTopWidth: 1,
         backgroundColor: 'white',
+
         ...display
       },
       labelStyle:{
-        marginTop: Platform.OS==='ios'?-10: -5,
-        marginBottom: Platform.OS==='ios'?-5: 0,
+
+
       },
       
 
@@ -145,9 +119,9 @@ function BottomTabNavigator({ navigation, route, ...props }) {
 }
 export default connect(
   function mapStateToProps(state, ownProps){
-    console.log(`toggletab ${state.general.tabExpanded}`)
+    log.info(`toggletab ${state.general.tabExpanded}`)
       return {tabExpanded: state.general.tabExpanded,
-        authenticated: state.general.authenticated
+        authenticated: state.general.operatingUser.role != 'guest'
       };
     }, 
     function mapDispatchToProps(dispatch){

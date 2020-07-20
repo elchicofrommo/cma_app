@@ -13,7 +13,7 @@ import axios from 'axios';
 import Colors from '../constants/Colors';
 import SoberietyTime from "../components/SoberietyTime"
 import {LinearGradient} from "expo-linear-gradient"
-
+import log from "../util/Logging"
 const SpeakerStack = createStackNavigator();
 
 import { faPlayCircle, faPauseCircle } from '@fortawesome/free-regular-svg-icons'
@@ -27,14 +27,10 @@ let playerReady = false
 const CLIENT_ID = "?client_id=ort1mNnec7uBq15sMpCNm5oPUYUpu1oV"
 export const streamUrl = (trackUrl) => `${trackUrl}/stream?client_id=${SC_KEY}`;
 
-const {
-  width: SCREEN_WIDTH,
-  height: SCREEN_HEIGHT
-} = Dimensions.get('window')
 import Layout from '../constants/Layout';
 
 export default function SpeakerScreenStack() {
-  console.log(`render AudioScreenStack`)
+  log.info(`render AudioScreenStack`)
   return (
     <SpeakerStack.Navigator>
       <SpeakerStack.Screen
@@ -65,7 +61,7 @@ export default function SpeakerScreenStack() {
 
 const PlayerComponent = memo(({ track, isPlaying, setPlayingTrack }) => {
 
-  console.log(`new PlayerComponent past memo`)
+  log.info(`new PlayerComponent past memo`)
   const [player, setPlayer] = useState();
 
   const duration = moment.duration(track.full_duration)
@@ -89,17 +85,17 @@ const PlayerComponent = memo(({ track, isPlaying, setPlayingTrack }) => {
 
   function playbackStatus(status) {
 
-    console.log(`playbackStatus`)
+    log.info(`playbackStatus`)
   }
 
   function playerCallback() {
-    console.log(`player callback is called for ${url}`)
+    log.info(`player callback is called for ${url}`)
 
     if (player) {
       if (isPlaying) {
         player.pauseAsync().then(
           (result) => {
-            console.log('pausing');
+            log.info('pausing');
             setPlayingTrack(undefined)
           }
         )
@@ -107,7 +103,7 @@ const PlayerComponent = memo(({ track, isPlaying, setPlayingTrack }) => {
       } else {
         player.playAsync().then(
           (result) => {
-            console.log(`restarting track ${track.id}`);
+            log.info(`restarting track ${track.id}`);
             setPlayingTrack(track.id)
           }
         )
@@ -119,22 +115,22 @@ const PlayerComponent = memo(({ track, isPlaying, setPlayingTrack }) => {
     else {
       axios.get(url + CLIENT_ID)
         .then(response => {
-          // console.log(`have playing url ${response.data.url}`)
+          // log.info(`have playing url ${response.data.url}`)
           Audio.Sound.createAsync(
             { uri: response.data.url },
             { shouldPlay: true },
             playbackStatus,
             false
           ).then(({ sound, status }) => {
-            console.log(`playing track ${track.id}`);
+            log.info(`playing track ${track.id}`);
             setPlayer(sound)
             setPlayingTrack(track.id)
           }).catch((err) => {
-            console.log('problem playing the file ' + err)
+            log.info('problem playing the file ' + err)
           })
 
         }).catch(error => {
-          console.log("could not get network resources " + error)
+          log.info("could not get network resources " + error)
         })
     }
 
@@ -182,12 +178,12 @@ function compareStates(prev, next) {
 
 
 function SpeakerScreen(props) {
-  console.log(`rendering SpeakerScreen`)
+  log.info(`rendering SpeakerScreen`)
   const [playingTrack, setPlayingTrack] = useState();
 
 
   const playerComponentWrapper = useCallback(({ item }) => {
-    //console.log(`playingTrack ${playingTrack} and this track is ${item.id}`)
+    //log.info(`playingTrack ${playingTrack} and this track is ${item.id}`)
     return <PlayerComponent track={item} isPlaying={playingTrack == item.id} setPlayingTrack={setPlayingTrack} />
   }, [playingTrack])
   const keyExtractorCallback = useCallback(({ item }) => { return item.track.id }, [])
@@ -221,7 +217,7 @@ function SpeakerScreen(props) {
         maxToRenderPerBatch={10}
         renderItem={playerComponentWrapper} />
 
-      <SoberietyTime></SoberietyTime>
+     
     </View>
   );
 }
@@ -234,11 +230,11 @@ SpeakerScreen = connect(
   function mapDispatchToProps(dispatch, ownState) {
     return {
       dispatchNameChange: (name) => {
-        //    console.log("dispatching name change with input " + name);
+        //    log.info("dispatching name change with input " + name);
         dispatch({ type: "NAME_CHANGE", name })
       },
       dispatchDosChange: (date) => {
-        //   console.log(`dispatching dos change ${date}`)
+        //   log.info(`dispatching dos change ${date}`)
         dispatch({ type: 'DOS_CHANGE', date })
       }
 

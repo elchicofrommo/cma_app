@@ -15,6 +15,9 @@ import { SwipeListView } from 'react-native-swipe-list-view';
 import AppBanner from '../components/AppBanner'
 import {MeetingList, sortMeetings} from './MeetingSearchScreen'
 import {DetailsScreen,  DetailTransition, } from './MeetingDetailsScreen'
+import {store} from '../components/store'
+import Logo from '../assets/images/GreenLogo'
+//import appLog from '../util/Logging'
 
 // Screens imported
 import SoberietyTime from '../components/SoberietyTime'
@@ -27,7 +30,7 @@ import DailyReading from '../components/DailyReading';
 
 function openMap(lat, long, label){
   const androidLabel =  encodeURIComponent(`(${label})`)
- // console.log(`open map to ${lat} ${long} name: ${androidLabel}`)
+ // appLog.info(`open map to ${lat} ${long} name: ${androidLabel}`)
   const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
   const latLng = `${lat},${long}`;
 
@@ -41,13 +44,12 @@ function openMap(lat, long, label){
 }
 
 // assets imported
-import Logo from '../assets/images/LogoComponent'
 import SplashScreen  from './SplashScreen'
 import { Ionicons } from '@expo/vector-icons';
 const HomeStack = createStackNavigator();
 
 export default function HomeScreenStack(){
-  console.log(`rendering hoemscren stack`)
+
   return (
     <HomeStack.Navigator >
       <HomeStack.Screen 
@@ -60,7 +62,7 @@ export default function HomeScreenStack(){
             backgroundColor: Colors.primary,
           },
           headerLeft: ()=>{
-            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * Layout.scale.width, paddingLeft: 10* Layout.scale.width}}>Crystal Meth Anonymous</Text>
+            return <Text style={{color: 'white', fontFamily: 'opensans', fontSize:  21 * Layout.scale.width, paddingLeft: 10* Layout.scale.width}}>Home</Text>
           },
 
           headerTintColor: '#fff',
@@ -72,7 +74,12 @@ export default function HomeScreenStack(){
           },
           headerRight: ()=>{ 
             return (
-              <TouchableOpacity  onPress={() => navigation.navigate('Settings')} 
+              <TouchableOpacity  onPress={
+                
+                () => {
+                  navigation.navigate('Settings')
+                }
+              } 
               style={{width: 34, height: 34, backgroundColor: Colors.primary, borderColor:'#FFF', 
               borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center',
               marginRight: 10 * Layout.scale.width}}>
@@ -83,45 +90,7 @@ export default function HomeScreenStack(){
 
         })}
         />
-      <HomeStack.Screen
-        name="Settings"
-        component={SettingsScreen} 
-        title="Settings"
-        
-        options={({navigation, route})=>({
-          headerStyle: {
-            backgroundColor: 'white',
 
-          },
-
-          headerTintColor: Colors.primary,
-          
-
-          headerTitleStyle: {
-            fontFamily: 'opensans-bold',
-            fontSize:  18 * Layout.scale.width,
-          },
-        })}/>
-      <HomeStack.Screen
-        name="Details"
-        component={DetailsScreen}
-
-        options={({ navigation, route }) => ({
-
-          headerStyle: {
-            backgroundColor: '#FFF',
-
-          },
-          title: '',
-          headerTintColor: Colors.primary,
-          headerTitleStyle: {
-            fontFamily: 'opensans-bold',
-            fontSize: 18 * Layout.scale.width,
-          },
-
-
-        })} />
-      
     </HomeStack.Navigator>
   )
 }
@@ -140,7 +109,6 @@ function CustomButton({icon, callback, ...rest}){
 
 function HomeScreen({navigation, ...props}) {
 
-  console.log(`rendering homescreen`)
   if(!props.dailyReaders)
     return <Text>Stil Loading</Text>
 
@@ -176,7 +144,7 @@ function HomeScreen({navigation, ...props}) {
   
 
         </View>
-      <SoberietyTime />
+
     </View>
   );
 }
@@ -191,10 +159,10 @@ HomeScreen = connect(
       function mapDispatchToProps(dispatch){
         return {
           testFunction: (testInput) => {
-            console.log("dispatching test function with input " + testInput)
+        //    appLog.info("dispatching test function with input " + testInput)
           },
           dispatchRemoveMeeting: (data) => {
-            console.log("dispatching remove meeting " + JSON.stringify(data))
+         //   appLog.info("dispatching remove meeting ", {removeData: data})
             dispatch({type: "REMOVE_MEETING", data})
           }
         }

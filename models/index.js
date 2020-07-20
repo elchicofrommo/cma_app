@@ -4,17 +4,18 @@ import { schema } from './schema';
 
 
 
-const { Blog, Post, Comment, AuthDetail, Preferences, Meetings, GratitudeComment, GratitudeLike, GratitudeEntry, Gratitude } = initSchema(schema);
+const {  AuthDetail, Preferences, Meetings, GratitudeComment, GratitudeEntry, Gratitude, GratitudeLike, Person, Address, DailyReaders } = initSchema(schema);
 
 export {
-  Blog,
-  Post,
-  Comment,
+
+  DailyReaders,
   AuthDetail,
   Preferences,
   Meetings,
   GratitudeComment,
-  GratitudeLike,
   GratitudeEntry,
-  Gratitude
+  Gratitude,
+  GratitudeLike,
+  Person,
+  Address
 };

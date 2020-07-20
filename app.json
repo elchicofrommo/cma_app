@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "cma app beta 0.3.1",
-    "slug": "cma-app-beta-03-1",
+    "name": "cma app beta 3.1",
+    "slug": "cma-app-beta3-1",
     "platforms": [
       "ios",
       "android",
@@ -12,9 +12,8 @@
     "icon": "./assets/images/icon.png",
     "scheme": "cmaapp",
     "splash": {
-      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#e44f2e"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -28,7 +27,7 @@
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
-    "description": "Second UX design with page headers shifted, sub menu button put on right, and a sans serif font. ",
+    "description": "Light integration with backend appsync",
     "androidStatusBar": {
       "backgroundColor": "#000000"
     }

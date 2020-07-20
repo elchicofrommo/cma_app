@@ -10,9 +10,9 @@ import { faPlusCircle, faMinusCircle, faDirections } from '@fortawesome/free-sol
 import Layout from '../constants/Layout';
 import { useFocusEffect } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
-
+import log from '../util/Logging'
 const GratitudeEditorMenu = (props) => {
-    console.log(`render DetailsMenu `)
+    log.info(`render DetailsMenu `)
     const [offset, setOffset] = useState(new Animated.Value(104))
     
     const [visible, setVisible] = useState(true)
@@ -36,7 +36,7 @@ const GratitudeEditorMenu = (props) => {
     }, [])
 
    if (props.showEditor) {
-        console.log(`going to 0`)
+        log.info(`going to 0`)
         Animated.timing(offset, {
             toValue: 0,
             useNativeDriver: true,
@@ -44,7 +44,7 @@ const GratitudeEditorMenu = (props) => {
             easing: Easing.inOut(Easing.sin),
         }).start();
     } else {
-        console.log(`going to 100`)
+        log.info(`going to 100`)
         Animated.timing(offset, {
             toValue: 104,
             useNativeDriver: true,
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
 
 export default connect(
     function mapStateToProps(state, ownProps) {
-        console.log(`GratitudeEditorMenu connect observed redux change, detail ${state.general.meetingDetail}`)
+        log.info(`GratitudeEditorMenu connect observed redux change, detail ${state.general.meetingDetail}`)
 
         return {
             showEditor: state.general.showEditor,
@@ -122,7 +122,7 @@ export default connect(
     function mapDispatchToProps(dispatch) {
         return {
             dispatchAddMeeting: (data) => {
-                console.log("dispatching add gratitude entry " + data)
+                log.info("dispatching add gratitude entry " + data)
                 dispatch({ type: "ADD_ENTRY", data })
             },
 

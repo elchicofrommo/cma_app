@@ -7,7 +7,7 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import { connect } from 'react-redux';
 import AppBanner from '../components/AppBanner'
-
+import log from "../util/Logging"
 import MeetingDetailMenu from '../navigation/MeetingDetailMenu'
 import { useFocusEffect } from '@react-navigation/native';
 import { HeaderStyleInterpolators, HeaderBackButton } from '@react-navigation/stack';
@@ -16,11 +16,12 @@ import { faCertificate } from '@fortawesome/free-solid-svg-icons';
 
 import Colors from '../constants/Colors';
 import Layout from "../constants/Layout"
+import {Meeting} from '../types/gratitude'
 
 function DetailsScreen({ route, navigation, ...props }) {
-    console.log(`rendering DetailsScreen route is ${route.params} `)
+    log.info(`rendering DetailsScreen route is ${route.params} `)
 
-    const meeting = route.params;
+    const meeting:Meeting = route.params;
 
     let moreDetails = undefined
     const types = [];
@@ -38,7 +39,7 @@ function DetailsScreen({ route, navigation, ...props }) {
     if(route.params.extra){
         const myurl = route.params.extra.match(/https?:\/\/\S+/g)
         const remainder = route.params.extra.replace(/https?:\/\/\S+/g, "")
-        console.log(`links is ###${myurl}###`)
+        log.info(`links is ###${myurl}###`)
         moreDetails = 
             <View>
                 <Text style={[styles.text, styles.sectionHeader]}>Additional Details</Text>
@@ -47,11 +48,11 @@ function DetailsScreen({ route, navigation, ...props }) {
                     () => {
 
                         Linking.canOpenURL(myurl +"").then(supported => {
-                            console.log(`seems I should be able to open this url ${JSON.stringify(myurl)}`)
+                            log.info(`seems I should be able to open this url` , {myurl})
                             if (supported) {
                             Linking.openURL(myurl +"");
                             } else {
-                            console.log('Don\'t know how to open URI: ' + myurl);
+                            log.info('Don\'t know how to open URI: ' + myurl);
                             }
                         });
 
@@ -63,15 +64,12 @@ function DetailsScreen({ route, navigation, ...props }) {
     
     const mapPlaceholder = <View style={styles.mapStyle}></View>
     const [mapComponent, setMapComponent] = useState(mapPlaceholder)
-    useEffect((param) => {
-        props.dispatchRegisterSubmenu({ submenu: <MeetingDetailMenu key={'meetingSubmenu'} />, name: "detail" })
 
-    }, [])
 
     useEffect((param) => {
-        console.log(`change to route prams, now building meeting map`)
+        log.info(`change to route prams, now building meeting map`)
         if (Platform.OS == 'ios') {
-            console.log('building map component for ios')
+            log.info('building map component for ios')
             buildMapComponent()
         }
         else {
@@ -84,8 +82,8 @@ function DetailsScreen({ route, navigation, ...props }) {
     const buildMapComponent = useCallback(() => {
         setMapComponent(<MapView style={styles.mapStyle} liteMode={true}
             initialRegion={{
-                latitude: meeting.location.coordinates[1],
-                longitude: meeting.location.coordinates[0],
+                latitude: meeting.location.lat,
+                longitude: meeting.location.long,
                 latitudeDelta: 0.01022,
                 longitudeDelta: 0.00921,
             }}  >
@@ -95,22 +93,22 @@ function DetailsScreen({ route, navigation, ...props }) {
 
     useFocusEffect(() => {
 
-        console.log('focus into details screen ')
+        log.info('focus into details screen ')
         try {
             props.dispatchShowDetail(route.params);
 
         } catch (e) {
-            console.log(`could not dispatch because of ${e}`)
+            log.info(`could not dispatch because of ${e}`)
         }
-        //  meetingMap =  
+
 
 
 
     }, [route.params])
 
     const latlong = {
-        latitude: meeting.location.coordinates[1],
-        longitude: meeting.location.coordinates[0],
+        latitude: meeting.location.lat,
+        longitude: meeting.location.long,
     }
     const badge = meeting.paid && <FontAwesomeIcon icon={faCertificate} style={styles.badge}  size={20}/> 
     const meetingSignup = meeting.paid || <Text style={[styles.text, {paddingTop: 5* Layout.scale.width}]}>
@@ -127,7 +125,7 @@ function DetailsScreen({ route, navigation, ...props }) {
                     <Text style={[styles.text, styles.title]}>{meeting.name}</Text>
                     {badge}
                 </View>
-                <Text style={[styles.text,{fontSize: 15 * Layout.scale.width}]}>{meeting.weekday + " " + meeting.start_time}</Text>
+                <Text style={[styles.text,{fontSize: 15 * Layout.scale.width}]}>{meeting.weekday + " " + meeting.startTime}</Text>
                 <Text style={[styles.text,styles.sectionHeader]}>Meeting Type</Text>
                 <View style={styles.typesContainer}>{types}</View>
                 {moreDetails}
@@ -142,7 +140,7 @@ function DetailsScreen({ route, navigation, ...props }) {
                 {mapComponent}
             </View>
             
-
+            <MeetingDetailMenu key={'meetingSubmenu'} />
         </View>
     )
 }
@@ -203,7 +201,7 @@ const styles = StyleSheet.create({
 
 DetailsScreen = connect(
     function mapStateToProps(state, ownProps) {
-        console.log(`DetailsScreen connect observed redux change, detail ${state.general.meetingDetail}`)
+        log.info(`DetailsScreen connect observed redux change, detail ${state.general.meetingDetail}`)
 
         return {
 
@@ -215,22 +213,19 @@ DetailsScreen = connect(
             dispatchShowDetail: (data) => {
                 dispatch(async (d1) => {
                     return new Promise(resolve => {
-                        console.log(`step 1`);
+                        log.info(`step 1`);
                         dispatch({ type: "SET_DETAIL", meetingDetail: data })
-                        console.log(`step 3`);
+                        log.info(`step 3`);
                         dispatch({ type: "SHOW_DETAIL" })
                         resolve();
                     })
                 })
             },
             dispatchSetDetail: (data) => {
-                console.log(`set detail data is `)
+                log.info(`set detail data is `)
                 dispatch({ type: "SET_DETAIL", meetingDetail: data })
             },
-            dispatchRegisterSubmenu: (data) => {
-                console.log("registering gratitude submenu")
-                dispatch({ type: "REGISTER_SUBMENU", data })
-            }
+
 
         }
     },
@@ -255,9 +250,9 @@ const DetailTransition = {
     ,
     headerStyleInterpolator: HeaderStyleInterpolators.forFade,
     cardStyleInterpolator: ({ current, next, ...props }) => {
-        console.log(`XXXXXX Detail transition, current is ${JSON.stringify(current)} next is ${JSON.stringify(next)} closing is ${JSON.stringify(props)}`)
+        log.info(`Detail transition, `, {current, next})
         if (!next) {
-            console.log('creating transition for the details card?')
+            log.info('creating transition for the details card?')
             return {
 
                 cardStyle: {
@@ -309,10 +304,10 @@ DetailsBackButton = connect(
             dispatchHideDetail: (data) => {
                 dispatch(async (d1) => {
                     return new Promise(resolve => {
-                        console.log(`dispatch hide hide detail step 1`);
+                        log.info(`dispatch hide hide detail step 1`);
                         dispatch({ type: "HIDE_DETAIL" })
 
-                        console.log(`step 2`)
+                        log.info(`step 2`)
                         dispatch({ type: "SHOW_MENU" })
                         resolve();
 
@@ -323,4 +318,4 @@ DetailsBackButton = connect(
     })(DetailsBackButton)
 
 
-export { DetailsScreen, DetailsBackButton, DetailTransition }
+export { DetailsScreen }

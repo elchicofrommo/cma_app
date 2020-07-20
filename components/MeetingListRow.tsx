@@ -9,27 +9,28 @@ import { faCertificate } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment'
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
+import {Meeting} from '../types/gratitude'
 
 function shouldUpdateMainRow(prev, next) {
-    return prev.meeting._id == next.meeting._id &&
+    return prev.meeting.id == next.meeting.id &&
         prev.saved == next.saved
 }
 
 
 
-const MeetingListRow = memo(({ meeting, saved, action}) => {
+const MeetingListRow = memo(( { meeting , saved, action}:{meeting: Meeting, saved:any, action:any} ) => {
 
     const badge = meeting.paid ? <FontAwesomeIcon icon={faCertificate} style={styles.badge}  size={15}/> : undefined
     console.log("render MeetingComponent is saved " + saved)
     let meetingName = meeting.name.substring(0, Math.floor(20 * Layout.scale.width ))
     let day = moment().day(meeting.weekday).format('ddd').toLocaleUpperCase();
-    let time = meeting.start_time.replace(/[\sm]/gi, "")
+    let time = meeting.startTime.replace(/[\sm]/gi, "")
     if(meetingName.length < meeting.name.length)
         meetingName += "..."
     // object is [{name, active, category, start_time (as string), weekday, street, city,state, zip, dist.calculated}
     return (
 
-        <TouchableOpacity  key={meeting._id} 
+        <TouchableOpacity  key={meeting.id} 
             
             onPress={(event) => {
                 
@@ -51,7 +52,7 @@ const MeetingListRow = memo(({ meeting, saved, action}) => {
                     <Text style={[styles.title, {fontFamily: 'opensans-bold',  fontSize: 14 * Layout.scale.width, fontWeight: 'bold' }]}>{meetingName}</Text>
                 </View>
                 <View style={{flex: 2, paddingRight: 10 * Layout.scale.width, alignItems: 'flex-start', justifyContent: 'center'}}>
-                    <Text style={styles.title}>{(meeting.dist.calculated / 1609).toFixed(2)} miles</Text>
+                    <Text style={styles.title}>{meeting.distance? (meeting.distance/ 1609).toFixed(2) + " miles": ""} </Text>
                 </View>
                 
                 

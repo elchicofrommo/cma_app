@@ -9,7 +9,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import { connect } from 'react-redux';
 import DocumentBrowserScreen from './DocumentBrowserScreen'
 import Colors from '../constants/Colors';
-
+import log from "../util/Logging"
 const DocumentStack = createStackNavigator();
 const {
   width: SCREEN_WIDTH, 
@@ -25,7 +25,7 @@ export default connect(
     function mapDispatchToProps(dispatch){
       return {
         testFunction: (testInput) => {
-          console.log("dispatching test function with input " + testInput)
+          log.info("dispatching test function with input " + testInput)
         }
       }
     }
@@ -33,7 +33,7 @@ export default connect(
 
 function DocumentScreenStack(props){
   const {formats, pamphlet, readings} = props.documents;
-  console.log(`rendering document screenstack`)
+  log.info(`rendering document screenstack`)
   const FormatWrapper = ({ navigation, route }) => (
     <DocumentBrowserScreen path="https://cma-northamerica.s3-us-west-1.amazonaws.com/documents/formats/" fileNames={formats} />
   );
@@ -111,7 +111,7 @@ function DocumentScreenStack(props){
 }
 
 function DocumentScreen({navigation, ...props}) {
-  console.log(`rendering documentscreen`)
+  log.info(`rendering documentscreen`)
   return (
     <View style={styles.container}>
 
@@ -134,7 +134,6 @@ function DocumentScreen({navigation, ...props}) {
         isLastOption
       />
 
-      <SoberietyTime/>
     </View>
     
   );

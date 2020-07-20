@@ -2,26 +2,32 @@ import { combineReducers } from 'redux';
 import NowPlaying from './NowPlayingReducer'
 
 import { DataStore, Predicates } from "@aws-amplify/datastore";
-import { Preferences, AuthDetail, Meetings, Gratitude ,
-  GratitudeEntry as GratitudeEntryModel, GratitudeComment} from "../models/index";
+import { Preferences, AuthDetail} from "../models/index";
 
 import {AppState} from "../constants/AppState";
+import {User, Gratitude, Broadcast, Entry, Comment, Like} from '../types/gratitude'
+import log from '../util/Logging'
 
+const GUEST_USER = {
+  role: "guest",
+  name: "",
+  shortId: "none",
+  email: "",
+  meetingIds: []
+}
 
 const INITIAL_STATE: AppState = {
-  name: undefined,
-  dos: undefined,
+  operatingUser: GUEST_USER, 
+  gratitudes: [],
+  broadcastsByChannel: new Map<string, Broadcast[]>(),
+  ownedChannels: [],
+  userChannels: [],
   meetings: [],
-  meetingMap: new Map(),
   homegroup: undefined,
-  gratitudeLists: [],
-  screenName: undefined,
-  authenticated: false,
   meetingDetail: undefined,
   showDetail: false,
   showEditor: false, 
   showMenu: true,
-  role: 'basic',
   soundCloudDetails: undefined,
   soundCloudTracks: undefined,
   paths: undefined,
@@ -29,87 +35,192 @@ const INITIAL_STATE: AppState = {
   readerDate: undefined,
   banner: undefined,
   soberietyFormat: 0,
-
-  password: undefined,
-  email: undefined,
-  username: undefined,
   submenus: {},
-  gratitude: []
+
 };
 
 function logState(state){
-//  console.log(`GR: state is:${JSON.stringify(state, null, 2)} \n`)
+//  log.info(`GR: state is:${JSON.stringify(state, null, 2)} \n`)
 }
 const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
-  console.log(`in general reducer action observed:${action.type} \n`)
+  log.info(`in general reducer action observed:${action.type}`)
   let newState : AppState = {...state};
 
-  console.log(`checking equality name: ${newState.name === state.name}`)
   switch (action.type) {
-    case "AUTHENTICATE":
-      newState.authenticated = true;
+
+    case "CREATE_CHANNEL":
+      newState.ownedChannels = [...newState.ownedChannels]
+      newState.ownedChannels.push(action.data.ownedChannel);
+      newState.userChannels = [...newState.userChannels];
+      newState.userChannels.push(action.data.subscribedChannel)
+      let map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
+      map.set(action.data.ownedChannel.id, [])
+      newState.broadcastsByChannel = map;
       return newState;
+      break;
+
+    case "SUBSCRIBE_CHANNEL": {
+      log.info(`subscribe channel data is ${JSON.stringify(action.data)}`)
+      newState.userChannels = [...newState.userChannels];
+      newState.userChannels.push(action.data)
+      let map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
+      map.set(action.data.channelId, [])
+      newState.broadcastsByChannel = map;
+
+      return newState;
+      break;
+    }
     case "SET_BANNER":
-      console.log(`set banner data is ${JSON.stringify(action)}`)
+    //  log.info(`set banner data is `, {action})
       newState.banner = action.banner
-      console.log(`banner is now  ${JSON.stringify(newState.banner)}`)
+    //  log.info(`banner is now  ${JSON.stringify(newState.banner)}`)
       return newState;
     case "SET_SOBERIETY_FORMAT":
       newState.soberietyFormat = action.data;
       return newState
-    case "ADD_GRATITUDE":
-      console.log(`adding gratitude, data is ${JSON.stringify(action.data, null, 2)}`)
-      const list: Gratitude[] = [...newState.gratitude];
-  
-      list.unshift(action.data)
-      newState.gratitude = list;
-      return newState;
-    case "SAVE_AUTH":
 
-      newState.username = action.data
-      newState.authenticated = true
-      saveAuth(newState);
-      return newState;
       
-    case "AUTHORIZE":
-      newState.role = action.data;
-      return newState
+    case "ADD_OWNED_CHANNEL": {
+      const ownedChannels = [...newState.ownedChannels]
+      ownedChannels.push(action.ownedChannel)
+      const userChannels = [...newState.userChannels]
+      userChannels.push(action.subscribedChannel);
+
+      let map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
+      map.set(action.ownedChannel.id, [])
+      newState.broadcastsByChannel = map;
+
+      newState.ownedChannels = ownedChannels
+      newState.userChannels = userChannels;
+      return newState;
+    }
+    case "SAVE_AUTH":
+      log.info(`SAVE_AUTH`,  {data: action.data})
+      newState.email = action.data.email
+      newState.password = action.data.password
+      newState.operatingUser = action.data.operatingUser
+      newState.gratitudes = action.data.gratitudes
+      newState.ownedChannels = action.data.ownedChannels
+      newState.userChannels = action.data.userChannels
+      newState.broadcastsByChannel = action.data.broadcastsByChannel
+      saveAuth(newState);
+    //  log.info(`saved auth with the followign: ${JSON.stringify(action.data, null, 2)}`)
+      return newState;
+
+    case "UPDATE_OPERATING_USER":
+      newState.operatingUser = action.data
+      return newState;
 
     case "SET_DETAIL":
       const {toggle, ...meetingDetail} = action.meetingDetail;
       newState.meetingDetail = meetingDetail
 
-      console.log('just returning new state but same objects')
+      log.info('just returning new state but same objects')
       return newState;
 
       
 
     case "SHOW_DETAIL":
-      console.log(`in show detail, old: ${state.showDetail}`)
+      log.info(`in show detail, old: ${state.showDetail}`)
       newState.showDetail = true
       return newState;
     case "HIDE_DETAIL":
-      console.log(`in show detail, old: ${state.showDetail}`)
+      log.info(`in show detail, old: ${state.showDetail}`)
       newState.showDetail = false
       return newState;
     
     case "SHOW_EDITOR":
-        console.log(`in show menu, old: ${state.showEditor}`)
-        newState.showMenu = false
+        log.info(`in show menu, old: ${state.showEditor}`)
+
+        return newState;
+
+
+    case "ADD_BROADCAST":{
+      log.info(`adding BROADCAST, data is ${JSON.stringify(action.broadcast, null, 2)}`)
+      if(action.broadcast.gratitude.userId === newState.operatingUser.id){
+        log.info(`observed broadcast event for message I own, so throwing it away `)
+        return state;
+      }
+      let map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
+      let broadcasts: Broadcast[] = map.get(action.broadcast.channelId);
+      broadcasts.unshift(action.broadcast);
+      map.set(action.broadcast.channelId, broadcasts)
+      newState.broadcastsByChannel = map;
+      return newState;
+    }
+
+    case "UPDATE_BROADCAST": {
+      if(action.broadcast.ownerId === newState.operatingUser.id){
+        log.info(`observed broadcast event for message I own, so throwing it away `)
+        return state;
+      }
+      log.info(`adding BROADCAST, data is ${JSON.stringify(action.broadcast, null, 2)}`)
+      let map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
+      let broadcasts: Broadcast[] = [...map.get(action.broadcast.channelId)];
+      broadcasts = broadcasts.map(broadcast=>{
+        return broadcast.id==action.broadcast.id ? action.broadcast: broadcast
+      })
+      map.set(action.broadcast.channelId, broadcasts)
+      newState.broadcastsByChannel = map;
+      return newState;
+    }
+    case "DELETE_BROADCAST": {
+      if(action.broadcast.gratitude.userId === newState.operatingUser.id){
+        log.info(`observed broadcast event for message I own, so throwing it away `)
+        return state;
+      }
+      const map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
+      let broadcasts: Broadcast[] = map.get(action.broadcast.channelId);
+      broadcasts = broadcasts.filter(broadcast=>broadcast.id!==action.broadcast.id)
+      map.set(action.broadcast, broadcasts);
+      return newState;
+    }
+      
+/*
+    case "DELETE_BROADCAST":
+        const gratitudes = newState.gratitudes.filter(gratitude=>gratitude.id != action.gratitude.id)
+        newState.gratitudes = gratitudes;
+        return newState;
+    case "UPDATE_BROADCAST":
+        log.info(`updating BROADCAST is ${JSON.stringify(action.gratitude, null, 2)}`)
+        let updateGratitudes: Gratitude[] = [...newState.gratitudes];
+        updateGratitudes = newState.gratitudes.filter(gratitude=>gratitude.id != action.gratitude.id)
+        updateGratitudes.unshift(action.gratitude)
+        newState.gratitudes = updateGratitudes;
+        return newState;
+*/
+    case "ADD_GRATITUDE":
+      log.info(`adding gratitude, data is ${JSON.stringify(action.gratitude, null, 2)}`)
+      const addGratList: Gratitude[] = [...newState.gratitudes];
+  
+      addGratList.unshift(action.gratitude)
+      newState.gratitudes = addGratList;
+      return newState;
+
+    case "DELETE_GRATITUDE":
+        const gratitudes = newState.gratitudes.filter(gratitude=>gratitude.id != action.gratitude.id)
+        newState.gratitudes = gratitudes;
+        return newState;
+    case "UPDATE_GRATITUDE":
+        log.info(`updating gratitude is ${JSON.stringify(action.gratitude, null, 2)}`)
+        let updateGratitudes: Gratitude[] = [...newState.gratitudes];
+        updateGratitudes = newState.gratitudes.filter(gratitude=>gratitude.id != action.gratitude.id)
+        updateGratitudes.unshift(action.gratitude)
+        newState.gratitudes = updateGratitudes;
         return newState;
 
     case "HIDE_EDITOR":
-      console.log(`in show detail, old: ${state.showEditor}`)
-      newState.showMenu = true
+      log.info(`in show detail, old: ${state.showEditor}`)
+
       return newState;
     
     case "SHOW_MENU":
-        console.log(`in show menu, old: ${state.showMenu}`)
+        log.info(`in show menu, old: ${state.showMenu}`)
         newState.showMenu = true
         return newState;
     
     case "HIDE_MENU":
-      console.log(`in hide menu, old: ${state.showMenu}`)
+      log.info(`in hide menu, old: ${state.showMenu}`)
       newState.showMenu = false
       return newState;
 
@@ -122,28 +233,24 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       const add = [...newState.meetings];
       add.push(action.data)
       newState.meetings = add;
-      newState.meetingMap = new Map(newState.meetingMap);
       
-      newState.meetingMap.set(action.data._id, action.data);
+      const addClone: User = {...newState.operatingUser}
+      addClone.meetingIds = action.meetingIds
+      newState.operatingUser = addClone
 
-      //console.log(`adding entry with id to meetings ${action.data._id} has is ${newState.meetingMap.has(action.data_id)}`)
-      saveMeetings(newState);
       return newState;
     
     case "REMOVE_MEETING":
       const remove = [...newState.meetings];
-     // console.log(`in before remove meeting size is ${remove.length}`)
-      
-     
-      newState.meetings = remove.filter((entry)=> {
-       // console.log(`entry is ${entry._id}`)
 
-        return entry._id != action.data._id;
+      newState.meetings = remove.filter((entry)=> {
+
+        return entry.id != action.data.id;
       });
-    //  console.log(`in after remove meeting size is ${newState.meetings.length}`)
-      newState.meetingMap = new Map(newState.meetingMap);
-      newState.meetingMap.delete(action.data._id)
-      saveMeetings(newState);
+
+      let removeClone = {...newState.operatingUser}
+      removeClone.meetingIds = action.meetingIds
+      newState.operatingUser = removeClone
       return newState;
       
     case "SIGN_OUT":
@@ -151,7 +258,8 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       newState.dailyReaders = state.dailyReaders;
       newState.soundCloudDetails = state.soundCloudDetails;
       newState.soundCloudTracks = state.soundCloudTracks;
-      resetDataStore();
+      newState.paths = state.paths;
+      saveAuth(newState)
       return newState;
 
 
@@ -165,29 +273,12 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       return syncAuthWithDS(newState, action.data)
 
     case "SYNC_MEETINGS":
-      return syncMeetingsWithDS(newState, action.data)
+      return syncMeetings(newState, action.data)
 
     case "SYNC_GRATITUDE":
       return syncGratitudeWithDS(newState, action.data )
 
-    case "NAME_CHANGE":
-      newState.name = action.name;
-      //logState(newState)
-      return newState;
-    case "PASSWORD_CHANGE":
-        newState.password = action.data;
-        //logState(newState)
-        return newState;
-    case "EMAIL_CHANGE":
-      newState.email = action.data;
-      return newState;
-    case "SCREEN_NAME_CHANGE":
-      newState.screenName = action.data;
-      return newState;
-    case "DOS_CHANGE":
-      newState.dos = action.date;
-     // logState(newState)
-      return newState;
+
     case "NETWORK_DATA":
       newState.paths = action.data;
      // logState(newState)
@@ -200,7 +291,7 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       newState.readerDate = action.data;
       return newState;
     case "SOUNDCLOUD_DETAILS":
-      newState.soundCloudDetails = action.data;
+      newState.soundCloudDetails = action.data ;
       return newState;
     case "SOUNDCLOUD_TRACKS":
       newState.soundCloudTracks = action.data;
@@ -215,7 +306,7 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
 
 async function resetDataStore(){
 
- // console.log("Here in resetDataStore")
+ // log.info("Here in resetDataStore")
   const prefDelete = await DataStore.clear()
 
   
@@ -224,7 +315,7 @@ async function resetDataStore(){
 function syncGratitudeWithDS(state, gratitudes: Gratitude[]){
   const list = new Array<Gratitude>();
   /*gratitudes.forEach((gratitude)=>{
-    console.log(`syncing with DS, ${JSON.stringify(gratitude)} start by pulling out entries and comments`)
+    log.info(`syncing with DS, ${JSON.stringify(gratitude)} start by pulling out entries and comments`)
 
     const entries = new Array<GratitudeEntry>()
 
@@ -237,34 +328,23 @@ function syncGratitudeWithDS(state, gratitudes: Gratitude[]){
     }
     list.push(grat)
   }) */
-  state.gratitude = list
+  state.gratitude = gratitudes
 
-  console.log(`finished syncing gratitude, here are the results: ${JSON.stringify(list, null, 2)}`)
+ // log.info(`finished syncing gratitude, here are the results: ${JSON.stringify(gratitudes, null, 2)}`)
   return state;
 }
 
 function syncPrefWithDS(state, datastore){
-  state.screenName = datastore.screenName;
   state.dos = datastore.soberietyDate;
   state.name = datastore.name;
 
   return state;
 }
 
-function syncMeetingsWithDS(state, datastore){
+function syncMeetings(state, meetingList){
 
-  const newMeetings = [];
-  const meetingMap = new Map();
-  datastore.meetings.forEach((entry)=>{
-    console.log(`syncing with DS, ${JSON.stringify(entry)}`)
-    const meeting = JSON.parse(entry);
-    newMeetings.push(meeting);
-    meetingMap.set(meeting._id, meeting)
-  })
-
-  state.meetings = newMeetings;
-  state.meetingMap = meetingMap;
-  //console.log(` datastore ${JSON.stringify(datastore)}`)
+  state.meetings = meetingList;
+  //log.info(` datastore `, {datastore})
   return state;
 }
 
@@ -272,7 +352,7 @@ function syncAuthWithDS(state, datastore){
   state.email = datastore.email;
   state.password = datastore.password; 
   state.username = datastore.username;
- // console.log(`datastore auth synced ${JSON.stringify(state)}`)
+ // log.info(`datastore auth synced `, {state})
   return state;
 }
 
@@ -280,59 +360,58 @@ function syncAuthWithDS(state, datastore){
 
 async function saveAuth(state){
 
- // console.log("Here in saveAuth")
+ // log.info("Here in saveAuth")
   const original = await DataStore.query(AuthDetail);
   let auth = undefined;
   if(original.length>0){
     auth = AuthDetail.copyOf(original[0], updated => {
       updated.email= state.email, 
-      updated.password= state.password,
-      updated.username=state.username
+      updated.password= state.password
+
     })
   }else{
     auth = new AuthDetail({
       email: state.email, 
       password: state.password,
-      username: state.username
     })
   }
 
   const result = await DataStore.save(auth)
- // console.log(`result from save auth is ${JSON.stringify(result)}`)
+ // log.info(`result from save auth is `, {result})
 }
 
 
 
 
 async function saveMeetings(state){
-  console.log("saving meetings")
+  log.info("saving meetings")
   const original = await DataStore.query(Meetings);
 
   let data = undefined;
   const newMeetings = [];
-  // console.log("saving preferences 2")
+  // log.info("saving preferences 2")
    state.meetings.forEach((entry)=>{newMeetings.push(JSON.stringify(entry))})
    
   try{
     if(original.length>0){
-    //  console.log("saving preferences 3.1")
+    //  log.info("saving preferences 3.1")
       data = Meetings.copyOf(original[0], updated => {
         updated.email = state.email,
         updated.meetings = newMeetings
       })
     }else{
-   //   console.log("saving preferences 3.2")
+   //   log.info("saving preferences 3.2")
       data = new Meetings({
         email: state.email,
         meetings: newMeetings
       })
     }
- //   console.log("saving preferences 4")
+ //   log.info("saving preferences 4")
     const result = await DataStore.save(data)
- //   console.log(`result from save is ${result}`)
+ //   log.info(`result from save is ${result}`)
   }catch(err){
 
-    console.log(`could not save meetings for ${err}`)
+    log.info(`could not save meetings for ${err}`)
   }
 }
 

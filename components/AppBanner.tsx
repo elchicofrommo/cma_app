@@ -6,7 +6,7 @@ import { Banner } from 'react-native-paper';
 import { faHandHolding } from '@fortawesome/free-solid-svg-icons';
 import Layout from '../constants/Layout';
 import Colors from '../constants/Colors';
-  
+import log from '../util/Logging' 
 function AppBanner(props){
     const [visible, setVisible] = useState(false)
     const [offset, setOffset] = useState(new Animated.Value(-100))
@@ -15,7 +15,7 @@ function AppBanner(props){
     }
 
     function hold(){
-        console.log(`step 2`)
+        log.info(`step 2`)
         Animated.timing(offset, {
             toValue: 0,
             useNativeDriver: true,
@@ -24,7 +24,7 @@ function AppBanner(props){
         }).start(()=> slideOut())
     }
     function slideOut(){
-        console.log(`step 3`)
+        log.info(`step 3`)
         Animated.timing(offset, {
             toValue: -100,
             useNativeDriver: true,
@@ -39,7 +39,7 @@ function AppBanner(props){
     }
 
     function slideIn(){
-        console.log(`step 1`)
+        log.info(`step 1`)
         Animated.timing(offset, {
             toValue: 0,
             useNativeDriver: true,
@@ -50,7 +50,7 @@ function AppBanner(props){
 
     useEffect(()=>{
         if(props.banner && true){
-            console.log(`starting banner seque3nce`)
+            log.info(`starting banner seque3nce`)
             slideIn()
         }
 
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
 })
 export default connect(
     function mapStateToProps(state){
-        console.log(`inside AppBanner observe state change, the banner is ${JSON.stringify(state.general.banner)}`)
+        log.info(`inside AppBanner observe state change, the banner is ${JSON.stringify(state.general.banner)}`)
         const {banner} = state.general;
         return { banner: banner}
     },

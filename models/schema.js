@@ -1,157 +1,6 @@
 export const schema = {
     "models": {
-        "Blog": {
-            "name": "Blog",
-            "fields": {
-                "id": {
-                    "name": "id",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "name": {
-                    "name": "name",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "posts": {
-                    "name": "posts",
-                    "isArray": true,
-                    "type": {
-                        "model": "Post"
-                    },
-                    "isRequired": false,
-                    "attributes": [],
-                    "association": {
-                        "connectionType": "HAS_MANY",
-                        "associatedWith": "blog"
-                    }
-                }
-            },
-            "syncable": true,
-            "pluralName": "Blogs",
-            "attributes": [
-                {
-                    "type": "model",
-                    "properties": {}
-                }
-            ]
-        },
-        "Post": {
-            "name": "Post",
-            "fields": {
-                "id": {
-                    "name": "id",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "title": {
-                    "name": "title",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "blog": {
-                    "name": "blog",
-                    "isArray": false,
-                    "type": {
-                        "model": "Blog"
-                    },
-                    "isRequired": false,
-                    "attributes": [],
-                    "association": {
-                        "connectionType": "BELONGS_TO",
-                        "targetName": "blogID"
-                    }
-                },
-                "comments": {
-                    "name": "comments",
-                    "isArray": true,
-                    "type": {
-                        "model": "Comment"
-                    },
-                    "isRequired": false,
-                    "attributes": [],
-                    "association": {
-                        "connectionType": "HAS_MANY",
-                        "associatedWith": "post"
-                    }
-                }
-            },
-            "syncable": true,
-            "pluralName": "Posts",
-            "attributes": [
-                {
-                    "type": "model",
-                    "properties": {}
-                },
-                {
-                    "type": "key",
-                    "properties": {
-                        "name": "byBlog",
-                        "fields": [
-                            "blogID"
-                        ]
-                    }
-                }
-            ]
-        },
-        "Comment": {
-            "name": "Comment",
-            "fields": {
-                "id": {
-                    "name": "id",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "post": {
-                    "name": "post",
-                    "isArray": false,
-                    "type": {
-                        "model": "Post"
-                    },
-                    "isRequired": false,
-                    "attributes": [],
-                    "association": {
-                        "connectionType": "BELONGS_TO",
-                        "targetName": "postID"
-                    }
-                },
-                "content": {
-                    "name": "content",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": true,
-                    "attributes": []
-                }
-            },
-            "syncable": true,
-            "pluralName": "Comments",
-            "attributes": [
-                {
-                    "type": "model",
-                    "properties": {}
-                },
-                {
-                    "type": "key",
-                    "properties": {
-                        "name": "byPost",
-                        "fields": [
-                            "postID",
-                            "content"
-                        ]
-                    }
-                }
-            ]
-        },
+        
         "AuthDetail": {
             "name": "AuthDetail",
             "fields": {
@@ -184,7 +33,7 @@ export const schema = {
                     "attributes": []
                 }
             },
-            "syncable": true,
+            "syncable": false,
             "pluralName": "AuthDetails",
             "attributes": [
                 {
@@ -250,7 +99,7 @@ export const schema = {
                     "attributes": []
                 }
             },
-            "syncable": true,
+            "syncable": false,
             "pluralName": "Preferences",
             "attributes": [
                 {
@@ -285,6 +134,33 @@ export const schema = {
                 }
             ]
         },
+        "DailyReaders": {
+            "name": "DailyReaders",
+            "fields": {
+                "id": {
+                    "name": "id",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "readers": {
+                    "name": "readers",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+            },
+            "syncable": false,
+            "pluralName": "DailyReaderss",
+            "attributes": [
+                {
+                    "type": "model",
+                    "properties": {}
+                },
+            ]
+        },
         "Meetings": {
             "name": "Meetings",
             "fields": {
@@ -310,7 +186,7 @@ export const schema = {
                     "attributes": []
                 }
             },
-            "syncable": true,
+            "syncable": false,
             "pluralName": "Meetings",
             "attributes": [
                 {
@@ -376,93 +252,39 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
-                "gratitudeEntryCommentsId": {
-                    "name": "gratitudeEntryCommentsId",
+                "entry": {
+                    "name": "entry",
                     "isArray": false,
-                    "type": "ID",
+                    "type": {
+                        "model": "GratitudeEntry"
+                    },
                     "isRequired": false,
-                    "attributes": []
+                    "attributes": [],
+                    "association": {
+                        "connectionType": "BELONGS_TO",
+                        "targetName": "gratitudeCommentEntryId"
+                    }
                 },
-                "gratitudeCommentsId": {
-                    "name": "gratitudeCommentsId",
+                "gratitude": {
+                    "name": "gratitude",
                     "isArray": false,
-                    "type": "ID",
+                    "type": {
+                        "model": "Gratitude"
+                    },
                     "isRequired": false,
-                    "attributes": []
+                    "attributes": [],
+                    "association": {
+                        "connectionType": "BELONGS_TO",
+                        "targetName": "gratitudeCommentGratitudeId"
+                    }
                 }
             },
-            "syncable": true,
+            "syncable": false,
             "pluralName": "GratitudeComments",
             "attributes": [
                 {
                     "type": "model",
                     "properties": {}
-                },
-                {
-                    "type": "key",
-                    "properties": {
-                        "fields": [
-                            "id",
-                            "created"
-                        ]
-                    }
-                }
-            ]
-        },
-        "GratitudeLike": {
-            "name": "GratitudeLike",
-            "fields": {
-                "id": {
-                    "name": "id",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "user": {
-                    "name": "user",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "created": {
-                    "name": "created",
-                    "isArray": false,
-                    "type": "Int",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "gratitudeEntryLikesId": {
-                    "name": "gratitudeEntryLikesId",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "gratitudeLikesId": {
-                    "name": "gratitudeLikesId",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": false,
-                    "attributes": []
-                }
-            },
-            "syncable": true,
-            "pluralName": "GratitudeLikes",
-            "attributes": [
-                {
-                    "type": "model",
-                    "properties": {}
-                },
-                {
-                    "type": "key",
-                    "properties": {
-                        "fields": [
-                            "id",
-                            "created"
-                        ]
-                    }
                 }
             ]
         },
@@ -490,6 +312,19 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
+                "gratitude": {
+                    "name": "gratitude",
+                    "isArray": false,
+                    "type": {
+                        "model": "Gratitude"
+                    },
+                    "isRequired": false,
+                    "attributes": [],
+                    "association": {
+                        "connectionType": "BELONGS_TO",
+                        "targetName": "gratitudeEntryGratitudeId"
+                    }
+                },
                 "likes": {
                     "name": "likes",
                     "isArray": true,
@@ -500,7 +335,7 @@ export const schema = {
                     "attributes": [],
                     "association": {
                         "connectionType": "HAS_MANY",
-                        "associatedWith": "gratitudeEntryLikesId"
+                        "associatedWith": "entry"
                     }
                 },
                 "comments": {
@@ -513,33 +348,16 @@ export const schema = {
                     "attributes": [],
                     "association": {
                         "connectionType": "HAS_MANY",
-                        "associatedWith": "gratitudeEntryCommentsId"
+                        "associatedWith": "entry"
                     }
-                },
-                "gratitudeEntriesId": {
-                    "name": "gratitudeEntriesId",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": false,
-                    "attributes": []
                 }
             },
-            "syncable": true,
+            "syncable": false,
             "pluralName": "GratitudeEntries",
             "attributes": [
                 {
                     "type": "model",
                     "properties": {}
-                },
-                {
-                    "type": "key",
-                    "properties": {
-                        "name": "byIndex",
-                        "fields": [
-                            "id",
-                            "index"
-                        ]
-                    }
                 },
                 {
                     "type": "auth",
@@ -602,7 +420,7 @@ export const schema = {
                     "attributes": [],
                     "association": {
                         "connectionType": "HAS_MANY",
-                        "associatedWith": "gratitudeEntriesId"
+                        "associatedWith": "gratitude"
                     }
                 },
                 "comments": {
@@ -615,7 +433,7 @@ export const schema = {
                     "attributes": [],
                     "association": {
                         "connectionType": "HAS_MANY",
-                        "associatedWith": "gratitudeCommentsId"
+                        "associatedWith": "gratitude"
                     }
                 },
                 "likes": {
@@ -628,11 +446,11 @@ export const schema = {
                     "attributes": [],
                     "association": {
                         "connectionType": "HAS_MANY",
-                        "associatedWith": "gratitudeLikesId"
+                        "associatedWith": "gratitude"
                     }
                 }
             },
-            "syncable": true,
+            "syncable": false,
             "pluralName": "Gratitudes",
             "attributes": [
                 {
@@ -667,9 +485,170 @@ export const schema = {
                     }
                 }
             ]
+        },
+        "GratitudeLike": {
+            "name": "GratitudeLike",
+            "fields": {
+                "id": {
+                    "name": "id",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "user": {
+                    "name": "user",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "created": {
+                    "name": "created",
+                    "isArray": false,
+                    "type": "Int",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "entry": {
+                    "name": "entry",
+                    "isArray": false,
+                    "type": {
+                        "model": "GratitudeEntry"
+                    },
+                    "isRequired": false,
+                    "attributes": [],
+                    "association": {
+                        "connectionType": "BELONGS_TO",
+                        "targetName": "gratitudeLikeEntryId"
+                    }
+                },
+                "gratitude": {
+                    "name": "gratitude",
+                    "isArray": false,
+                    "type": {
+                        "model": "Gratitude"
+                    },
+                    "isRequired": false,
+                    "attributes": [],
+                    "association": {
+                        "connectionType": "BELONGS_TO",
+                        "targetName": "gratitudeLikeGratitudeId"
+                    }
+                }
+            },
+            "syncable": false,
+            "pluralName": "GratitudeLikes",
+            "attributes": [
+                {
+                    "type": "model",
+                    "properties": {}
+                }
+            ]
+        },
+        "Person": {
+            "name": "Person",
+            "fields": {
+                "id": {
+                    "name": "id",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "name": {
+                    "name": "name",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "email": {
+                    "name": "email",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "address": {
+                    "name": "address",
+                    "isArray": true,
+                    "type": {
+                        "model": "Address"
+                    },
+                    "isRequired": false,
+                    "attributes": [],
+                    "association": {
+                        "connectionType": "HAS_MANY",
+                        "associatedWith": "person"
+                    }
+                }
+            },
+            "syncable": false,
+            "pluralName": "People",
+            "attributes": [
+                {
+                    "type": "model",
+                    "properties": {}
+                }
+            ]
+        },
+        "Address": {
+            "name": "Address",
+            "fields": {
+                "id": {
+                    "name": "id",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "street": {
+                    "name": "street",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "city": {
+                    "name": "city",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "state": {
+                    "name": "state",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "person": {
+                    "name": "person",
+                    "isArray": false,
+                    "type": {
+                        "model": "Person"
+                    },
+                    "isRequired": false,
+                    "attributes": [],
+                    "association": {
+                        "connectionType": "BELONGS_TO",
+                        "targetName": "addressPersonId"
+                    }
+                }
+            },
+            "syncable": false,
+            "pluralName": "Addresses",
+            "attributes": [
+                {
+                    "type": "model",
+                    "properties": {}
+                }
+            ]
         }
     },
     "enums": {},
     "nonModels": {},
-    "version": "fbc1efd16fbebb569568d83f4a890c7a"
+    "version": "7b3355b27268f33ef3557364ea0a1907"
 };

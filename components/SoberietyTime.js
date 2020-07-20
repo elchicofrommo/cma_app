@@ -5,12 +5,12 @@ import { connect } from 'react-redux';
 import moment from "moment";
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Colors from '../constants/Colors';
-
+import log from '../util/Logging'
 function SoberietyTime(props) {
 
   const [pressOffset, setPressOffset] = useState(new Animated.Value(0))
 
-  console.log(`rendering SoberietyTime`)
+  log.info(`rendering SoberietyTime`)
   if (props.dos) {
 
     let time = "";
@@ -31,7 +31,7 @@ function SoberietyTime(props) {
     }
 
     function pressDown(){
-      console.log("press down")
+      log.info("press down")
       Animated.timing(pressOffset, {
         toValue: 3,
         useNativeDriver: true,
@@ -137,13 +137,13 @@ function calcDate(date1, date2) {
 
 export default connect(
   function mapStateToProps(state, ownProps) {
-    const { dos, soberietyFormat } = state.general
-    return { dos, format: soberietyFormat };
+    const { operatingUser, soberietyFormat } = state.general
+    return { dos: operatingUser.dos, format: soberietyFormat };
   },
   function mapDispatchToProps(dispatch) {
     return {
       testFunction: (testInput) => {
-        console.log("dispatching test function with input " + testInput)
+        log.info("dispatching test function with input " + testInput)
       },
       dispatchSetFormat: (format) => {
         dispatch({ type: "SET_SOBERIETY_FORMAT", data: format })

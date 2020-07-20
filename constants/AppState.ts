@@ -1,17 +1,15 @@
-import { Gratitude } from "../models/index";
+import {User, Gratitude, Channel, UserChannel, Broadcast, Meeting} from '../types/gratitude'
 
 export type AppState = {
-    name: string| undefined,
-    dos: string|undefined,
-    meetings: string[] | [],
-    meetingMap: Map<string, any>,
-    
+    email?: string,
+    password?: string,
+    operatingUser: User,
+    gratitudes: Gratitude[],
+    broadcastsByChannel: Map<string, Broadcast[]>,
+    ownedChannels: Channel[],
+    userChannels: UserChannel[],
+    meetings: Meeting[] ,
     homegroup: string|undefined,
-    gratitudeLists: string[] | [],
-    screenName: string|undefined,
-    
-    authenticated: boolean|undefined,
-    role: string|undefined,
     soundCloudDetails: any,
     soundCloudTracks: any,
     paths: any,
@@ -25,10 +23,5 @@ export type AppState = {
     banner: undefined|string,
     soberietyFormat: number,
     
-    // Cognito details
-    password: string|undefined,
-    email: string|undefined,
-    username: string|undefined
-    gratitude: Gratitude[]|[]
     
   }

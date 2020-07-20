@@ -10,7 +10,7 @@ const orangeTheme = {
   primary: "#e44f2e",
   primaryL1: "#f48a6f",
   primaryL2: "#f3d494",
-
+  primaryL3: "#f48a6f",
   primaryContrast: "white",
   background: "white",
 }
@@ -19,6 +19,8 @@ export default {
   ...orangeTheme,
   appRed: "#f36468",
   appBlue: "#0273b1",
+  gratitudeEntry: "#3371ce",
+  myGratitudeEntry: "#61b333",
   tintColor,
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,

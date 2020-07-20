@@ -12,7 +12,7 @@ import * as Location from 'expo-location';
 import axios from 'axios';
 import moment from 'moment'
 import MeetingListRow from '../components/MeetingListRow'
-import { DetailsScreen, DetailsBackButton, DetailTransition } from './MeetingDetailsScreen'
+import { DetailsScreen} from './MeetingDetailsScreen'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faFilter, faWindowClose, faStop } from '@fortawesome/free-solid-svg-icons';
 import { ToggleButton } from 'react-native-paper';
@@ -23,7 +23,8 @@ import SoberietyTime from '../components/SoberietyTime';
 import symbolicateStackTrace from 'react-native/Libraries/Core/Devtools/symbolicateStackTrace';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
-
+import {Meeting} from '../types/gratitude'
+import log from "../util/Logging"
 const daysOfWeek = {
   Sunday: 0,
   Monday: 1,
@@ -38,7 +39,7 @@ const daysOfWeek = {
 const MeetingStack = createStackNavigator();
 export { MeetingList, sortMeetings }
 export default function MeetingSearchScreenStack() {
-  console.log(`rendering meetingstack`)
+  log.info(`rendering meetingstack`)
   return (
     <MeetingStack.Navigator >
       <MeetingStack.Screen
@@ -89,29 +90,7 @@ export default function MeetingSearchScreenStack() {
         })}
 
       />
-      <MeetingStack.Screen
-        name="Details"
-        component={DetailsScreen}
-
-        options={({ navigation, route }) => ({
-
-          headerStyle: {
-            backgroundColor: '#FFF',
-            shadowColor: 'transparent'
-          },
-          title: '',
-          headerTintColor: Colors.primary,
-          headerTitleStyle: {
-            fontWeight: 'bold',
-            fontFamily: 'merriweather',
-            fontSize: 18 * Layout.scale.width,
-            borderBottomWidth: 0,
-
-
-          },
-          headerLeft: () => <DetailsBackButton navigation={navigation} />,
-          ...DetailTransition
-        })} />
+      
 
     </MeetingStack.Navigator>
   )
@@ -127,7 +106,7 @@ function LocationScreen({ navigation, ...props }) {
           key: 'AIzaSyD-iHMOooeowqHXKtULGymcD-mtnuHFv6o',
           language: 'en', // language of the results
         }}
-        onPress={(data, details = null) => console.log(data)}
+        onPress={(data, details = null) => log.info(data)}
         onFail={error => console.error(error)}
         styles={{
           textInputContainer: {
@@ -152,7 +131,7 @@ function LocationScreen({ navigation, ...props }) {
   )
 }
 
-function sortMeetings(meetings) {
+function sortMeetings(meetings: Meeting[])  {
   meetings.sort((a, b) => {
 
     let aDay = daysOfWeek[a.weekday]
@@ -168,8 +147,8 @@ function sortMeetings(meetings) {
     if (dayMath != 0)
       return dayMath
 
-    let aTime = moment(a.start_time, 'H:mm A');
-    let bTime = moment(b.start_time, 'H:mm A');
+    let aTime = moment(a.startTime, 'H:mm A');
+    let bTime = moment(b.startTime, 'H:mm A');
 
     return aTime.valueOf() - bTime.valueOf();
   })
@@ -177,13 +156,13 @@ function sortMeetings(meetings) {
 }
 
 
-function MeetingList({ meetingData, action, style = {} }) {
+function MeetingList({ meetingData, action, style = {} } :{ meetingData: Meeting[], action:any, style: any}) {
 
-  const keyExtractorCallback = useCallback((data) => { return data._id })
+  const keyExtractorCallback = useCallback((data) => { return data.id })
 
   const renderCallback = useCallback(({ item, index }, rowMap) => {
     //renderBackRow({data, rowMaps, props}),[])
-    //console.log(`item is :  index is: ${index} rowMap is ${rowMap} `)
+    //log.info(`item is :  index is: ${index} rowMap is ${rowMap} `)
     return <MeetingListRow meeting={item}
       saved={true}
       action={action} />
@@ -202,12 +181,12 @@ function MeetingList({ meetingData, action, style = {} }) {
 }
 function MeetingSearchScreen({ navigation, ...props }) {
 
-  console.log(`rendering MeetingSearchScreen`)
+  log.info(`rendering MeetingSearchScreen`)
   const emptyView = <View></View>
   const [address, setAddress] = useState(null);
-  const [meetingData, setMeetingData] = useState();
-  const [filteredMeetingData, setFilteredMeetingData] = useState();
-  const [meetingTypes, setMeetingTypes] = useState([]);
+  const [meetingData, setMeetingData] = useState <Meeting[]>([]);
+  const [filteredMeetingData, setFilteredMeetingData] = useState<Meeting[]>();
+  const [meetingTypes, setMeetingTypes] = useState<string[]>([]);
   const [distance, setDistance] = useState(5)
   const [message, setMessage] = useState(null)
   const [meetingComponents, setMeetingComponents] = useState(emptyView)
@@ -221,17 +200,17 @@ function MeetingSearchScreen({ navigation, ...props }) {
 
     if (address && address != "")
       Location.geocodeAsync(address).then((resolve) => {
-        console.log(`found address for ${JSON.stringify(resolve)} `)
-        resolve.data.forEach((entry) => console.log(`Address match ${JSON.stringify(entry)}`))
+        log.info(`found address for ${JSON.stringify(resolve)} `)
+        resolve.data.forEach((entry) => log.info(`Address match` , {entry}))
       }).catch((err) => {
-        console.log(`caught an error with getting new geocode for this address. ${err}`)
+        log.info(`caught an error with getting new geocode for this address. ${err}`)
       })
 
 
   }, [address])
 
   useEffect(() => {
-    console.log("use effect observed distance changed")
+    log.info("use effect observed distance changed")
     getMeetings();
 
 
@@ -240,12 +219,12 @@ function MeetingSearchScreen({ navigation, ...props }) {
 
 
   async function filterMeetingsCallback(filters) {
-    console.log(`filterMeetingCallback  with ${JSON.stringify(filters)} `)
+    log.info(`filterMeetingCallback  with ${JSON.stringify(filters)} `)
 
 
     if (distance != filters.distance) {
 
-      console.log(`distance changed, setting ${distance} to ${filters.distance} filtered size is ${filteredMeetingData.length} and meetingData length is ${meetingData.length}`)
+      log.info(`distance changed, setting ${distance} to ${filters.distance} filtered size is ${filteredMeetingData.length} and meetingData length is ${meetingData.length}`)
       setDistance(filters.distance)
       //  getMeetings({filters: filters});
 
@@ -255,9 +234,9 @@ function MeetingSearchScreen({ navigation, ...props }) {
     }
   }
 
-  async function filterMeetings(filters) {
-    const filtered = [];
-    console.log(`filtering meetings, meetingData length is ${meetingData.length}`)
+  function filterMeetings(filters)  {
+    const filtered: Meeting[] = [];
+    log.info(`filtering meetings, meetingData length is ${meetingData.length}`)
     meetingData.forEach(entry => {
       const dayOfWeek = moment().day(entry.weekday).day();
       let step1 = false;
@@ -287,7 +266,7 @@ function MeetingSearchScreen({ navigation, ...props }) {
     let lat = 0;
     let long = 0
     setMessage("Working ...")
-    setMeetingData(null)
+    setMeetingData([])
     setFilteredMeetingData(null)
     setMeetingComponents(emptyView)
 
@@ -297,7 +276,7 @@ function MeetingSearchScreen({ navigation, ...props }) {
       Otherwise you may enter an address");
       return;
     }
-    console.log("have location permission ");
+    log.info("have location permission ");
     try {
       if (!address) {
         const location = await Location.getCurrentPositionAsync({});
@@ -306,11 +285,11 @@ function MeetingSearchScreen({ navigation, ...props }) {
       } else {
         try {
           const location = await Location.geocodeAsync(address)
-          console.log(`found address for ${address} ${JSON.stringify(location)}`)
+          log.info(`found address for ${address}` , {location})
           lat = location[0].latitude;
           long = location[0].longitude;
         } catch (err) {
-          console.log(`problem looking for address ${JSON.stringify(err)}`)
+          log.info(`problem looking for address` , {err})
           props.dispatchSetBanner({ message: "Could not find address" })
           return;
         }
@@ -318,7 +297,7 @@ function MeetingSearchScreen({ navigation, ...props }) {
 
       const query = `https://api.bit-word.com/api/cma/meeting?long=${lat}&lat=${long}&distance=${distance * 1609}`;
 
-      console.log(`runnign query ${query}`)
+      log.info(`runnign query ${query}`)
 
       let response = undefined
       try {
@@ -329,33 +308,51 @@ function MeetingSearchScreen({ navigation, ...props }) {
       }
 
       if (response.data.error) {
-        console.log(`problem getting data ${response.data.error}`)
+        log.info(`problem getting data ${response.data.error}`)
         setMessage("System problem finding meetings. Try again later")
       } else {
 
 
         setMessage(`${response.data.length} meetings found`);
-        let types = []
-        response.data.forEach(entry => { entry.type && (types = types.concat(entry.type)) })
-        let typeSet = new Set(types);
-        console.log(`meeting types generated is ${JSON.stringify(types)} ${JSON.stringify(typeSet.size)}`)
-        setMeetingTypes([...typeSet]);
-        const sorted = sortMeetings(response.data)
-        setMeetingData(sorted)
-        console.log(`done getting meeting and sorting, meetingData length is ${sorted.length}`)
-        // if(filters){
-        // console.log(`observed there are filters to apply to the meeting search so doing so ${JSON.stringify(filters)}`)
-        //  filterMeetings(filters)
-        // }
+        let types: string[] = []
+        const meetings: Meeting[] = response.data.map(rawMeeting=>{
 
-        //   else{
-        console.log(`observed there are no filters to apply to meeting search `)
+          const meeting: Meeting = {
+            id: rawMeeting._id,
+            name: rawMeeting.name,
+            active: rawMeeting.active!=0,
+            category: rawMeeting.category,
+            location: {lat: rawMeeting.location.coordinates[1], long: rawMeeting.location.coordinates[0]},
+            startTime: rawMeeting.start_time,
+            weekday: rawMeeting.weekday,
+            type: rawMeeting.type,
+            street: rawMeeting.street,
+            city: rawMeeting.city,
+            state: rawMeeting.state,
+            paid: rawMeeting.paid,
+            distance: rawMeeting.dist.calculated,
+            zip: rawMeeting.zip
+          }
+          meeting.type && (types = types.concat(meeting.type))
+          return meeting
+
+        })
+
+
+        let typeSet = new Set<string>(types);
+        log.info(`meeting types generated is ${JSON.stringify(types)} ${JSON.stringify(typeSet.size)}`)
+        setMeetingTypes([...typeSet]);
+        const sorted = sortMeetings(meetings)
+        setMeetingData(sorted)
+        log.info(`done getting meeting and sorting, meetingData length is ${sorted.length}`)
+
+        log.info(`observed there are no filters to apply to meeting search `)
         setFilteredMeetingData(sorted)
-        //  }
+
 
       }
     } catch (bigerr) {
-      console.log(`problem getting meeting data as follows ${JSON.stringify(bigerr)}`)
+      log.info(`problem getting meeting data as follows `, {bigerr})
     }
 
   }
@@ -446,7 +443,6 @@ function MeetingSearchScreen({ navigation, ...props }) {
           navigation.navigate('Details', row)
         }} />
 
-      <SoberietyTime />
     </View>
 
 
@@ -458,25 +454,25 @@ function MeetingSearchScreen({ navigation, ...props }) {
 MeetingSearchScreen = connect(
   function mapStateToProps(state) {
 
-    const { authenticated, meetings } = state.general;
+    const { operatingUser, meetings } = state.general;
     return {
-      authenticated, meetings
+      authenticated: operatingUser.role!="guest", meetings
     };
   },
   function mapDispatchToProps(dispatch) {
     return {
 
       dispatchSetDetail: (data) => {
-        console.log(`set detail data is `)
+        log.info(`set detail data is `)
         dispatch({ type: "SET_DETAIL", meetingDetail: data })
       },
 
       dispatchShowMenu: (data) => {
-        console.log("dispatching show menu ")
+        log.info("dispatching show menu ")
         dispatch({ type: "SHOW_MENU" })
       },
       dispatchHideMenu: (data) => {
-        console.log("dispatching hide menu ")
+        log.info("dispatching hide menu ")
         dispatch({ type: "HIDE_MENU" })
       },
       dispatchSetBanner: (message) => {
@@ -495,10 +491,10 @@ function MeetingFilter({ show, types, callback, message, distance }) {
   const [opacity, setOpacity] = useState(new Animated.Value(0))
   const [filters, setFilters] = useState(defaultFilters)
 
-  console.log(`building MeetingFilter, filters is ${JSON.stringify(filters)} distance ${distance}`)
+  log.info(`building MeetingFilter, filters is ${JSON.stringify(filters)} distance ${distance}`)
 
   useEffect(() => {
-    console.log(`observed distance changed, setting new distance `)
+    log.info(`observed distance changed, setting new distance `)
     const newFilter = { ...filters }
     newFilter.distance = distance;
     setFilters(newFilter);
@@ -506,7 +502,7 @@ function MeetingFilter({ show, types, callback, message, distance }) {
 
 
   const showDialog = () => {
-    console.log(`showing`)
+    log.info(`showing`)
     setVisible(true)
     Animated.timing(opacity, {
       toValue: 1,
@@ -517,7 +513,7 @@ function MeetingFilter({ show, types, callback, message, distance }) {
   }
 
   const hideDialog = () => {
-    console.log(`hiding`)
+    log.info(`hiding`)
     Animated.timing(opacity, {
       toValue: 0,
       useNativeDriver: true,
@@ -560,7 +556,7 @@ function MeetingFilter({ show, types, callback, message, distance }) {
   }
 
 
-  console.log(`types is ${JSON.stringify(types)}`);
+  log.info(`types is` , {types});
   const typeComponents = []
 
   types.forEach((entry) => {

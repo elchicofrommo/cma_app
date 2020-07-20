@@ -8,12 +8,12 @@ import {NavigationContainer } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import { connect } from 'react-redux';
 import Colors from '../constants/Colors';
-
+import log from "../util/Logging"
 const DocumentStack = createStackNavigator();
 
 export default function DocumentBrowserScreen(props){
 
-  console.log(`rendering DocumentBrowserScreen`)
+  log.info(`rendering DocumentBrowserScreen`)
   const buttons = [];
   for(let entry in props.fileNames){
     const URI = encodeURI(`${props.path}${entry}`)
@@ -22,11 +22,11 @@ export default function DocumentBrowserScreen(props){
             label={entry}
             key={URI}
             onPress={() => {
-              console.log(`opening up ${URI}`)
+              log.info(`opening up ${URI}`)
               try{
                 WebBrowser.openBrowserAsync(`${URI}`)
               }catch(err){
-                console.log("could not open up file because of " + err)
+                log.info("could not open up file because of " + err)
               }
             }}
         />

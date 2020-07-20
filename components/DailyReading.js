@@ -10,9 +10,9 @@ import { faGratipay } from '@fortawesome/free-brands-svg-icons';
 import Layout from '../constants/Layout';
 import Colors from '../constants/Colors';
 import {LinearGradient} from "expo-linear-gradient"
-
+import log from '../util/Logging'
 function DailyReading(props){
-  console.log(`rendering DailyReading`)
+  log.info(`rendering DailyReading`)
   
   let twentyFour = props.dailyReaders.twentyFour;
   let men = props.dailyReaders.men;
@@ -42,6 +42,7 @@ function DailyReading(props){
             showsPagination={true}
             dotColor={"lightgray"}
             activeDotColor={"#87A287"}
+            
             index={0}
             dotStyle={{marginBottom: -7 * Layout.scale.height}}
             activeDotStyle={{marginBottom: -7 * Layout.scale.height}}
@@ -63,10 +64,10 @@ DailyReading = connect(
     function mapDispatchToProps(dispatch){
       return {
         testFunction: (testInput) => {
-          console.log("dispatching test function with input " + testInput)
+          log.info("dispatching test function with input " + testInput)
         },
         dispatchRemoveMeeting: (data) => {
-          console.log("dispatching remove meeting " + JSON.stringify(data))
+          log.info("dispatching remove meeting " + JSON.stringify(data))
           dispatch({type: "REMOVE_MEETING", data})
         }
       }
@@ -77,7 +78,7 @@ DailyReading = connect(
 export default DailyReading
 
 function ReadingSection({title, subtitle, section, reading}){
-  console.log(`rendering ReadingSection`)
+  log.info(`rendering ReadingSection`)
   let lines = Platform.OS ==='ios'? 5.5* Layout.scale.width: 4.7 * Layout.scale.width
   const [visible, setVisible] = useState(false)
 

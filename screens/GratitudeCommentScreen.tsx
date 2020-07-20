@@ -7,7 +7,7 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import { connect } from 'react-redux';
 
-
+import log from "../util/Logging"
 import EditorMenu from '../navigation/GraditudeEditorMenu'
 import { useFocusEffect } from '@react-navigation/native';
 import { HeaderStyleInterpolators, HeaderBackButton } from '@react-navigation/stack';
@@ -56,7 +56,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
     }
 
     function showKeyboard(event){
-        console.log(`showing keyboard height is ${event.endCoordinates.height}`)
+        log.info(`showing keyboard height is ${event.endCoordinates.height}`)
 
             Animated.stagger( event.duration /7 * 4, 
                 [Animated.timing(keyboardHeight, {
@@ -76,7 +76,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
 
     }
     function hideKeyboard(event){
-        console.log('hide keybaord')
+        log.info('hide keybaord')
         if(Platform.OS==='android'){
             props.dispatchShowEditor();
             setRowEdit(undefined)
@@ -102,7 +102,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
 
 
     useEffect(() => {
-        console.log(`#####use effect in editor screen, entry is ${JSON.stringify(entry, null, 2)}`)
+        log.info(`use effect in editor screen, `, {entry})
         let newEntry = entry;
         if(entry===defaultEntry){
             const date = new Date()
@@ -112,7 +112,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
                 entries: []
             }
         }
-        console.log(`#####use effect in editor screen, entry is ${JSON.stringify(newEntry, null, 2)}`)
+        log.info(`#####use effect in editor screen, `,{newEntry})
         
         setEntryEdit(newEntry);
         props.dispatchRegisterSubmenu({ submenu: <EditorMenu key={'gratitudeEditor'} callback={startEntry}/>, name: "gratitudeEditor" })
@@ -177,7 +177,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
 
         
     if(Platform.OS === "ios"){
-        console.log(`so the platform is ios??`)
+        log.info(`so the platform is ios??`)
         textEntry =                     
         <Animated.View style={[transform, styles.keyboardEntryContainer]}>
             <TextInput
@@ -198,7 +198,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
             </TouchableOpacity>
         </Animated.View>
     }else{
-        console.log('platform is android')
+        log.info('platform is android')
         textEntry = <View style={styles.keyboardEntryContainer}>
             <TextInput
                 ref={textInput}
@@ -269,7 +269,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
 
 GratitudeEditorScreen = connect(
     function mapStateToProps(state, ownProps) {
-        console.log(`DetailsScreen connect observed redux change, detail ${state.general.meetingDetail}`)
+        log.info(`DetailsScreen connect observed redux change, detail ${state.general.meetingDetail}`)
 
         return {
 
@@ -298,7 +298,7 @@ GratitudeEditorScreen = connect(
             },
 
             dispatchRegisterSubmenu: (data) => {
-                console.log("registering gratitudeEditor submenu")
+                log.info("registering gratitudeEditor submenu")
                 dispatch({ type: "REGISTER_SUBMENU", data })
             }
 
@@ -313,7 +313,7 @@ function GratitudeList({ gratitudeData, action, style = {} }) {
   
     const renderCallback = useCallback(({ item, index }, rowMap) => {
       //renderBackRow({data, rowMaps, props}),[])
-      console.log(`item is :  index is: ${index} rowMap is ${rowMap} `)
+      log.info(`item is :  index is: ${index} rowMap is ${rowMap} `)
       return (
         <TouchableWithoutFeedback key={index} onPress={()=>action(index, item)} style={styles.gratitudeRow}> 
             <Octicons name="primitive-dot" size={18} color={"black"} style={styles.bullet} />
@@ -333,44 +333,6 @@ function GratitudeList({ gratitudeData, action, style = {} }) {
             renderItem={renderCallback}
             keyExtra
 
-        if(entryEdit.entries.length == 0){
-            console.log('nothign saved cuz no changes')
-            return;
-        }
-      console.log("$$$$$$$$$$$$$$ saving gratitude 1")
-      console.log(`gratitudeEntry is: ${JSON.stringify(entryEdit, null ,2)}`)
-      StatusBar.setBarStyle("light-content", true)
-      //
-      
-    
-
-    
-      try{
-        
-          const grat = new Gratitude({
-            email: email,
-            title: entryEdit.title,
-            time: entryEdit.date.getTime(),
-            entries: entryEdit.entries
-          }) 
-
-        console.log("saving gratitude 2")
-        const result = await DataStore.save(grat)
-        props.dispatchBanner({message: "Gratitude Saved", status: 'info'})
-        props.dispatchAddGratitude(entryEdit)
-        
-
-      }catch(err){
-        console.log(`error is  ${err}`)
-        props.dispatchBanner({message: "Your data was not saved because your profile is incomplete."})
-      }
-    }
-    return (
-        <HeaderBackButton  label={"Save"} tintColor={Colors.primary}onPress={(event) => {
-            props.dispatchHideEditor()
-            navigation.goBack()
-            saveGratitude()
-        }}
             
         />
     )

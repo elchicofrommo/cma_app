@@ -1,23 +1,4 @@
-type Blog @model {
-  id: ID!
-  name: String!
-  posts: [Post] @connection(keyName: "byBlog", fields: ["id"])
-}
 
-type Post @model @key(name: "byBlog", fields: ["blogID"]) {
-  id: ID!
-  title: String!
-  blogID: ID!
-  blog: Blog @connection(fields: ["blogID"])
-  comments: [Comment] @connection(keyName: "byPost", fields: ["id"])
-}
-
-type Comment @model @key(name: "byPost", fields: ["postID", "content"]) {
-  id: ID!
-  postID: ID!
-  post: Post @connection(fields: ["postID"])
-  content: String!
-}
 
 type AuthDetail @model @auth(rules: [{allow: owner}]) {
   email: String!
@@ -40,43 +21,3 @@ type Meetings @model @auth(rules: [{allow: owner}])
 }
   
     
-
-type GratitudeComment @model @key(fields: ["id", "created"]){
-  id: ID!
-  user: String!
-  text: String!
-  created: Int!
-}
-
-type GratitudeLike @model @key(fields: ["id", "created"]){
-  id: ID!
-  user: String!
-  created: Int!
-}
-
-
-type GratitudeEntry @model @auth(rules: [{allow: owner}]) 
-  @key(name: "byIndex", fields: ["id", "index"])
-{
-  id: ID!
-  index: Int!
-  content: String!
-  likes: [GratitudeLike] @connection(limit: 50)
-  comments: [GratitudeComment] @connection(limit: 50)
-}
-
-
-
-type Gratitude @model @auth(rules: [{allow: owner}]) 
-  @key( fields:["email", "time"])
-{
-  id: ID!
-  email: String!
-  title: String!
-  time: Int!
-  entries: [GratitudeEntry] @connection(limit: 50, keyName: "byIndex")
-  comments: [GratitudeComment] @connection(limit: 50)
-  likes: [GratitudeLike] @connection(limit: 50)
-
-}
-

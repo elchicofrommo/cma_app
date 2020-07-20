@@ -1,223 +1,151 @@
-
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, {
+  useState,
+} from "react";
 import {
-    Image, Platform, StyleSheet, Text, TouchableOpacity,
-    TextInput, View, Button, Dimensions, Keyboard, Linking, FlatList
-} from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import { connect } from 'react-redux';
-import AppBanner from '../components/AppBanner'
-import Colors from '../constants/Colors';
-import MeetingDetailMenu from '../navigation/MeetingDetailMenu'
-import { useFocusEffect } from '@react-navigation/native';
-import { HeaderStyleInterpolators, HeaderBackButton } from '@react-navigation/stack';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCertificate } from '@fortawesome/free-solid-svg-icons';
-
-const {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT
-} = Dimensions.get('window')
-import Layout from '../constants/Layout';
-import { Gratitude } from '../models/index';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { Octicons, Entypo, FontAwesome } from '@expo/vector-icons';
-
-function JournalScreen({ route, navigation, ...props }) {
+  Text,
+  TouchableWithoutFeedback,
+  View,
+  StyleSheet
+} from "react-native";
+import { connect } from "react-redux";
+import Colors from "../constants/Colors";
+import GratitudeList from '../components/GratitudeList'
+import Modal from "react-native-modal";
+import Layout from "../constants/Layout";
+import log from "../util/Logging"
+import {store} from '../components/store'
 
 
-    return (
-        <View style={styles.container}>
-            <AppBanner />
+import mutateApi from "../api/mutate";
+import {
+  Gratitude,
+  User,
+  UserChannel,
+} from "../types/gratitude";
+import { SafeAreaView } from "react-native-safe-area-context";
+function JournalScreen({
+  route,
+  navigation,
+  gratitudes,
+  operatingUser,
+  subscribedChannels,
+  ...props
+}: {
+  gratitudes: Gratitude[];
+  operatingUser: User;
+  subscribedChannels: UserChannel[];
+  route: any;
+  navigation: any;
+}) {
 
+  const [gratitudeToShare, setGratitudeToShare] = useState<Gratitude>(undefined)
+  const [selectedChannels, setSelectedChannels] = useState <UserChannel[]>([])
+  const [modalHeight, setModalHeight] = useState(0)
 
-            <GratitudeList gratitudeData={props.gratitude}
-                action={(row) => {
-                    // props.dispatchHideMenu(); 
-                    //navigation.navigate('Details', row)
-                    alert('row was touched')
-                }} />
+  log.info(`should be rendering my gratitudes:`, {gratitudes} )
 
-        </View>
-    )
-}
+  async function shareGratitude(userChannel: UserChannel){
 
-function GratitudeList({ gratitudeData, action, style = {} }) {
-    console.log(`rendering gratitude list ${JSON.stringify(gratitudeData)}`)
-
-    function likeGratitude() {
-
-    }
-    function unlikeGratitude() {
-
-    }
-
-    const renderCallback = useCallback(({ item, index }, rowMap) => {
-
-        const counts = item.entries.reduce((accum, current) => {
-
-            accum.likes += current.likes.length
-            accum.comments += current.comments.length
-            return accum
-        }, { likes: 0, comments: 0 })
-        counts.comment += item.comments.length;
-        counts.likes += item.likes.length
-
-
-        //renderBackRow({data, rowMaps, props}),[])
-        console.log(`item is ${JSON.stringify(item)}  :  index is: ${JSON.stringify(index)} rowMap is ${rowMap} `)
-        return (
-            <View key={index}>
-                <TouchableWithoutFeedback onPress={action} style={styles.gratitudeRow}>
-                    <Octicons name="primitive-dot" size={18} color={"black"} style={styles.bullet} />
-                    <Text style={[styles.keyboardEntry]}>{item.title}</Text>
-                </TouchableWithoutFeedback>
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-
-                    <Entypo name="leaf" size={14} color={counts.likes > 0 ? "green" : 'grey'} />
-                    <Text style={[{ fontSize: 14 }]}>: {counts.likes}</Text>
-
-                    <FontAwesome name="commenting" size={14} color={counts.likes > 0 ? Colors.appBlue : "grey"} />
-                    <Text style={[{ fontSize: 14 }]}>: {counts.comments}</Text>
-                </View>
+    const results = await mutateApi.createBroadcast(gratitudeToShare.id, userChannel.channelId)
+    log.info(`results from broadcast are:`, {results})
+    store.dispatch({type: "SET_BANNER", banner: {message: "Gratitude shared", status: "info"}})
+  }
+  return (
+    <View style={styles.container}>
+      <GratitudeList
+        gratitudeData={gratitudes}
+        operatingUser={operatingUser}
+        action={setGratitudeToShare}
+      />
+      <Modal
+        isVisible={gratitudeToShare!=undefined}
+        onBackdropPress={() => setGratitudeToShare(undefined)}
+       onSwipeComplete={() => setGratitudeToShare(undefined)}
+       backdropOpacity={.2}
+       useNativeDriver={true}
+    //    onBackButtonPress={() => setVisible(false)}
+        swipeDirection={["down"]}
+        style={{margin: 0, justifyContent: "flex-end"}}
+      >
+        <View style={[styles.modalTextContainer, 
+          {backgroundColor: 'white', borderTopLeftRadius: 17, borderTopRightRadius: 17, }]}
+          onLayout={(event) => {
+            var {height} = event.nativeEvent.layout;
+            setModalHeight(height)
+          }}>
+          <SafeAreaView style={{ width: '100%', marginTop: -30  }}>
+            <View style={{alignItems: "center"}}>
+              <View style={{width: 50, height: 5, backgroundColor: Colors.primary, borderRadius: 5, borderColor: Colors.primary}}></View>
             </View>
+            <Text style={{ paddingHorizontal: 10, fontFamily: 'opensans', color: Colors.primary, fontSize: 21 * Layout.scale.width}}>Your Circles</Text>
+            {subscribedChannels.map((userChannel: UserChannel)=>{
+              return(
+                <View key={userChannel.id} style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 3,}}>
+                  <Text style={{ flex: 1, fontSize:17}}>{userChannel.channel.name}</Text>
+                  <TouchableWithoutFeedback style={{flex: 2, backgroundColor: 'yellow'}} onPress={()=>shareGratitude(userChannel)}>
+                    <Text style={{fontSize:17, width: 80}}>Share</Text>
+                  </TouchableWithoutFeedback>
+                </View>
+              )
+            })}
 
-
-        )
-    }, [])
-
-    const keyExtractor = useCallback((item, index) => {
-
-        return index
-    }, [])
-
-    return (
-        <FlatList
-            data={gratitudeData}
-            renderItem={renderCallback}
-            keyExtractor={keyExtractor}
-            initialNumToRender={5}
-            ListEmptyComponent={<Text style={styles.keyboardEntry}>Start writing your first gratitude</Text>}
-            contentContainerStyle={styles.gratitudeList} />
-    )
+          </SafeAreaView>
+        </View>
+      </Modal>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    mapStyle: {
-        width: '100%',
-        marginBottom: 20,
-        flex: 6,
-        backgroundColor: '#dadde0'
-    },
-    address: {
-        flex: 2,
-        justifyContent: "flex-end",
-        paddingHorizontal: 10 * Layout.scale.width,
-    },
-    sectionHeader: {
-        fontWeight: 'bold',
-        paddingTop: 10 * Layout.scale.width
-    },
-    directions: {
-        paddingVertical: 5 * Layout.scale.width,
-        color: 'blue',
-    },
-    title: {
-        fontSize: 22 * Layout.scale.width,
-        fontWeight: 'bold'
-    },
-    typesContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-    },
-    type: {
-        width: '30%',
-        textTransform: "capitalize",
-    },
-    text: {
-        flexWrap: 'wrap',
-        fontSize: 12 * Layout.scale.width,
-
-    },
-
-    details: {
-        flex: 5,
-        paddingHorizontal: 10 * Layout.scale.width,
-    },
-    badge: {
-        color: '#f4b813',
-        marginTop: -3,
-    },
-    container: {
-        flex: 1,
-        backgroundColor: '#FFF',
-        paddingTop: 5 * Layout.scale.width,
-    },
-    gratitudeList: {
-        paddingHorizontal: 10 * Layout.scale.width,
-    },
-    gratitudeRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingTop: 5 * Layout.scale.width
-    },
-    bullet: {
-        flex: .8,
-    }, keyboardEntry: {
-        flex: 10,
-
-        margin: 0,
-        flexWrap: 'wrap',
-        fontSize: 18,
-        fontFamily: 'opensans',
-        paddingBottom: 5,
-    }
-
-});
-
+ 
+  container: {
+    flex: 1,
+    backgroundColor: "#FFF",
+    paddingTop: 5 * Layout.scale.width,
+  }
+  
+  })
 JournalScreen = connect(
-    function mapStateToProps(state, ownProps) {
-        const { gratitude } = state.general
-        console.log(`JournalScreen connect observed redux change, gratitude is ${JSON.stringify(gratitude, null, 2)}`)
+  function mapStateToProps(state, ownProps) {
+    const { gratitudes, operatingUser, userChannels: subscribedChannels } = state.general;
+    log.info(`JournalScreen connect observed redux change`);
 
-        return {
-            gratitude
-        };
-    },
-    function mapDispatchToProps(dispatch) {
-        return {
-
-            dispatchShowDetail: (data) => {
-                dispatch(async (d1) => {
-                    return new Promise(resolve => {
-                        console.log(`step 1`);
-                        dispatch({ type: "SET_DETAIL", meetingDetail: data })
-                        console.log(`step 3`);
-                        dispatch({ type: "SHOW_DETAIL" })
-                        resolve();
-                    })
-                })
-            },
-            dispatchSetDetail: (data) => {
-                console.log(`set detail data is `)
-                dispatch({ type: "SET_DETAIL", meetingDetail: data })
-            },
-            dispatchRegisterSubmenu: (data) => {
-                console.log("registering gratitude submenu")
-                dispatch({ type: "REGISTER_SUBMENU", data })
-            }
-
-        }
-    },
-
-)(JournalScreen)
+    return {
+      gratitudes,
+      operatingUser,
+      subscribedChannels
+    };
+  },
+  function mapDispatchToProps(dispatch) {
+    return {
+      dispatchShowDetail: (data) => {
+        dispatch(async (d1) => {
+          return new Promise((resolve) => {
+            log.info(`step 1`);
+            dispatch({ type: "SET_DETAIL", meetingDetail: data });
+            log.info(`step 3`);
+            dispatch({ type: "SHOW_DETAIL" });
+            resolve();
+          });
+        });
+      },
+      dispatchSetDetail: (data) => {
+        log.info(`set detail data is `);
+        dispatch({ type: "SET_DETAIL", meetingDetail: data });
+      },
+      dispatchRegisterSubmenu: (data) => {
+        log.info("registering gratitude submenu");
+        dispatch({ type: "REGISTER_SUBMENU", data });
+      },
+    };
+  }
+)(JournalScreen);
 
 const config = {
-    animation: 'timing',
-    config: {
-        duration: 200
-    }
-}
-
+  animation: "timing",
+  config: {
+    duration: 200,
+  },
+};
 
 export default JournalScreen;
