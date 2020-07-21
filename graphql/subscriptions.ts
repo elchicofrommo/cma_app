@@ -50,6 +50,14 @@ export const subscribeToMyGratitudes = /* GraphQL */ `
         }
 
       }
+      broadcasts{
+        items{
+          id
+          gratitudeId
+          ownerId
+          channelId
+        }
+      }
 
       createdAt
       updatedAt
@@ -109,6 +117,14 @@ export const subscribeToBroadcastChannel = /* GraphQL */ `
           }
 
         }
+        broadcasts{
+            items{
+              id
+              gratitudeId
+              ownerId
+              channelId
+            }
+          }
         createdAt
         updatedAt
         delta

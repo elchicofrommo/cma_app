@@ -12,7 +12,7 @@ import {
   Broadcast
 } from "../types/gratitude";
 import React, { useCallback, useEffect, useState } from "react";
-import { Entypo, FontAwesome } from "@expo/vector-icons";
+import { Entypo, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
 import mutateApi from "../api/mutate";
 
@@ -249,6 +249,22 @@ export function CommentButton({ callback }: { callback: Function }) {
   </TouchableWithoutFeedback>
 
 
+}
+
+export function DeleteButton({ callback }: { callback: Function }) {
+  return <TouchableWithoutFeedback onPress={() => callback()}>
+    <View
+      style={[
+        styles.gratitudeButtons,
+      ]}
+    >
+      <MaterialCommunityIcons 
+        style={{ paddingLeft: 5, marginBottom: -3 }}
+        name="delete-forever-outline" size={22} color="dimgray" />
+
+      <Text style={styles.gratitudeButtonsText}>Delete</Text>
+    </View>
+  </TouchableWithoutFeedback>
 }
 
 export function ShareButton({ callback }: { callback: Function }) {

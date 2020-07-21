@@ -66,6 +66,14 @@ mutation CommentOnGratitude(
         }
 
       }
+      broadcasts{
+        items{
+          id
+          gratitudeId
+          ownerId
+          channelId
+        }
+      }
 
       createdAt
       updatedAt
@@ -146,6 +154,14 @@ mutation LikeGratitude(
         }
 
       }
+      broadcasts{
+        items{
+          id
+          gratitudeId
+          ownerId
+          channelId
+        }
+      }
 
       createdAt
       updatedAt
@@ -225,6 +241,14 @@ export const unlikeGratitude = /* GraphQL */ `
         }
 
       }
+      broadcasts{
+        items{
+          id
+          gratitudeId
+          ownerId
+          channelId
+        }
+      }
 
       createdAt
       updatedAt
@@ -288,6 +312,14 @@ export const uncommentOnGratitude = /* GraphQL */ `
           }
         }
       }
+      broadcasts{
+        items{
+          id
+          gratitudeId
+          ownerId
+          channelId
+        }
+      }
     }
   }
 `;
@@ -336,8 +368,16 @@ export const createGratitude = /* GraphQL */ `
           }
         }
       }
+      broadcasts{
+        items{
+          id
+          gratitudeId
+          ownerId
+          channelId
+        }
+      }
     }
-     
+
   }
 `;
 
@@ -384,6 +424,14 @@ export const updateGratitude = /* GraphQL */ `
             id
           }
           userId
+        }
+      }
+      broadcasts{
+        items{
+          id
+          gratitudeId
+          ownerId
+          channelId
         }
       }
     }
@@ -688,6 +736,7 @@ export const deleteUserChannel = /* GraphQL */ `
 export const createBroadcast = /* GraphQL */ `
   mutation CreateBroadcast(
     $input: CreateBroadcastInput!
+    $gratitudeId: ID!
     $condition: ModelBroadcastConditionInput
   ) {
     createBroadcast(input: $input, condition: $condition) {
@@ -748,11 +797,71 @@ export const createBroadcast = /* GraphQL */ `
       updatedAt
       delta
     }
+    updateGratitude( input: {id: $gratitudeId}){
+      id
+      title
+      ownerId
+      owner {
+        id
+        shortId
+        name
+      }
+      entries {
+        items {
+          id
+          gratitudeId
+          content
+          index
+        }
+      }
+      likes {
+        items {
+          id
+          userId
+          user{
+            name
+            id
+          }
+          gratitudeId
+          entryId
+          createdAt
+        }
+
+      }
+      comments {
+        items {
+          id
+          userId
+          user{
+            name
+            id
+          }
+          gratitudeId
+          entryId
+          comment
+          createdAt
+        }
+
+      }
+      broadcasts{
+        items{
+          id
+          gratitudeId
+          ownerId
+          channelId
+        }
+      }
+
+      createdAt
+      updatedAt
+      delta
+    }
   }
 `;
 export const updateBroadcast = /* GraphQL */ `
   mutation UpdateBroadcast(
     $input: UpdateBroadcastInput!
+    $gratitudeId: ID!
     $condition: ModelBroadcastConditionInput
   ) {
     updateBroadcast(input: $input, condition: $condition) {
@@ -813,25 +922,189 @@ export const updateBroadcast = /* GraphQL */ `
       updatedAt
       delta  
     }
+    updateGratitude( input: {id: $gratitudeId}){
+      id
+      title
+      ownerId
+      owner {
+        id
+        shortId
+        name
+      }
+      entries {
+        items {
+          id
+          gratitudeId
+          content
+          index
+        }
+      }
+      likes {
+        items {
+          id
+          userId
+          user{
+            name
+            id
+          }
+          gratitudeId
+          entryId
+          createdAt
+        }
+
+      }
+      comments {
+        items {
+          id
+          userId
+          user{
+            name
+            id
+          }
+          gratitudeId
+          entryId
+          comment
+          createdAt
+        }
+
+      }
+      broadcasts{
+        items{
+          id
+          gratitudeId
+          ownerId
+          channelId
+        }
+      }
+
+      createdAt
+      updatedAt
+      delta
+    }
   }
 `;
 export const deleteBroadcast = /* GraphQL */ `
   mutation DeleteBroadcast(
     $input: DeleteBroadcastInput!
+    $gratitudeId: ID!
     $condition: ModelBroadcastConditionInput
   ) {
     deleteBroadcast(input: $input, condition: $condition) {
       id
       gratitudeId
+      channelId
+      ownerId
       gratitude {
         id
         title
         ownerId
+        owner {
+          id
+          name
+        }
+        entries {
+          items {
+            id
+            gratitudeId
+            content
+            index
+          }
+        }
+        likes {
+          items {
+            id
+            userId
+            user{
+              name
+              id
+            }
+            gratitudeId
+            entryId
+            createdAt
+          }
+
+        }
+        comments {
+          items {
+            id
+            userId
+            user{
+              name
+              id
+            }
+            gratitudeId
+            entryId
+            comment
+            createdAt
+          }
+
+        }
+        createdAt
+        updatedAt
+        delta
       }
-      delta
-      channelId
       createdAt
       updatedAt
+      delta  
+    }
+    updateGratitude( input: {id: $gratitudeId}){
+      id
+      title
+      ownerId
+      owner {
+        id
+        shortId
+        name
+      }
+      entries {
+        items {
+          id
+          gratitudeId
+          content
+          index
+        }
+      }
+      likes {
+        items {
+          id
+          userId
+          user{
+            name
+            id
+          }
+          gratitudeId
+          entryId
+          createdAt
+        }
+
+      }
+      comments {
+        items {
+          id
+          userId
+          user{
+            name
+            id
+          }
+          gratitudeId
+          entryId
+          comment
+          createdAt
+        }
+
+      }
+      broadcasts{
+        items{
+          id
+          gratitudeId
+          ownerId
+          channelId
+        }
+      }
+
+      createdAt
+      updatedAt
+      delta
     }
   }
 `;

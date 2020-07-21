@@ -45,9 +45,12 @@ export const getGratitude = /* GraphQL */ `
         }
         nextToken
       }
-      broadcasts {
-        items {
+      broadcasts{
+        items{
           id
+          gratitudeId
+          ownerId
+          channelId
         }
       }
 
@@ -101,6 +104,11 @@ export const listGratitudes = /* GraphQL */ `
                   }
               comment
               createdAt
+            }
+          }
+          broadcasts{
+          items{
+              channelId
             }
           }
         createdAt
@@ -205,9 +213,11 @@ export const getOperatingUser = /* GraphQL */ `
             }
           }
           broadcasts{
-            items {
-              channelId
+            items{
               id
+              gratitudeId
+              ownerId
+              channelId
             }
           }
         }
@@ -627,11 +637,16 @@ export const listGratitudeByOwner = /* GraphQL */ `
               createdAt
             }
           }
-        broadcasts{
-          items{
-            channelId
+          broadcasts{
+            items{
+              id
+              gratitudeId
+              ownerId
+              channelId
+            }
           }
         }
+      }
     }
     }
   }

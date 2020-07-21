@@ -1,7 +1,8 @@
 import { Gratitude, Entry, User, Like, Comment, Broadcast } from "../types/gratitude";
 import React, { useCallback, useEffect, useState } from "react";
-import { GratitudeComponent, GratitudeRenderMode, ShareButton, CommentButton, LikeButton } from "../components/GratitudeComponent"
-
+import { GratitudeComponent, GratitudeRenderMode, ShareButton, CommentButton, LikeButton, DeleteButton } from "../components/GratitudeComponent"
+import Modal from "react-native-modal";
+import mutateApi from '../api/mutate'
 import {
   Platform,
   StyleSheet,
@@ -13,11 +14,14 @@ import {
 
 } from "react-native";
 
+import Button from "../components/Button"
 
 import log from "../util/Logging";
 import Layout from "../constants/Layout";
 import Colors from "../constants/Colors";
 import { shallowEqual, useSelector } from "react-redux";
+import {store} from "../components/store"
+import { faAlignJustify } from "@fortawesome/free-solid-svg-icons";
 
 export default function GratitudeList({
   gratitudeData,
@@ -36,6 +40,23 @@ export default function GratitudeList({
     (state) => state.general.operatingUser,
     shallowEqual
   );
+  const [deleteState, setDeleteState] = useState({show: false, gratitude: undefined}) 
+
+  function confirmDelete(gratitude: Gratitude){
+    setDeleteState({show: true, gratitude})
+  }
+
+  function deleteGratitude(){
+    const result = mutateApi.deleteGratitude(deleteState.gratitude)
+    // should check status of delete
+    log.info(`results from delete`, {deleteResult: result})
+    store.dispatch({type: 'SET_BANNER', 
+      banner: {
+        message: "Message Deleted."
+      }
+    })
+    setDeleteState(deleteState=>{deleteState.show=false; return deleteState})
+  }
 
 
   function renderGratitudeRow({ item: gratitude, index }: ListRenderItemInfo<Gratitude>) {
@@ -48,13 +69,13 @@ export default function GratitudeList({
     return (
       <View>
         <TouchableWithoutFeedback onPress={()=>alert('hi')}>
-          <GratitudeComponent gratitude={gratitude} channelId={channelId} action={action} mode={GratitudeRenderMode.SHORT} navigation={navigation} />
+          <GratitudeComponent gratitude={gratitude} action={action} mode={GratitudeRenderMode.SHORT} navigation={navigation} />
         </TouchableWithoutFeedback>
-        <View style={[styles.gratitudeFooter,]}>
+        <View style={[styles.gratitudeFooter, ]}>
           { !isMine && <LikeButton gratitude={gratitude} user={user} iLiked={iLiked}></LikeButton>}
+          { isMine && <DeleteButton callback={() => confirmDelete(gratitude)}></DeleteButton>}
+          { isMine && <ShareButton callback={() => action(gratitude)}></ShareButton>}
           <CommentButton callback={commentCallback} ></CommentButton>
-          { isMine && <ShareButton callback={() => action(gratitude, channelId)}></ShareButton>}
-
         </View>
       </View>
     )
@@ -67,7 +88,7 @@ export default function GratitudeList({
   }, []);
 
   return (
-
+    <View>
     <FlatList
       data={gratitudeData}
       renderItem={renderGratitudeRow}
@@ -83,6 +104,28 @@ export default function GratitudeList({
       contentContainerStyle={styles.gratitudeList}
 
     />
+      <Modal
+        isVisible={deleteState.show}
+        onBackdropPress={() => setDeleteState(deleteState=>{deleteState.show=false; return {...deleteState}})}
+       onSwipeComplete={() => setDeleteState(deleteState=>{deleteState.show=false; return {...deleteState}})}
+      animationIn={"fadeInUp"}
+      animationOut={"fadeOutDown"}
+       backdropOpacity={.2}
+      style={{width: '70%', alignSelf: 'center'}}
+        onBackButtonPress={() => setDeleteState(deleteState=>{deleteState.show=false; return {...deleteState}})}
+        swipeDirection={["down", "up", "left", "right"]}
+
+      >
+        <View style={{ backgroundColor: 'white', borderRadius: 12, paddingHorizontal: 15, paddingVertical: 25, ...shadow}}>
+    <Text style={{fontSize: 17, fontFamily: "opensans",textAlign: 'center'}}>Delete '{deleteState.gratitude?.title}' permanantly?</Text>
+          <View style={{flexDirection: 'row' , justifyContent: 'space-around', paddingTop: 15}}>
+            <Button label={"Confirm"} style={styles.deleteButtonContainer} onPress={()=>deleteGratitude()} ></Button>
+            <Button label={"Cancel"} style={styles.cancelButtonContainer} onPress={()=>setDeleteState(deleteState=>{deleteState.show=false; return {...deleteState}})} ></Button>
+          </View>
+        </View>
+        
+      </Modal>
+      </View>
 
   );
 }
@@ -122,6 +165,26 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     flex: 1,
     width: "100%",
+  },
+  deleteButtonContainer: {
+    backgroundColor: Colors.primary,
+    alignSelf: 'center',
+    borderRadius: 17,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    ...shadow,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'lightgray'
+  },
+  cancelButtonContainer: {
+    backgroundColor: Colors.primary,
+    alignSelf: 'center',
+    borderRadius: 17,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    ...shadow,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'lightgray'
   },
   seperator: {
     width: "90%",

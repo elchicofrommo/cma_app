@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux';
+import { combineReducers, Action } from 'redux';
 import NowPlaying from './NowPlayingReducer'
 
 import { DataStore, Predicates } from "@aws-amplify/datastore";
@@ -149,6 +149,26 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       return newState;
     }
 
+    case "BROADCAST_GRATITUDE":{
+      const gratitude = newState.gratitudes.filter(gratitude=>gratitude.id===action.broadcast.gratitudeId)
+      const broadcast= action.broadcast;
+      gratitude[0].broadcasts.items.push(broadcast)
+      newState.gratitudes = [...newState.gratitudes]
+
+      return newState
+    }
+
+    case "DELETE_BROADCAST_GRATITUDE":{
+      const gratitude = newState.gratitudes.filter(gratitude=>gratitude.id===action.broadcast.gratitudeId)
+      const broadcasts= gratitude[0].broadcasts.items.filter(broadcast=>broadcast.id!==action.broadcast.id)
+      gratitude[0].broadcasts.items = broadcasts
+      newState.gratitudes = [...newState.gratitudes]
+
+
+
+      return newState
+    }
+
     case "UPDATE_BROADCAST": {
       if(action.broadcast.ownerId === newState.operatingUser.id){
         log.info(`observed broadcast event for message I own, so throwing it away `)
@@ -165,15 +185,17 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       return newState;
     }
     case "DELETE_BROADCAST": {
-      if(action.broadcast.gratitude.userId === newState.operatingUser.id){
+      if(action.broadcast.ownerId === newState.operatingUser.id){
         log.info(`observed broadcast event for message I own, so throwing it away `)
         return state;
       }
       const map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
       let broadcasts: Broadcast[] = map.get(action.broadcast.channelId);
       broadcasts = broadcasts.filter(broadcast=>broadcast.id!==action.broadcast.id)
-      map.set(action.broadcast, broadcasts);
-      return newState;
+      map.set(action.broadcast.channelId, broadcasts);
+      newState.broadcastsByChannel = map;
+      return newState
+
     }
       
 /*

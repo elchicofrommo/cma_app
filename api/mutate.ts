@@ -171,6 +171,53 @@ async function createChannel(operatingUser: User, channelName: string, userChann
 }
 
 /**
+ * This function will create a Channel for this user then subscribe to it as all
+ * owned channles should autoamtically get a subscriptoin
+ * @param operatingUser User that you are subscribing for 
+ * @param channelName The name to give the channel
+ */
+async function deleteChannel(operatingUser: User, channelId: string, userChannels: UserChannel[]) 
+: Promise<{ownedChannel: Channel, subscribedChannel: UserChannel}>{
+    log.info(`createChannel start`);
+    if (!operatingUser) {
+        alert(`only users can create channels`);
+        return;
+    }
+
+    if (channelName === "") {
+        alert("you must specify a name for your channel");
+        return;
+    }
+
+    const id = shortid.generate();
+
+    const channel: Channel = {
+        id: shortid.generate().substring(0, 6),
+        name: channelName,
+        ownerId: operatingUser.id,
+        shortId: shortid.generate().substring(0, 6),
+    };
+
+
+    type CreateChannelResult =  {
+        createChannel: Channel
+    }
+    const results = await API.graphql(
+        gql(mutate.createChannel, { input: channel })
+    ) as {data: CreateChannelResult}
+
+    log.info(`createChannel done:`, {results})
+    log.info(`now subscribing:`);
+
+    const subscribeResults = await subscribeToChannel(operatingUser, channel.id, userChannels)
+
+    return {ownedChannel: results.data.createChannel, subscribedChannel: subscribeResults}
+        
+
+
+}
+
+/**
  * subscribes a user to a channel to listen to gratitudes broadcast on that channel
  */
 async function subscribeToChannel(operatingUser: User, channelId: 
@@ -255,7 +302,7 @@ async function createGratitude(operatingUser: User, input: CreateGratitudeInput)
                 content: content,
                 index
             };
-        });
+        }); 
 
         entries.forEach((entry) => {
             results.push(API.graphql(gql(mutate.createEntry, { input: entry })));
@@ -269,7 +316,6 @@ async function createGratitude(operatingUser: User, input: CreateGratitudeInput)
             createGratitude: Gratitude;
         };
 
-
         const gratitudeResult = (await API.graphql(
             gql(mutate.createGratitude, { input: gratitude })
         )) as { data: CreateGratitudeResult };
@@ -278,7 +324,7 @@ async function createGratitude(operatingUser: User, input: CreateGratitudeInput)
 
     } catch (err) {
         alert(
-            `could not create gratitude for this reason: `, {err}
+            `could not create gratitude for this reason: ${JSON.stringify(err)}`
         );
     }
 }
@@ -298,7 +344,7 @@ async function createBroadcast(gratitudeId: string, channelId: string, ownerId: 
                 gratitudeId,
                 channelId,
                 ownerId
-            },
+            }, gratitudeId
         })
     );
 
@@ -309,12 +355,108 @@ async function createBroadcast(gratitudeId: string, channelId: string, ownerId: 
 
 }
 
+async function deleteBroadcast(broadcastId, gratitudeId) {
+    if (broadcastId === "" ) {
+        alert("must specify broadcastID");
+        return;
+    }
+
+    log.info(`deleteBroadcast start`);
+
+    const results = await API.graphql(
+        gql(mutate.deleteBroadcast, {
+            input: {id: broadcastId}, gratitudeId
+        })
+    );
+
+    log.info(
+        `broadcastGratitude done, results are `, {results}
+    );
+    return results;
+
+}
+
+async function deleteGratitude(gratitude: Gratitude) {
+    log.info(`deleteGratitude start for id: ${gratitude.id}`);
+    if (!gratitude ) {
+      alert(`cannot delete null gratitude`);
+      return;
+    }
+
+    try {
+
+      let results = []
+
+      // delete all entries, likes, and comments
+      gratitude.likes.items.forEach((like: Like) => {
+        results.push(
+          API.graphql(
+            gql(mutate.deleteLike, {
+              input: { id: like.id},
+            })
+          )
+        );
+      });
+
+      gratitude.entries.items.forEach((entry: Entry) => {
+        results.push(
+          API.graphql(
+            gql(mutate.deleteEntry, {
+              input: { id: entry.id},
+            })
+          )
+        );
+      });
+      gratitude.comments.items.forEach((comment: Comment) => {
+        results.push(
+          API.graphql(
+            gql(mutate.deleteComment, {
+              input: { id: comment.id },
+            })
+          )
+        );
+      });
+
+    // delete all broadcasts,  entries, likes, and comments
+    gratitude.broadcasts.items.forEach((broadcast: Broadcast)=>{
+        results.push(API.graphql(
+            gql(mutate.deleteBroadcast, {
+            input: {id: broadcast.id}, 
+            gratitudeId: gratitude.id
+            })
+        ))
+        })
+
+      results.push(
+        await API.graphql(
+          gql(mutate.deleteGratitude, {
+            input: {
+              id: gratitude.id,
+            },
+          })
+        )
+      );
+
+      const finalResult = await Promise.allSettled(results);
+
+      console.log(
+        `deleteGratitude: done, result is ${JSON.stringify(finalResult)}`
+      );
+      //  updateGratitudeCount((gratitudeCount) => gratitudeCount - 1);
+    } catch (err) {
+      console.log(`could not delete becasue of : ${JSON.stringify(err)}`);
+    }
+  }
+
 export default {
 
     createUser,
     createBroadcast,
+    deleteBroadcast,
     createChannel,
+    deleteChannel,
     createGratitude,
+    deleteGratitude,
     updateUser,
     likeGratitude,
     commentOnGratitude,

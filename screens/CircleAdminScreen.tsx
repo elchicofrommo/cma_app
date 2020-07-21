@@ -16,6 +16,7 @@ import {
   Animated,
   Easing,
   StatusBar,
+  GestureResponderEvent,
 } from "react-native";
 import log from "../util/Logging"
 import { connect } from "react-redux";
@@ -33,16 +34,19 @@ import moment from "moment";
 
 import Modal from "react-native-modal";
 import KeyboardStickyView from "rn-keyboard-sticky-view";
+import Button from '../components/Button'
 import {store} from '../components/store'
 import {
 
 } from "@expo/vector-icons";
 import {User, UserChannel, ChannelDetails, Channel} from '../types/gratitude'
-import { Button } from "react-native-paper";
+
+
 
 function CircleAdminScreen({
   route, navigation,operatingUser,userChannels, ownedChannels, ...props
 }: {operatingUser: User, userChannels: UserChannel[], route: any, navigation: any, ownedChannels: Channel[]}) {
+
 
 log.info(`rendering CircleAdminScreen`)
 
@@ -53,29 +57,10 @@ log.info(`rendering CircleAdminScreen`)
   const createLabels = {input: "Circle Name", placeholder: `${operatingUser.name}'s Circle`, }
   const joinLabels = {input: "Invitation Code", placeholder: `Given by Circle Member`, }
   const [labels, setLabels] = useState(createLabels)
-  const [pressOffset, setPressOffset] = useState(new Animated.Value(0))
+
   const [input, setInput] = useState()
   const [isLoading, setIsLoading] = useState(false);
   const [channelDetails, setChannelDetails] = useState<ChannelDetails []>([]) 
-
-  function pressDown(){
-    log.info("press down")
-    Animated.timing(pressOffset, {
-      toValue: 3,
-      useNativeDriver: true,
-      duration: 50,
-      easing: Easing.linear
-    }).start();
-  }
-
-  function pressUp(){
-    Animated.timing(pressOffset, {
-      toValue: 0,
-      useNativeDriver: true,
-      duration: 50,
-      easing: Easing.linear
-    }).start();
-  }
 
   useEffect(()=>{
     async function getChannelDetails(){
@@ -165,9 +150,7 @@ log.info(`rendering CircleAdminScreen`)
     transform: [{ translateX: offset }]
   }
 
-  const buttonTransform = {
-    transform: [{ translateY: pressOffset }, {translateX: pressOffset}],
-  }
+
 
   React.useLayoutEffect(() => {
     log.info("maing a new save button");
@@ -217,7 +200,20 @@ log.info(`rendering CircleAdminScreen`)
           </View>
 
         </View>
+        <View style={[{ 
+          flexDirection: "row" , paddingVertical: 10
+        },  {display: 'none'}]}>
 
+          <View style={{justifyContent: 'center', flex: 1,  paddingHorizontal: 10 * Layout.scale.width}}>
+            <Button onPress={()=>alert('deleting ' + channel.id)} style={styles.buttonContainer} label={"Remove"} />
+
+          </View>
+        </View>
+        <View>
+
+
+        
+        </View>
       </View>
     )
   }
@@ -253,9 +249,8 @@ log.info(`rendering CircleAdminScreen`)
               }}
             />
             <Text style={styles.inputLabel}>{labels.input}</Text>
-            <TouchableOpacity onPressIn={pressDown} onPressOut={pressUp} onPress={readyAction} style={[styles.buttonContainer, buttonTransform]}>
-              <Text style={styles.buttonText}>Ready</Text>
-            </TouchableOpacity>
+            <Button onPress={readyAction} style={styles.buttonContainer} label={"Ready"} />
+
           </View>
           </View>
         </View>

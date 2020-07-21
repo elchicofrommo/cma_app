@@ -14,6 +14,7 @@ import { shallowEqual, useSelector } from "react-redux";
 import { store } from "../components/store";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import log from "../util/Logging"
+import {GratitueShareModal, GratitudeShareModal} from "../components/GratitudeShareModal"
 import {
   User,
   UserChannel,
@@ -45,7 +46,7 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
 
   const [refreshing, setRefreshing] = useState(false);
   const [gratitudeToShare, setGratitudeToShare] = useState<Gratitude>(undefined)
-
+  const [showModal, setShowModal] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentGratitudes, setCurrentGratitudes] = useState <Gratitude[]>([])
   const originalUserChannels: UserChannel[] = useSelector(
@@ -71,12 +72,35 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
   //const [modalHeight, setModalHeight] = useState(0)
 
 
-  async function shareGratitude(userChannel: UserChannel){
+  async function shareGratitude(userChannel: UserChannel, broadcastId: string){
 
-    const results = await mutateApi.createBroadcast(gratitudeToShare.id, userChannel.channelId, user.id)
+    log.info(`placeholder for share gratitude, broacast id is ${broadcastId}`)
+    let results;
+    if(!broadcastId){
+      results = await mutateApi.createBroadcast(gratitudeToShare.id, userChannel.channelId, user.id)
+      results = results.data.createBroadcast
+   //   store.dispatch({type: "BROADCAST_GRATITUDE", broadcast:results })
+      store.dispatch({type: "SET_BANNER", banner: {message: `Gratitude shared`, status: "info"}})
+    }else{
+      results = await mutateApi.deleteBroadcast(broadcastId, gratitudeToShare.id)
+      results = results.data.deleteBroadcast
+   //   store.dispatch({type: "DELETE_BROADCAST_GRATITUDE", broadcast:results })
+      store.dispatch({type: "SET_BANNER", banner: {message: `Gratitude unshared`, status: "info"}})
+    }
     log.info(`results from broadcast`, {results})
-    store.dispatch({type: "SET_BANNER", banner: {message: "Gratitude shared", status: "info"}})
+    
+  /* let results
+    if(broadcastId) {
+      results = await mutateApi.createBroadcast(gratitudeToShare.id, userChannel.channelId, user.id)
+    }
+    else{
+      
+    }
+    log.info(`results from broadcast`, {results})
+    store.dispatch({type: "BROADCAST_GRATITUDE", gratitudeId: gratitudeToShare.id, channelId: userChannel.channelId, })
+    store.dispatch({type: "SET_BANNER", banner: {message: "Gratitude shared", status: "info"}})*/
   }
+
   /*
   async function loadGratitudes() {
     setRefreshing(true);
@@ -92,6 +116,7 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
     loadGratitudes();
   }, []);
   */
+
 
   useEffect(()=>{
 
@@ -251,42 +276,12 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
       <GratitudeList
         gratitudeData={currentGratitudes}
         channelId={currentIndex!=0 ? userChannels[currentIndex].channelId: undefined }
-        action={setGratitudeToShare}
+        action={(input)=>{setShowModal(true); setGratitudeToShare(input)}}
         navigation={navigation}
       />
-<Modal
-        isVisible={gratitudeToShare!=undefined}
-        onBackdropPress={() => setGratitudeToShare(undefined)}
-       onSwipeComplete={() => setGratitudeToShare(undefined)}
-
-       backdropOpacity={.2}
-
-    //    onBackButtonPress={() => setVisible(false)}
-        swipeDirection={["down"]}
-        style={{margin: 0, justifyContent: "flex-end"}}
-      >
-        <View style={[
-          {backgroundColor: 'white', borderTopLeftRadius: 17, borderTopRightRadius: 17, }]}
->
-          <SafeAreaView style={{ width: '100%', marginTop: -30  }}>
-            <View style={{alignItems: "center"}}>
-              <View style={{width: 50, height: 5, backgroundColor: Colors.primary, borderRadius: 5, borderColor: Colors.primary}}></View>
-            </View>
-            <Text style={{ paddingHorizontal: 10, fontFamily: 'opensans', color: Colors.primary, fontSize: 21 * Layout.scale.width}}>Your Circles</Text>
-            {originalUserChannels.map((userChannel: UserChannel)=>{
-              return(
-                <View key={userChannel.id} style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 3,}}>
-                  <Text style={{ flex: 1, fontSize:17}}>{userChannel.channel.name}</Text>
-                  <TouchableWithoutFeedback style={{flex: 2, backgroundColor: 'yellow'}} onPress={()=>shareGratitude(userChannel)}>
-                    <Text style={{fontSize:17, width: 80}}>Share</Text>
-                  </TouchableWithoutFeedback>
-                </View>
-              )
-            })}
-
-          </SafeAreaView>
-        </View>
-      </Modal>
+      <GratitudeShareModal isVisible={showModal} dismissCallback={()=>setShowModal(false)}
+        gratitudeId={gratitudeToShare?.id} shareCallback={shareGratitude} />
+ 
     </View>
   );
 }
