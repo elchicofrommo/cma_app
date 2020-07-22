@@ -11,6 +11,7 @@ import { User, Meeting } from '../types/gratitude'
 import fetchApi from '../api/fetch'
 import { shallowEqual, useSelector  } from 'react-redux';
 import appLog from '../util/Logging'
+import soundCloudApi from "../api/soundcloud"
 
 export default function useCachedResources() {
   const [loadingState, setLoadingState] = React.useState(0);
@@ -52,13 +53,10 @@ export default function useCachedResources() {
     
     async function getNetworkResources() {
       appLog.verbose("geting network resources")
-      const CLIENT_ID = 'z7xDdzwjM6kB7fmXCd06c8kU6lFNtBCT'
-      const CMA_DETAILS = `https://api-v2.soundcloud.com/users/295522782?client_id=${CLIENT_ID}&linked_partitioning=1`
-      const CMA_TRACKS = `https://api-v2.soundcloud.com/users/295522782/tracks?client_id=${CLIENT_ID}&limit=100`
 
       const promises = [];
-      promises.push(axios.get(CMA_DETAILS))
-      promises.push( axios.get(CMA_TRACKS))
+      promises.push(soundCloudApi.getSoundCloudDetails())
+      promises.push(soundCloudApi.getSoundCloudTracks())
       promises.push(axios.get("https://api.bit-word.com/queryS3Directory"))
       promises.push(DataStore.query(DailyReaders, Predicates.ALL))
 
@@ -69,14 +67,7 @@ export default function useCachedResources() {
 
       // soundcloud details
       try{
-        const soundcloudDetails = await promises[0];
-
-        appLog.info(`got ` , {soundCloudDetails: soundcloudDetails.data})
-        let filtered = {
-          avatar: soundcloudDetails.data.avatar_url,
-          description: soundcloudDetails.data.description,
-          trackCount: soundcloudDetails.data.track_count
-        }
+        const filtered = await promises[0]
         store.dispatch({ type: "SOUNDCLOUD_DETAILS", data: filtered })
       }catch(err){
         store.dispatch({type: "SOUNDCLOUD_DETAILS", data: {description: "Could not get track details. "}})
@@ -85,10 +76,10 @@ export default function useCachedResources() {
 
       // soundcloud tracks
       try{
-        const soundcloudTracks = await promises[1]
-        appLog.info(`got CMA soundcloud tracks ${soundcloudTracks.data.collection.length}`)
+        const tracks = await promises[1]
+        appLog.info(`got CMA soundcloud tracks ${tracks.length}`)
 
-        store.dispatch({ type: "SOUNDCLOUD_TRACKS", data: soundcloudTracks.data.collection })
+        store.dispatch({ type: "SOUNDCLOUD_TRACKS", data: tracks})
       }catch(err){
         
         store.dispatch({ type: "SOUNDCLOUD_TRACKS", data: []})

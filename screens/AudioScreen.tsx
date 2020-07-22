@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, memo, useCallback } from 'react';
+import { shallowEqual, useSelector } from "react-redux";
 import { StyleSheet, Text, View, Dimensions, FlatList } from 'react-native';
 import { RectButton, ScrollView, BorderlessButton, TouchableOpacity } from 'react-native-gesture-handler';
 import AppBanner from '../components/AppBanner'
@@ -24,8 +25,6 @@ const color = Colors.primary
 let playerReady = false
 
 
-const CLIENT_ID = "?client_id=ort1mNnec7uBq15sMpCNm5oPUYUpu1oV"
-export const streamUrl = (trackUrl) => `${trackUrl}/stream?client_id=${SC_KEY}`;
 
 import Layout from '../constants/Layout';
 
@@ -77,7 +76,7 @@ const PlayerComponent = memo(({ track, isPlaying, setPlayingTrack }) => {
   const description = track.description;
   const title = track.title.replace(/\d\d.\d\d.\d\d\d\d$/, '');
   const createdText = created.format("MM/DD/YYYY");
-  const url = track.media.transcodings[1].url
+  const url = track.trackUrl
 
 
   const buttons = [faPlayCircle, faPauseCircle]
@@ -113,7 +112,7 @@ const PlayerComponent = memo(({ track, isPlaying, setPlayingTrack }) => {
 
 
     else {
-      axios.get(url + CLIENT_ID)
+      axios.get(url)
         .then(response => {
           // log.info(`have playing url ${response.data.url}`)
           Audio.Sound.createAsync(
@@ -181,7 +180,15 @@ function SpeakerScreen(props) {
   log.info(`rendering SpeakerScreen`)
   const [playingTrack, setPlayingTrack] = useState();
 
+  const{tracks, details} = useSelector((state)=>{
+    const tracks = state.general.soundCloudTracks;
+    const details = state.general.soundCloudDetails;
+    return {tracks, details}
+  })
 
+
+  log.info(`tracks and details are null? ${tracks==undefined} ${details==undefined}`)
+  //console.log(`${JSON.stringify(tracks)}`)
   const playerComponentWrapper = useCallback(({ item }) => {
     //log.info(`playingTrack ${playingTrack} and this track is ${item.id}`)
     return <PlayerComponent track={item} isPlaying={playingTrack == item.id} setPlayingTrack={setPlayingTrack} />
@@ -207,40 +214,22 @@ function SpeakerScreen(props) {
         <Logo style={{ flex: 1, marginLeft: -10, marginRight: -40, }} />
 
         <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 * Layout.scale.width }}>
-          <Text>{props.soundCloudDetails.description}</Text>
+          <Text>{details.description}</Text>
         </View>
       </View>
-      <FlatList data={props.soundCloudTracks}
+
+      <FlatList data={tracks}
 
         style={styles.container}
         extraData={playingTrack}
         maxToRenderPerBatch={10}
         renderItem={playerComponentWrapper} />
-
      
     </View>
   );
 }
 
-SpeakerScreen = connect(
-  function mapStateToProps(state, ownProps) {
-    const { soundCloudDetails, soundCloudTracks } = state.general
-    return { soundCloudTracks, soundCloudDetails };
-  },
-  function mapDispatchToProps(dispatch, ownState) {
-    return {
-      dispatchNameChange: (name) => {
-        //    log.info("dispatching name change with input " + name);
-        dispatch({ type: "NAME_CHANGE", name })
-      },
-      dispatchDosChange: (date) => {
-        //   log.info(`dispatching dos change ${date}`)
-        dispatch({ type: 'DOS_CHANGE', date })
-      }
 
-    }
-  }
-)(SpeakerScreen)
 
 
 function OptionButton({ icon, label, onPress, isLastOption }) {

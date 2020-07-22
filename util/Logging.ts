@@ -12,7 +12,7 @@ let fmt_warning = ctx.yellow
 let fmt_verbose = ctx.magenta
 
 let isVerbose = true
-let fullObject = true
+let fullObject = false
 
 
 function _stringify(toStringify: object, expand ){
