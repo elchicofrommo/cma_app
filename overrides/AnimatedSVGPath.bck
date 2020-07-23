@@ -14,6 +14,13 @@ import {
 
 import Path from '../AnimatedSVG';
 
+export const States = {
+  PLAY:0,
+  PAUSE:1,
+  RESUME:2
+}
+
+
 const { height, width } = Dimensions.get('window');
 class AnimatedSVGPath extends Component {
   static propTypes = {
@@ -30,7 +37,8 @@ class AnimatedSVGPath extends Component {
     fill: PropTypes.string,
     loop: PropTypes.bool,
     transform: PropTypes.string,
-    reverse: PropTypes.bool
+    reverse: PropTypes.bool,
+    state: PropTypes.number,
   };
   
   static defaultProps = {
@@ -45,7 +53,8 @@ class AnimatedSVGPath extends Component {
     height,
     width,
     loop: true,
-    reverse: false
+    reverse: false,
+    stop: States.PLAY
   };
   
   constructor(props) {
@@ -54,7 +63,9 @@ class AnimatedSVGPath extends Component {
     //const properties = svgPathProperties(d)
     this.length = length ? length: 1000;
     this.strokeDashoffset = new Animated.Value(!reverse ? this.length : 0);
+    this.strokeListener = this.strokeDashoffset.addListener((value) => this.currentStrokeValue = value);
   }
+
 
   animate = () => {
     const {
@@ -63,25 +74,73 @@ class AnimatedSVGPath extends Component {
       loop,
       easing = 'linear',
       reverse,
+      state
     } = this.props;
-    this.strokeDashoffset.setValue(!reverse ? this.length : 0);
-    Animated.sequence([
-      Animated.delay(delay),
-      Animated.timing(this.strokeDashoffset, {
-        toValue: !reverse ? 0 : this.length,
-        duration: duration,
-        easing: Easing[easing],
-        useNativeDriver: true,
-      })
-    ]).start(() => {
-      if (loop) {
-          this.animate();
-      }
-    });
+
+    if(state == States.PAUSE)
+      return;
+
+    else if(state == States.PLAY){
+      this.strokeDashoffset.setValue(!reverse ? this.length : 0);
+      Animated.sequence([
+        Animated.delay(delay),
+        Animated.timing(this.strokeDashoffset, {
+          toValue: !reverse ? 0 : this.length + 40,
+          duration: duration,
+          easing: Easing[easing],
+          useNativeDriver: true,
+        })
+      ]).start(() => {
+        if (loop) {
+            this.animate();
+        }
+      });
+    }else if(state == States.RESUME){
+      const remaining = this.props.length - this.currentStrokeValue.value
+
+      const remainingDuration = duration - (duration * remaining /this.length)
+      Animated.sequence([
+        Animated.timing(this.strokeDashoffset, {
+          toValue: !reverse ? 0 : this.length,
+          duration: remainingDuration,
+          easing: Easing[easing],
+          useNativeDriver: true,
+        })
+      ]).start(() => {
+
+      });
+    }
+
   }
 
   componentDidMount() {
-    this.animate();
+    const {
+      state
+    } = this.props;
+    if(state != States.PAUSE )
+      this.animate();
+  }
+
+  componentWillUnmount(){
+    this.strokeDashoffset.removeAllListeners();
+  }
+
+  componentDidUpdate(){
+    const {
+      state
+    } = this.props;
+
+    if(state == States.PAUSE){
+      let val = ""
+      this.strokeDashoffset.stopAnimation((value)=>{
+        val = value
+        console.log(`stopped animation with the following value ${value} and listner value is ${JSON.stringify(this.currentStrokeValue)}`)
+      } );
+      
+    }  else{
+      console.log(`play offset should be ${this.currentStrokeValue}`)
+      this.animate()
+    }  
   }
   
   render() {
@@ -96,7 +155,10 @@ class AnimatedSVGPath extends Component {
       strokeLinecap,
       strokeDashArray: dashArray,
       transform,
+
     } = this.props;
+
+
     return (
 
         <Path

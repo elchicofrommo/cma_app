@@ -38,7 +38,7 @@ const daysOfWeek = {
 
 const MeetingStack = createStackNavigator();
 export { MeetingList, sortMeetings }
-export default function MeetingSearchScreenStack() {
+/*function MeetingSearchScreenStack() {
   log.info(`rendering meetingstack`)
   return (
     <MeetingStack.Navigator >
@@ -95,7 +95,7 @@ export default function MeetingSearchScreenStack() {
     </MeetingStack.Navigator>
   )
 }
-
+*/
 function LocationScreen({ navigation, ...props }) {
   const [location, setLocation] = useState()
   return (
@@ -156,7 +156,7 @@ function sortMeetings(meetings: Meeting[])  {
 }
 
 
-function MeetingList({ meetingData, action, style = {} } :{ meetingData: Meeting[], action:any, style: any}) {
+function MeetingList({ meetingData, action, style = {}, emptyMessage } :{ meetingData: Meeting[], action:any, style: any, emptyMessage?: string}) {
 
   const keyExtractorCallback = useCallback((data) => { return data.id })
 
@@ -175,11 +175,14 @@ function MeetingList({ meetingData, action, style = {} } :{ meetingData: Meeting
       keyExtractor={keyExtractorCallback}
       initialNumToRender={5}
       contentContainerStyle={style}
+      ListEmptyComponent={<View style={[styles.container, {paddingHorizontal: 10 * Layout.scale.width}]}>
+        <Text style={styles.textField}>{emptyMessage}</Text>
+      </View>}
 
     />
   )
 }
-function MeetingSearchScreen({ navigation, ...props }) {
+export default function MeetingSearchScreen({ navigation, ...props }) {
 
   log.info(`rendering MeetingSearchScreen`)
   const emptyView = <View></View>

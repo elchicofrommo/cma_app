@@ -19,6 +19,7 @@ import {DetailsScreen} from './screens/MeetingDetailsScreen'
 import SplashScreen from './screens/SplashScreen'
 import EditorScreen from './screens/GratitudeEditorScreen'
 import CircleAdminScreen from './screens/CircleAdminScreen'
+import MeetingSearchScreen from './screens/MeetingSearchScreen'
 import appLog from './util/Logging'
 
 const AppStack = createStackNavigator();
@@ -126,6 +127,28 @@ function AppStackStack({initialRoute}){
 
 
         })} />  
+
+      <AppStack.Screen
+        name="meetingSearch"
+        component={MeetingSearchScreen}
+
+        options={({ navigation, route }) => ({
+
+          headerStyle: {
+            backgroundColor: '#FFF',
+            shadowColor: 'transparent'
+          },
+          title: '',
+          headerTintColor: Colors.primary,
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontFamily: 'merriweather',
+            fontSize: 18 * Layout.scale.width,
+            borderBottomWidth: 0,
+
+
+          },
+        })} />        
     </AppStack.Navigator>
   )
 }

@@ -19,7 +19,7 @@ import Layout from '../constants/Layout';
 
 export default connect(
   function mapStateToProps(state, ownProps){
-    const {documents} = state.general.paths
+    const documents = state.general.paths
       return {documents};
     }, 
     function mapDispatchToProps(dispatch){
@@ -32,17 +32,18 @@ export default connect(
 )(DocumentScreenStack)
 
 function DocumentScreenStack(props){
-  const {formats, pamphlet, readings} = props.documents;
+  log.info(`rendering docuemnt screenstack,`)
+  const {format, pamphlet, readings} = props.documents;
   log.info(`rendering document screenstack`)
   const FormatWrapper = ({ navigation, route }) => (
-    <DocumentBrowserScreen path="https://cma-northamerica.s3-us-west-1.amazonaws.com/documents/formats/" fileNames={formats} />
+    <DocumentBrowserScreen documents={format} />
   );
   const PamphletWrapper = ({ navigation, route }) => (
-    <DocumentBrowserScreen path="https://cma-northamerica.s3-us-west-1.amazonaws.com/documents/pamphlet/" fileNames={pamphlet}/>
+    <DocumentBrowserScreen  documents={pamphlet}/>
 
   );
   const ReadingsWrapper = ({ navigation, route }) => (
-    <DocumentBrowserScreen path="https://cma-northamerica.s3-us-west-1.amazonaws.com/documents/readings/" fileNames={readings}/>
+    <DocumentBrowserScreen  documents={readings}/>
   );
   return (
     <DocumentStack.Navigator>

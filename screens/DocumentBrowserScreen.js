@@ -11,15 +11,15 @@ import Colors from '../constants/Colors';
 import log from "../util/Logging"
 const DocumentStack = createStackNavigator();
 
-export default function DocumentBrowserScreen(props){
+export default function DocumentBrowserScreen({documents, ...props}){
 
   log.info(`rendering DocumentBrowserScreen`)
   const buttons = [];
-  for(let entry in props.fileNames){
-    const URI = encodeURI(`${props.path}${entry}`)
+  documents.forEach(entry=>{
+    const URI = encodeURI(`${entry.link}`)
     buttons.push(
         <OptionButton
-            label={entry}
+            label={entry.label}
             key={URI}
             onPress={() => {
               log.info(`opening up ${URI}`)
@@ -31,7 +31,7 @@ export default function DocumentBrowserScreen(props){
             }}
         />
     )
-  }
+  })
   return (
     <View style={styles.container}>
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>

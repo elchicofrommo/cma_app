@@ -12,7 +12,7 @@ import fetchApi from '../api/fetch'
 import { shallowEqual, useSelector  } from 'react-redux';
 import appLog from '../util/Logging'
 import soundCloudApi from "../api/soundcloud"
-
+const DOCUMENT_LISTING = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vScVd04i6g1ZINmwh454Opw_OztKytorQFJyWii2MjW1CxqCKmcCezU51zBw-28k0nn9LWsc3NALw_x/pub?output=csv'
 export default function useCachedResources() {
   const [loadingState, setLoadingState] = React.useState(0);
   const user : User = useSelector  (state=>state.general.operatingUser, shallowEqual ) 
@@ -57,8 +57,8 @@ export default function useCachedResources() {
       const promises = [];
       promises.push(soundCloudApi.getSoundCloudDetails())
       promises.push(soundCloudApi.getSoundCloudTracks())
-      promises.push(axios.get("https://api.bit-word.com/queryS3Directory"))
       promises.push(DataStore.query(DailyReaders, Predicates.ALL))
+      promises.push(axios.get(DOCUMENT_LISTING))
 
       //const results: PromiseSettledResult<any>[] = await Promise.all(promises)
 
@@ -86,18 +86,10 @@ export default function useCachedResources() {
         appLog.info("could not get soundcloud tracks ", {error: err} )
       }
 
-      // S3 directory
-      try{
-        const directory = await promises[2]
-        appLog.info(`got S3 directory structure `, {directory: directory.data})
-        store.dispatch({ type: "NETWORK_DATA", data: directory.data })
-      }catch(err){
-        appLog.info("could not get S3 directory structure " + err)
-      }
 
       // Daily Readers out of data store
       try{
-        const result = await promises[3]
+        const result = await promises[2]
         if (result.length > 0) { // if there are auth details to retrieve
           appLog.info(`daily reader out of datastore are ${result}`)
           store.dispatch({ type: "DAILY_READERS", data: JSON.parse(result[0].readings) })
@@ -116,6 +108,30 @@ export default function useCachedResources() {
         }
       }catch(err){
 
+      }
+      try{
+        const documentResult = await promises[3] ;
+        const raw = documentResult.data.split('\r\n')
+        raw.shift();
+        const massaged = {}
+        raw.forEach(element => {
+            const data = element.split(',')
+            if(data.length>3){
+              appLog.error(`someone didn't edit the file correctly and used a comma`)
+              return
+            }
+            if(!massaged[data[0]]){
+              massaged[data[0]]= []
+            }
+            massaged[data[0]].push({label: data[1], link: data[2]})
+            store.dispatch({ type: "NETWORK_DATA", data: massaged })
+
+        });
+        appLog.info(`documentResult ${JSON.stringify(massaged, null, 2)}`)
+
+
+      }catch(err){
+        appLog.info(`could not get documnet data`, {err})
       }
     }
 
