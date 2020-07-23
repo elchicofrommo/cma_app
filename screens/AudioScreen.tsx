@@ -12,14 +12,16 @@ import moment from 'moment'
 import { Audio } from 'expo-av'
 import axios from 'axios';
 import Colors from '../constants/Colors';
-import SoberietyTime from "../components/SoberietyTime"
+
 import {LinearGradient} from "expo-linear-gradient"
 import log from "../util/Logging"
+import {AnimationStates, AnimatedCircle, CircleEnd, CircleStart} from '../assets/images/circlePlayer'
+
 const SpeakerStack = createStackNavigator();
 
 import { faPlayCircle, faPauseCircle } from '@fortawesome/free-regular-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faPause } from '@fortawesome/free-solid-svg-icons';
+import { Feather, AntDesign } from '@expo/vector-icons'; 
+
 import { Ionicons } from '@expo/vector-icons';
 const color = Colors.primary
 let playerReady = false
@@ -27,6 +29,11 @@ let playerReady = false
 
 
 import Layout from '../constants/Layout';
+import { TrackingConfiguration } from 'expo/build/AR';
+
+enum PlayStates {
+  INITAL, LOADING, PAUSED, PLAYING, RESUME
+}
 
 export default function SpeakerScreenStack() {
   log.info(`render AudioScreenStack`)
@@ -58,12 +65,13 @@ export default function SpeakerScreenStack() {
 
 
 
-const PlayerComponent = memo(({ track, isPlaying, setPlayingTrack }) => {
+const TrackDetails = memo(({ track, state = PlayStates.INITAL, playerCallback }: 
+  {track: any, state: PlayStates, playerCallback:Function}) => {
 
-  log.info(`new PlayerComponent past memo`)
-  const [player, setPlayer] = useState();
+  log.info(`new PlayerComponent past memo input is track:${track.state} and state:${state}`)
+  
 
-  const duration = moment.duration(track.full_duration)
+  const duration = moment.duration(track.duration)
   const time = moment.utc(duration.as('milliseconds')).format('mm:ss')
   let hours = ""
 
@@ -87,71 +95,37 @@ const PlayerComponent = memo(({ track, isPlaying, setPlayingTrack }) => {
     log.info(`playbackStatus`)
   }
 
-  function playerCallback() {
-    log.info(`player callback is called for ${url}`)
-
-    if (player) {
-      if (isPlaying) {
-        player.pauseAsync().then(
-          (result) => {
-            log.info('pausing');
-            setPlayingTrack(undefined)
-          }
-        )
-
-      } else {
-        player.playAsync().then(
-          (result) => {
-            log.info(`restarting track ${track.id}`);
-            setPlayingTrack(track.id)
-          }
-        )
-      }
-
-    }
+  let playStatus =  <View style={{position: 'absolute', zIndex:  5,top: 1, left: 2}}>
+    <CircleStart width={60} height={60} style={{position: 'absolute', zIndex: 1, top: 0, left:0}}  />
+    <Feather name="play" size={35} color={Colors.primary} style={{position: 'absolute', zIndex: 3, top: 12.5, left:14.5}}/>
+    </View>
 
 
-    else {
-      axios.get(url)
-        .then(response => {
-          // log.info(`have playing url ${response.data.url}`)
-          Audio.Sound.createAsync(
-            { uri: response.data.url },
-            { shouldPlay: true },
-            playbackStatus,
-            false
-          ).then(({ sound, status }) => {
-            log.info(`playing track ${track.id}`);
-            setPlayer(sound)
-            setPlayingTrack(track.id)
-          }).catch((err) => {
-            log.info('problem playing the file ' + err)
-          })
-
-        }).catch(error => {
-          log.info("could not get network resources " + error)
-        })
-    }
-
-  }
-
-  const button = isPlaying? 
-    <TouchableOpacity  onPress={playerCallback}
-    style={{ width: 34, height: 30, justifyContent: 'center', alignItems: 'center'}} >
-    <Ionicons name="ios-pause" color={Colors.primary} size={24} />
-    </TouchableOpacity> :
-
-    <TouchableOpacity  onPress={playerCallback}
-    style={{ width: 34, height: 30, justifyContent: 'center', alignItems: 'center'}} >
-    <Ionicons name="ios-play" color={Colors.primary} size={24} />
-    </TouchableOpacity>
+  if(state == PlayStates.PLAYING)
+    playStatus = <View style={{position: 'absolute', zIndex: 5, top: 1, left: 2}}>
+      <AnimatedCircle style={{position: 'absolute', zIndex: 1, top: 0, left:0}} width={60} height={60} duration={track.duration} state={AnimationStates.PLAY} />
+      <AntDesign name="pause" size={40} color={Colors.primary} style={{position: 'absolute', zIndex: 3, top: 10, left:10}}/>
+      </View>
+  else if(state == PlayStates.PAUSED)
+    playStatus = <View style={{position: 'absolute', zIndex: 5, top: 1, left: 2}}>
+      <AnimatedCircle style={{position: 'absolute', zIndex: 1, }} width={60} height={60} duration={track.duration} state={AnimationStates.PAUSE} />
+      <Feather name="play" size={35} color={Colors.primary} style={{position: 'absolute', zIndex: 3, top: 12.5, left:14.5}}/>
+      </View>
+  else if (state == PlayStates.RESUME)
+  playStatus = <View style={{position: 'absolute', zIndex: 5, top: 1, left: 2}}>
+    <AnimatedCircle style={{position: 'absolute', zIndex: 1, top: 0, left:0}} width={60} height={60} duration={track.duration} state={AnimationStates.RESUME} />
+    <AntDesign name="pause" size={40} color={Colors.primary} style={{position: 'absolute', zIndex: 3, top: 10, left:10}}/>
+    </View>
+  //else if(state == PlayStates.LOADING)
+ //   playStatus = <FontAwesomeIcon icon={faHourglassHalf} style={{ color: color }} size={50 * Layout.scale.width} />
 
   return (
     <View style={{ height: Layout.scale.width * 80, flexDirection: 'row', backgroundColor: '#FFF', borderBottomWidth: 1, }}>
       
-      <View style={{ justifyContent: 'center', paddingHorizontal: 5 }}>
-        <BorderlessButton style={[styles.button]} onPress={playerCallback}>
-          <FontAwesomeIcon icon={isPlaying ? faPauseCircle : faPlayCircle} style={{ color: color }} size={50 * Layout.scale.width} />
+      <View style={[{ justifyContent: 'center', paddingHorizontal: 5 }, track.state==PlayStates.LOADING && {opacity: .5}]}>
+        <BorderlessButton style={[styles.button, {height: 65, width: 65}]} onPress={()=>{track.state!=PlayStates.LOADING&& playerCallback(track)}}>
+          {playStatus}
+          <View style={{position: 'absolute', zIndex: 3, top: 1, left: 2}}><CircleEnd width={60} height={60} /></View>
         </BorderlessButton>
 
         <Text style={styles.duration}>{`${durationText}`}</Text>
@@ -171,7 +145,7 @@ const PlayerComponent = memo(({ track, isPlaying, setPlayingTrack }) => {
 
 function compareStates(prev, next) {
 
-  return prev.isPlaying == next.isPlaying
+  return prev.state == next.state
 }
 
 
@@ -180,6 +154,7 @@ function SpeakerScreen(props) {
   log.info(`rendering SpeakerScreen`)
   const [playingTrack, setPlayingTrack] = useState();
 
+  const [player, setPlayer] = useState();
   const{tracks, details} = useSelector((state)=>{
     const tracks = state.general.soundCloudTracks;
     const details = state.general.soundCloudDetails;
@@ -187,18 +162,102 @@ function SpeakerScreen(props) {
   })
 
 
+  async function playerCallback (track){
+
+    const temp = {player: undefined};
+    setPlayer(player=>{
+      temp.player = player;
+      return player;
+    })
+
+    log.info(`playerCallback called`, {track, player})
+
+    if(!playingTrack||track.id != playingTrack.id){
+      track.state = PlayStates.LOADING
+      setPlayingTrack({...track})
+
+      log.info(`going to play the following`, {track})
+      
+
+      axios.get(track.trackUrl)
+        .then(response => {
+          // log.info(`have playing url ${response.data.url}`)
+          if(temp.player){
+
+                temp.player.unloadAsync().then(r2=>{
+                  temp.player.loadAsync(
+                    { uri: response.data.url },
+                    { shouldPlay: true },
+                    false
+                  ).then((status) => {
+                    log.info(`playing status ${status}`);
+
+                    track.state = PlayStates.PLAYING
+                    setPlayingTrack({...track})
+                  }).catch((err) => {
+                    log.info('problem playing the file ' + err)
+                  })
+                })
+
+               
+          }else{
+            Audio.Sound.createAsync(
+              { uri: response.data.url },
+              { shouldPlay: true },
+              null,
+              false
+            ).then(({ sound, status }) => {
+              log.info(`playing track ${track.id}`);
+              setPlayer(sound)
+              track.state = PlayStates.PLAYING
+              setPlayingTrack({...track})
+            }).catch((err) => {
+              log.info('problem playing the file ' + err)
+            })
+          }
+        }).catch(error => {
+          log.info("could not get network resources " + error)
+        })
+    } else if (track.id==playingTrack.id){
+      if(track.state != PlayStates.PAUSED){
+        track.state = PlayStates.PAUSED
+        setPlayingTrack({...track})
+        temp.player.pauseAsync().then(
+          (result) => {
+            log.info('pausing');
+
+          }
+        )
+      }else{
+        track.state = PlayStates.RESUME
+        setPlayingTrack({...track})
+        temp.player.playAsync().then(
+          (result) => {
+            log.info(`restarting track ${track.id}`);
+
+          }
+        ) 
+      }
+    } 
+  }
+
   log.info(`tracks and details are null? ${tracks==undefined} ${details==undefined}`)
   //console.log(`${JSON.stringify(tracks)}`)
-  const playerComponentWrapper = useCallback(({ item }) => {
-    //log.info(`playingTrack ${playingTrack} and this track is ${item.id}`)
-    return <PlayerComponent track={item} isPlaying={playingTrack == item.id} setPlayingTrack={setPlayingTrack} />
-  }, [playingTrack])
+  function renderTrackDetails({item:track, index}) {
+   // log.info(`playing track ${playingTrack?.id} and this track id ${track.id}`)
+    let state = PlayStates.INITAL;
+    if(playingTrack?.id == track.id){
+      state = playingTrack.state
+      log.info(`got a hit, changing state to ${state}`)
+    }
+    return <TrackDetails track={track} playerCallback={playerCallback} state={state}/>
+  }
   const keyExtractorCallback = useCallback(({ item }) => { return item.track.id }, [])
   return (
 
     <View style={styles.container}>
       <AppBanner />
-      <View style={{ backgroundColor: Colors.primaryL2, flex: .2, flexDirection: 'row', paddingTop: 10, paddingBottom: 10 }}>
+      <View style={{ backgroundColor: Colors.primaryL2, flexDirection: 'row', paddingTop: 10, paddingBottom: 10 }}>
         <LinearGradient 
           colors={[Colors.primaryL2, Colors.primaryL1]}
           style={{
@@ -219,11 +278,12 @@ function SpeakerScreen(props) {
       </View>
 
       <FlatList data={tracks}
-
-        style={styles.container}
         extraData={playingTrack}
+        contentContainerStyle={{}}
         maxToRenderPerBatch={10}
-        renderItem={playerComponentWrapper} />
+        initialNumToRender={10}
+        renderItem={renderTrackDetails} />
+
      
     </View>
   );

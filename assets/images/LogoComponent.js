@@ -36,6 +36,7 @@ export default function Logo(props) {
             d={circleD}
             length={1319.11}
             loop={false}
+            state={0}
             strokeLinecap={"square"}
             strokeLinejoin={"bevel"}
           />
@@ -54,6 +55,7 @@ export default function Logo(props) {
               233.38,63.95 223.00,46.00 247.46,84.68M -173.00,-3.00`}
             length={468.50}
             delay={1000}
+            state={0}
             loop={false}
           />
 
@@ -69,6 +71,7 @@ export default function Logo(props) {
             length={534.52}
             delay={1000}
             loop={false}
+            state={0}
             strokeLinecap={"round"}
             strokeLinejoin={""}
 
@@ -89,6 +92,7 @@ export default function Logo(props) {
             length={380.61}
             delay={1000}
             loop={false}
+            state={0}
 
           />
 
