@@ -1,6 +1,6 @@
-import * as WebBrowser from 'expo-web-browser';
+
 import * as React from 'react';
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dimensions, Linking } from 'react-native';
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dimensions, Linking, Animated } from 'react-native';
 import { BorderlessButton, ScrollView } from 'react-native-gesture-handler';
 
 import {createStackNavigator} from '@react-navigation/stack';
@@ -124,6 +124,8 @@ function HomeScreen({navigation, ...props}) {
     waitForMeetings(meetingSearch)
     log.info(`observed change in closeMeetings, must be bcasue promise resolved? `, {meetingSearch})
   },[])
+  
+
 
   let meetingSection = undefined;
   if(props.meetings && props.meetings.length > 0){
@@ -221,7 +223,7 @@ const styles = StyleSheet.create({
   meetings:{
     height: '30%',
     borderBottomWidth: 3,
-    height: '30%'
+
   },
   icon:{
     color: 'gray'
@@ -229,7 +231,7 @@ const styles = StyleSheet.create({
   gratitude:{
     height: '30%',
     borderColor: '#fff',
-    height: '30%'
+
   },
   contentContainer: {
     flex: 1,
