@@ -6,13 +6,13 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import { connect } from 'react-redux';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
-import { createStackNavigator, } from '@react-navigation/stack';
+import { createStackNavigator, HeaderBackButton, } from '@react-navigation/stack';
 import AppBanner from '../components/AppBanner'
 import * as Location from 'expo-location';
 import axios from 'axios';
 import moment from 'moment'
 import MeetingListRow from '../components/MeetingListRow'
-import { DetailsScreen} from './MeetingDetailsScreen'
+import { DetailsScreen } from './MeetingDetailsScreen'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faFilter, faWindowClose, faStop } from '@fortawesome/free-solid-svg-icons';
 import { ToggleButton } from 'react-native-paper';
@@ -23,7 +23,7 @@ import SoberietyTime from '../components/SoberietyTime';
 import symbolicateStackTrace from 'react-native/Libraries/Core/Devtools/symbolicateStackTrace';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
-import {Meeting} from '../types/gratitude'
+import { Meeting } from '../types/gratitude'
 import log from "../util/Logging"
 const daysOfWeek = {
   Sunday: 0,
@@ -131,7 +131,7 @@ function LocationScreen({ navigation, ...props }) {
   )
 }
 
-function sortMeetings(meetings: Meeting[])  {
+function sortMeetings(meetings: Meeting[]) {
   meetings.sort((a, b) => {
 
     let aDay = daysOfWeek[a.weekday]
@@ -156,7 +156,7 @@ function sortMeetings(meetings: Meeting[])  {
 }
 
 
-function MeetingList({ meetingData, action, style = {}, emptyMessage } :{ meetingData: Meeting[], action:any, style: any, emptyMessage?: string}) {
+function MeetingList({ meetingData, action, style = {}, emptyMessage }: { meetingData: Meeting[], action: any, style: any, emptyMessage?: string }) {
 
   const keyExtractorCallback = useCallback((data) => { return data.id })
 
@@ -175,7 +175,7 @@ function MeetingList({ meetingData, action, style = {}, emptyMessage } :{ meetin
       keyExtractor={keyExtractorCallback}
       initialNumToRender={5}
       contentContainerStyle={style}
-      ListEmptyComponent={<View style={[styles.container, {paddingHorizontal: 10 * Layout.scale.width}]}>
+      ListEmptyComponent={<View style={[styles.container, { paddingHorizontal: 10 * Layout.scale.width }]}>
         <Text style={styles.textField}>{emptyMessage}</Text>
       </View>}
 
@@ -187,24 +187,42 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
   log.info(`rendering MeetingSearchScreen`)
   const emptyView = <View></View>
   const [address, setAddress] = useState(null);
-  const [meetingData, setMeetingData] = useState <Meeting[]>([]);
+  const [meetingData, setMeetingData] = useState<Meeting[]>([]);
   const [filteredMeetingData, setFilteredMeetingData] = useState<Meeting[]>();
   const [meetingTypes, setMeetingTypes] = useState<string[]>([]);
   const [distance, setDistance] = useState(5)
   const [message, setMessage] = useState(null)
   const [meetingComponents, setMeetingComponents] = useState(emptyView)
   const [expanded, setExpanded] = useState(false)
-  const [offset, setOffset] = useState(new Animated.Value(Layout.window.width *.008))
+  const [offset, setOffset] = useState(new Animated.Value(Layout.window.width * .008))
   const [isVirtual, setIsVirtual] = useState(false);
 
+  React.useLayoutEffect(() => {
+    log.info("maing a new save button");
 
+
+    navigation.setOptions({
+
+      headerLeft: () => (
+        <HeaderBackButton
+          label={"Home Groups"}
+          tintColor={Colors.primary}
+          onPress={(event) => {
+
+            navigation.goBack();
+
+          }}
+        />
+      ),
+    });
+  }, []);
 
   useEffect(() => {
 
     if (address && address != "")
       Location.geocodeAsync(address).then((resolve) => {
         log.info(`found address for ${JSON.stringify(resolve)} `)
-        resolve.data.forEach((entry) => log.info(`Address match` , {entry}))
+        resolve.data.forEach((entry) => log.info(`Address match`, { entry }))
       }).catch((err) => {
         log.info(`caught an error with getting new geocode for this address. ${err}`)
       })
@@ -237,7 +255,7 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
     }
   }
 
-  function filterMeetings(filters)  {
+  function filterMeetings(filters) {
     const filtered: Meeting[] = [];
     log.info(`filtering meetings, meetingData length is ${meetingData.length}`)
     meetingData.forEach(entry => {
@@ -262,115 +280,49 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
     setFilteredMeetingData(filtered)
   }
 
+
+  
+
   async function getMeetings() {
 
     Keyboard.dismiss();
 
-    let lat = 0;
-    let long = 0
+
     setMessage("Working ...")
     setMeetingData([])
     setFilteredMeetingData(null)
     setMeetingComponents(emptyView)
 
-    let { status } = await Location.requestPermissionsAsync();
-    if (status !== 'granted') {
-      setMessage("You must enable location in Settings to use current location. \
-      Otherwise you may enter an address");
+    const result = await searchForMeeting( address, distance )
+    if (result.error) {
+      setMessage(result.error)
       return;
     }
-    log.info("have location permission ");
-    try {
-      if (!address) {
-        const location = await Location.getCurrentPositionAsync({});
-        lat = location.coords.latitude;
-        long = location.coords.longitude
-      } else {
-        try {
-          const location = await Location.geocodeAsync(address)
-          log.info(`found address for ${address}` , {location})
-          lat = location[0].latitude;
-          long = location[0].longitude;
-        } catch (err) {
-          log.info(`problem looking for address` , {err})
-          props.dispatchSetBanner({ message: "Could not find address" })
-          return;
-        }
-      }
 
-      const query = `https://api.bit-word.com/api/cma/meeting?long=${lat}&lat=${long}&distance=${distance * 1609}`;
+    log.info(`meeting types generated is ${JSON.stringify(result.types)} `)
+    setMeetingTypes(result.types);
+    setMeetingData(result.meetings)
 
-      log.info(`runnign query ${query}`)
+    setMessage(`${result.meetings.length} meetings found`);
+    log.info(`observed there are no filters to apply to meeting search `)
+    setFilteredMeetingData(result.meetings)
 
-      let response = undefined
-      try {
-        response = await axios.get(query)
-      } catch{
-        setMessage("Network problmes. Try again");
-        return;
-      }
-
-      if (response.data.error) {
-        log.info(`problem getting data ${response.data.error}`)
-        setMessage("System problem finding meetings. Try again later")
-      } else {
-
-
-        setMessage(`${response.data.length} meetings found`);
-        let types: string[] = []
-        const meetings: Meeting[] = response.data.map(rawMeeting=>{
-
-          const meeting: Meeting = {
-            id: rawMeeting._id,
-            name: rawMeeting.name,
-            active: rawMeeting.active!=0,
-            category: rawMeeting.category,
-            location: {lat: rawMeeting.location.coordinates[1], long: rawMeeting.location.coordinates[0]},
-            startTime: rawMeeting.start_time,
-            weekday: rawMeeting.weekday,
-            type: rawMeeting.type,
-            street: rawMeeting.street,
-            city: rawMeeting.city,
-            state: rawMeeting.state,
-            paid: rawMeeting.paid,
-            distance: rawMeeting.dist.calculated,
-            zip: rawMeeting.zip
-          }
-          meeting.type && (types = types.concat(meeting.type))
-          return meeting
-
-        })
-
-
-        let typeSet = new Set<string>(types);
-        log.info(`meeting types generated is ${JSON.stringify(types)} ${JSON.stringify(typeSet.size)}`)
-        setMeetingTypes([...typeSet]);
-        const sorted = sortMeetings(meetings)
-        setMeetingData(sorted)
-        log.info(`done getting meeting and sorting, meetingData length is ${sorted.length}`)
-
-        log.info(`observed there are no filters to apply to meeting search `)
-        setFilteredMeetingData(sorted)
-
-
-      }
-    } catch (bigerr) {
-      log.info(`problem getting meeting data as follows `, {bigerr})
-    }
 
   }
 
-  function searchTraditional(){
+
+
+  function searchTraditional() {
     setIsVirtual(false)
     Animated.timing(offset, {
-      toValue: (Layout.window.width *.008),
+      toValue: (Layout.window.width * .008),
       useNativeDriver: true,
       duration: 200,
       easing: Easing.inOut(Easing.ease)
     }).start();
   }
 
-  function searchVirtual(){
+  function searchVirtual() {
     setIsVirtual(true)
     Animated.timing(offset, {
       toValue: Layout.window.width * .47,
@@ -404,11 +356,11 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
 
       <View style={{ backgroundColor: '#fff', paddingHorizontal: 10 * Layout.scale.width, }}>
         <View style={{ backgroundColor: '#fff', paddingTop: 10 * Layout.scale.width }}>
-          <View style={{position: 'relative', zIndex: 1,  flexDirection: 'row', paddingVertical: 0, height: 34, justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#d1d7dd',  borderRadius: 17, }}>
-          <Animated.View style={[{position: 'absolute', zIndex: 3, height: 29, width: '49%', backgroundColor: 'white', top: 2.5, left: 0, borderRadius: 16 ,...shadow,...transform } ]}></Animated.View>
-            
-            <TouchableWithoutFeedback onPress={searchTraditional} ><Text style={[{position: 'relative', zIndex: 5, elevation: 4, flex: 1, textAlign: 'center', color: (isVirtual?'black':Colors.primary), }, styles.textField]}>Traditional</Text></TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={searchVirtual} ><Text style={[{position: 'relative', zIndex: 5, elevation: 4, flex: 1, textAlign: 'center', color: (isVirtual?Colors.primary:'black'), }, styles.textField]}>Virtual</Text></TouchableWithoutFeedback>
+          <View style={{ position: 'relative', zIndex: 1, flexDirection: 'row', paddingVertical: 0, height: 34, justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#d1d7dd', borderRadius: 17, }}>
+            <Animated.View style={[{ position: 'absolute', zIndex: 3, height: 29, width: '49%', backgroundColor: 'white', top: 2.5, left: 0, borderRadius: 16, ...shadow, ...transform }]}></Animated.View>
+
+            <TouchableWithoutFeedback onPress={searchTraditional} ><Text style={[{ position: 'relative', zIndex: 5, elevation: 4, flex: 1, textAlign: 'center', color: (isVirtual ? 'black' : Colors.primary), }, styles.textField]}>Traditional</Text></TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={searchVirtual} ><Text style={[{ position: 'relative', zIndex: 5, elevation: 4, flex: 1, textAlign: 'center', color: (isVirtual ? Colors.primary : 'black'), }, styles.textField]}>Virtual</Text></TouchableWithoutFeedback>
 
           </View>
 
@@ -454,12 +406,13 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
 }
 
 
+
 MeetingSearchScreen = connect(
   function mapStateToProps(state) {
 
     const { operatingUser, meetings } = state.general;
     return {
-      authenticated: operatingUser.role!="guest", meetings
+      authenticated: operatingUser.role != "guest", meetings
     };
   },
   function mapDispatchToProps(dispatch) {
@@ -484,6 +437,92 @@ MeetingSearchScreen = connect(
     }
   }
 )(MeetingSearchScreen)
+
+
+type MeetingSearchResult = {
+  meetings?: Meeting[]
+  types?: string[];
+  error?: string;
+}
+
+export async function searchForMeeting(address=undefined, distance=5): Promise<MeetingSearchResult> {
+
+  let { status } = await Location.requestPermissionsAsync();
+  let lat;
+  let long;
+  if (status !== 'granted') {
+    return {
+      error: "You must enable location in Settings to use current location. \
+    Otherwise you may enter an address"}
+  }
+  log.info("have location permission ");
+  try {
+    if (!address) {
+      const location = await Location.getCurrentPositionAsync({});
+      lat = location.coords.latitude;
+      long = location.coords.longitude
+    } else {
+      try {
+        const location = await Location.geocodeAsync(address)
+        log.info(`found address for ${address}`, { location })
+        lat = location[0].latitude;
+        long = location[0].longitude;
+      } catch (err) {
+        log.info(`problem looking for address`, { err })
+
+        return { error: 'Could not find address by location data. Network problem' };
+      }
+    }
+
+    const query = `https://api.bit-word.com/api/cma/meeting?long=${lat}&lat=${long}&distance=${distance * 1609}`;
+
+    log.info(`runnign query ${query}`)
+
+    let response = undefined
+    try {
+      response = await axios.get(query)
+    } catch{
+      return { error: "Network problmes. Try again" };
+
+    }
+
+    if (response.data.error) {
+      log.info(`problem getting data ${response.data.error}`)
+      return { error: "System problem finding meetings. Try again later" }
+    } else {
+
+
+
+      let types: string[] = []
+      const meetings: Meeting[] = response.data.map(rawMeeting => {
+
+        const meeting: Meeting = {
+          id: rawMeeting._id,
+          name: rawMeeting.name,
+          active: rawMeeting.active != 0,
+          category: rawMeeting.category,
+          location: { lat: rawMeeting.location.coordinates[1], long: rawMeeting.location.coordinates[0] },
+          startTime: rawMeeting.start_time,
+          weekday: rawMeeting.weekday,
+          type: rawMeeting.type,
+          street: rawMeeting.street,
+          city: rawMeeting.city,
+          state: rawMeeting.state,
+          paid: rawMeeting.paid,
+          distance: rawMeeting.dist.calculated,
+          zip: rawMeeting.zip
+        }
+        meeting.type && (types = types.concat(meeting.type))
+        return meeting
+
+      })
+      let typeSet = new Set<string>(types);
+      return { meetings: sortMeetings(meetings), types: [...typeSet] }
+    }
+  } catch (bigerr) {
+    log.info(`problem getting meeting data as follows `, { bigerr })
+  }
+}
 
 function MeetingFilter({ show, types, callback, message, distance }) {
 
@@ -559,7 +598,7 @@ function MeetingFilter({ show, types, callback, message, distance }) {
   }
 
 
-  log.info(`types is` , {types});
+  log.info(`types is`, { types });
   const typeComponents = []
 
   types.forEach((entry) => {
@@ -714,7 +753,7 @@ const styles = StyleSheet.create({
   filterBackground: {
 
     height: Layout.window.height + 200,
-    width: Layout.window.width+ 200,
+    width: Layout.window.width + 200,
     backgroundColor: 'black',
     left: -Layout.window.width,
     top: -Layout.window.height / 2,

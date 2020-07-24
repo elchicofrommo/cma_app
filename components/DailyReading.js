@@ -36,8 +36,13 @@ function DailyReading(props){
     )
   }
     return(
+      <View>{sections[0]}</View>
 
-          <Swiper 
+    )
+}
+
+/**
+ *           <Swiper 
             loop={true}
             showsPagination={true}
             dotColor={"lightgray"}
@@ -49,10 +54,7 @@ function DailyReading(props){
             containerStyle={styles.swiping}>
             {sections}
           </Swiper>
-
-    )
-}
-
+ */
 
 DailyReading = connect(
   function mapStateToProps(state, ownProps){

@@ -416,8 +416,7 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
             mode="date"
             placeholder="MM/DD/YYYY"
             format="MM/DD/YYYY"
-            minDate="01/01/1920"
-            maxDate="01/01/2050"
+            maxDate={moment().format("MM/DD/YYYY")}
             confirmBtnText="Confirm"
             cancelBtnText="Cancel"
             customStyles={{

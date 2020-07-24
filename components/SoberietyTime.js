@@ -6,18 +6,55 @@ import moment from "moment";
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Colors from '../constants/Colors';
 import log from '../util/Logging'
-function SoberietyTime(props) {
+function SoberietyTime({dos, ...props}) {
 
   const [pressOffset, setPressOffset] = useState(new Animated.Value(0))
 
   log.info(`rendering SoberietyTime`)
-  if (props.dos) {
+  if(!dos ){
+    return <WelcomeChip />
+  }
+
 
     let time = "";
     let label = ""
-    const firstDate = new moment(props.dos)
+    const firstDate = new moment(dos)
     const secondDate = new moment()
     const duration = moment.duration(secondDate.diff(firstDate))
+    const durationAsDays = duration.asDays()
+    const durationAsMonths = duration.asMonths()
+    let chip = <WelcomeChip/>
+
+
+
+    if(durationAsDays < 30){
+      chip = <WelcomeChip />
+    }
+    else if(durationAsDays<60){
+      chip= <ThirtyDayChip />
+    }else if(durationAsDays<90){
+      chip = <SixtyDayChip />
+    }else if(durationAsMonths < 4){
+      chip = <NinetyDayChip />
+    }else if(durationAsMonths < 5){
+      chip = <FourMonthChip />
+    }else if(durationAsMonths < 6){
+      chip = <FiveMonthChip />
+    }else if(durationAsMonths < 7){
+      chip = <SixMonthChip />
+    }else if(durationAsMonths < 8){
+      chip = <SevenrMonthChip />
+    }else if(durationAsMonths < 9){
+      chip = <EightMonthChip/>
+    }else if(durationAsMonths < 10){
+      chip = <NineMonthChip />
+    }else if(durationAsMonths < 11){
+      chip = <TenMonthChip />
+    }else if(durationAsMonths < 12){
+      chip = <ElevenMonthChip />
+    }else {
+      chip = <AnnualChip years={Math.floor(duration.years())} />
+    }
 
     if (props.format == 0) {
       time = duration.asDays().toFixed(0)
@@ -30,82 +67,139 @@ function SoberietyTime(props) {
       label = "year" + (time == "1" ? "" : "s")
     }
 
-    function pressDown(){
-      log.info("press down")
-      Animated.timing(pressOffset, {
-        toValue: 3,
-        useNativeDriver: true,
-        duration: 50,
-        easing: Easing.linear
-      }).start();
-    }
 
-    function pressUp(){
-      Animated.timing(pressOffset, {
-        toValue: 0,
-        useNativeDriver: true,
-        duration: 50,
-        easing: Easing.linear
-      }).start();
-    }
-
-    const transform = {
-      transform: [{ translateY: pressOffset }, {translateX: pressOffset}],
-    }
-
-    /*
-    Need to integrate the rungs back into the calendar at some point
-
-            <View style={styles.cal2Rungs}>
-          <View style={styles.rung}>
-
-          </View>
-          <View style={styles.rungSpacer}></View>
-          <View style={styles.rung} ></View>
-        </View>
-    */
-
+    const dateString = calcDate(Date.now(), dos)
     return (
-
-      
-      <View style={styles.cal2Outer}>
-        <TouchableWithoutFeedback underlayColor="transparent" onPress={() => props.dispatchSetFormat((props.format + 1) % 3)} 
-        onPressIn={pressDown} onPressOut={pressUp} style={[transform, {padding: 3}]} >
-        <View style={styles.cal2}>
-          <View style={styles.cal2Border}>
-
-          </View>
-          <View style={styles.cal2Content}>
-          
-              <Text style={styles.dateText}>{time}</Text>
-              <Text style={styles.dateLabel}>{label}</Text>
-             
-          </View>
-        </View>
-        </TouchableWithoutFeedback>
-      </View>
-      
-    )
-  } else {
-    return (
-      <View style={styles.cal2Outer}>
-        <View style={styles.cal2}>
-          <View style={styles.cal2Border}>
-
-          </View>
-          <View style={styles.cal2Content}>
-            <Text style={styles.dateLabel}>{"Enter\nTime"}</Text>
-          </View>
-        </View>
+      <View>
+        {chip}
+        <Text style={styles.dateText}  > {dateString} </Text>
       </View>
     )
-  }
-
-
 }
 
 import Layout from '../constants/Layout';
 
+
+function WelcomeChip(){
+  return(
+    <View style={[styles.chip, styles.welcome]}>
+      <View style={styles.innerChip}>
+      <Text style={styles.chipText}>Welcome</Text>
+      </View>
+    </View>
+  )
+}
+function ThirtyDayChip(){
+  return(
+    <View style={[styles.chip, styles.thirty]}>
+      <View style={styles.innerChip}>
+      <Text style={styles.chipText}>Thirty Days</Text>
+      </View>
+    </View>
+  )
+}
+function SixtyDayChip(){
+  return(
+    <View style={[styles.chip, styles.sixty]}>
+      <View style={styles.innerChip}>
+      <Text style={styles.chipText}>Sixty Days</Text>
+      </View>
+    </View>
+  )
+}
+
+function NinetyDayChip(){
+  return(
+    <View style={[styles.chip, styles.ninety]}>
+      <View style={styles.innerChip}>
+      <Text style={styles.chipText}>Ninety Days</Text>
+      </View>
+    </View>
+  )
+}
+function FourMonthChip(){
+  return(
+    <View style={[styles.chip, styles.fourMonths]}>
+      <View style={styles.innerChip}>
+      <Text style={styles.chipText}>Four Months</Text>
+      </View>
+    </View>
+  )
+}
+function FiveMonthChip(){
+  return(
+    <View style={[styles.chip, styles.FiveMonths]}>
+      <View style={styles.innerChip}>
+      <Text style={styles.chipText}>Five Months</Text>
+      </View>
+    </View>
+  )
+}
+function SixMonthChip(){
+  return(
+    <View style={[styles.chip, styles.sixMonths]}>
+      <View style={styles.innerChip}>
+      <Text style={styles.chipText}>Six Months</Text>
+      </View>
+    </View>
+  )
+}
+
+function SevenrMonthChip(){
+  return(
+    <View style={[styles.chip, styles.sevenMonths]}>
+      <View style={styles.innerChip}>
+      <Text style={styles.chipText}>Seven Months</Text>
+      </View>
+    </View>
+  )
+}
+
+function EightMonthChip(){
+  return(
+    <View style={[styles.chip, styles.eightMonths]}>
+      <View style={styles.innerChip}>
+      <Text style={styles.chipText}>Eight Months</Text>
+      </View>
+    </View>
+  )
+}
+function NineMonthChip(){
+  return(
+    <View style={[styles.chip, styles.nineMonths]}>
+      <View style={styles.innerChip}>
+      <Text style={styles.chipText}>Nine Months</Text>
+      </View>
+    </View>
+  )
+}
+function TenMonthChip(){
+  return(
+    <View style={[styles.chip, styles.tenMonths]}>
+      <View style={styles.innerChip}>
+      <Text style={styles.chipText}>Ten Months</Text>
+      </View>
+    </View>
+  )
+}
+function ElevenMonthChip(){
+  return(
+    <View style={[styles.chip, styles.elevenMonths]}>
+      <View style={styles.innerChip}>
+      <Text style={styles.chipText}>Eleven Months</Text>
+      </View>
+    </View>
+  )
+}
+function AnnualChip({years}){
+  return(
+    <View style={[styles.chip, styles.annual]}>
+      <View style={[styles.innerChip, {borderColor: 'white'}]}>
+      <Text style={[styles.chipText, {color: 'white'}]}>{years} year{years > 1 && 's'}</Text>
+      </View>
+    </View>
+  )
+}
 function calcDate(date1, date2) {
 
   const firstDate = new moment(date1)
@@ -155,102 +249,90 @@ const borderRadius = 20
 const middleFlex = 1
 const calWidth = 80
 const calHeight = 70
-const iosShadow = Platform.OS === 'ios' ? {
+let shadow = Platform.OS === 'ios' ? {
   shadowColor: 'black',
-  shadowOffset: { width: 4, height: 4 },
-  shadowOpacity: .1,
-  shadowRadius: 6,
-} : { shadowOpacity: 0 }
-
-const androidShadow = Platform.OS === 'android' ? {
-  elevation: 3
-} : { elevation: 0 }
+  shadowOffset: { width: 6, height: 6 },
+  shadowOpacity: .3,
+  shadowRadius: 10,
+} : {
+  elevation: 4
+} 
 
 const styles = StyleSheet.create({
 
-
-  cal2Outer: {
-
-    position: 'absolute',
+  chip: {
+    alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: borderRadius,
-    bottom: 10,
-    right: 10,
+    height: 170* Layout.scale.width,
+    width: 170* Layout.scale.width,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 170* Layout.scale.width,
+    margin: 30 * Layout.scale.width,
+    ...shadow
+  },
+  innerChip: {
 
-    padding: 0,
-    ...iosShadow
-
-  },
-  cal2Rungs: {
-    position: 'absolute',
-    left: 3,
-    width: '100%',
-    zIndex: 10,
-    flexDirection: 'row',
-    justifyContent: 'center'
-  },
-  cal2: {
-    width: calWidth,
-    height: calHeight,
-    borderRadius: borderRadius,
-    position: 'relative',
-    zIndex: 5,
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    margin: 5, 
-    overflow: "hidden",
-    ...androidShadow,
-
-  },
-  rung: {
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 0,
-    width: 8,
-    borderRadius: 4,
-    height: 17,
-    backgroundColor: '#adb5bd'
-  },
-  rungSpacer: {
-    width: '35%',
-    height: 10
-  },
-  cal2Border: {
-
-    height: 22,
-    backgroundColor: Colors.primaryL2,
-    borderBottomColor: Colors.primary,
-    borderBottomWidth: 5,
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    height: 130* Layout.scale.width,
+    width: 130* Layout.scale.width,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 130* Layout.scale.width, 
     justifyContent: 'center',
-    borderTopLeftRadius: borderRadius,
-    borderTopRightRadius: borderRadius,
-    margin: 0,
+    alignItems: 'center',  
   },
+  welcome:  {
+    backgroundColor: 'white'
+  },
+  thirty:{
+    backgroundColor: 'hotpink'
+  },
+  sixty: {
+    backgroundColor: 'gold'
+  },
+  ninety:{
+    backgroundColor: 'lightblue'
+  },
+  fourMonths: {
+    backgroundColor: 'darkcyan'
+  },
+  fiveMonths: {
+    backgroundColor: 'yellowgreen'
+  },
+  sixMonths: {
+    backgroundColor: 'lightsalmon'
+  },
+  sevenMonths: {
+    backgroundColor: 'teal'
+  },
+  eightMonths: {
+    backgroundColor: 'plum'
+  },
+  nineMonths: {
+    backgroundColor: 'paleturquoise'
+  },
+  tenMonths: {
+    backgroundColor: 'orchid'
+  },
+  elevenMonths: {
+    backgroundColor: 'orange'
+  },
+  annual: {
+    backgroundColor: 'black',
+    borderColor: 'white'
+  },
+
+
+  chipText: {
+    fontFamily: 'merriweather',
+    fontSize: 20 * Layout.scale.width,
+    textAlign: 'center'
+  },
+  
   dateText: {
-    fontSize: 22,
-    fontFamily: 'opensans-bold',
+    fontSize: 30,
+    fontFamily: 'opensans-light',
     textAlign: 'center'
-  },
-  dateLabel: {
-    textTransform: 'capitalize',
-    marginTop: -5,
-    textAlign: 'center'
-  },
-  cal2Content: {
-    width: '100%',
-    flexGrow: 1,
-    backgroundColor: 'white',
-    borderColor: Colors.primary,
-    borderWidth: 1,
-    borderBottomLeftRadius: borderRadius,
-    borderBottomRightRadius: borderRadius,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 0,
-  },
+  }
+  
 
 });

@@ -2,26 +2,21 @@ import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dimensions, Linking } from 'react-native';
 import { BorderlessButton, ScrollView } from 'react-native-gesture-handler';
-import {NavigationContainer } from '@react-navigation/native';
+
 import {createStackNavigator} from '@react-navigation/stack';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faUserCircle, faGripLinesVertical} from '@fortawesome/free-solid-svg-icons';
-import { fromBottom } from 'react-navigation-transitions';
-import { MonoText } from '../components/StyledText';
-import {WebView} from 'react-native-webview';
+
 import { connect } from 'react-redux';
 import moment from 'moment'
-import { SwipeListView } from 'react-native-swipe-list-view';
+import log from '../util/Logging'
 import AppBanner from '../components/AppBanner'
 import {MeetingList, sortMeetings} from './MeetingSearchScreen'
-import {DetailsScreen,  DetailTransition, } from './MeetingDetailsScreen'
-import {store} from '../components/store'
-import Logo from '../assets/images/GreenLogo'
+
 //import appLog from '../util/Logging'
 
 // Screens imported
 import SoberietyTime from '../components/SoberietyTime'
-import SettingsScreen from './SettingsScreen';
+import {searchForMeeting} from './MeetingSearchScreen';
 import Layout from '../constants/Layout';
 import Colors from '../constants/Colors';
 
@@ -46,6 +41,7 @@ function openMap(lat, long, label){
 // assets imported
 import SplashScreen  from './SplashScreen'
 import { Ionicons } from '@expo/vector-icons';
+import { faInfo } from '@fortawesome/free-solid-svg-icons';
 const HomeStack = createStackNavigator();
 
 export default function HomeScreenStack(){
@@ -114,7 +110,20 @@ function HomeScreen({navigation, ...props}) {
 
   let readerDate = moment(props.readerDate)
 
-  
+  const meetingSearch = searchForMeeting()
+  log.info(`cose meeting is ${JSON.stringify(meetingSearch)}` )
+  const [closeMeetings, setCloseMeetings] = React.useState([])
+  React.useEffect(()=>{
+    async function waitForMeetings(meetingPromise){
+      const result = await meetingPromise;
+      if(!result.error && result.meetings){
+        const reducedMeetings = result.meetings.slice(0,3)
+        setCloseMeetings(reducedMeetings)
+      }
+    }
+    waitForMeetings(meetingSearch)
+    log.info(`observed change in closeMeetings, must be bcasue promise resolved? `, {meetingSearch})
+  },[])
 
   let meetingSection = undefined;
   if(props.meetings && props.meetings.length > 0){
@@ -131,20 +140,30 @@ function HomeScreen({navigation, ...props}) {
   return (
     <View style={styles.container}>
         <AppBanner />
+        <ScrollView>
+        <SoberietyTime />
         <View style={styles.readerSection}>
           <Text style={styles.sectionHeading}>Daily Reading {readerDate.format("MM/DD")}</Text>
-          <View style={{borderBottomColor: 'slategray', borderBottomWidth: 1, padding:0, marginBottom: -3}}></View>
+          <View style={{padding:0, }}></View>
           <DailyReading date={readerDate.format("MM-DD")} />
+          <DailyReading />
           
         </View>
         <View style={styles.meetingSection}>
-          <Text style={styles.sectionHeading}>Saved Seats</Text>
-          <View style={{borderBottomColor: 'slategray', borderBottomWidth: 1, padding:0, }}></View>
+          <Text style={styles.sectionHeading}>Upcoming Home Group Meetings</Text>
+          <View style={{ padding:0, }}></View>
           {meetingSection}
-  
 
         </View>
 
+        <View style={styles.meetingSection}>
+          <Text style={styles.sectionHeading}>Closest Upcoming Meetings</Text>
+          <View style={{ padding:0, }}></View>
+          <MeetingList meetingData={closeMeetings} action={row=> navigation.navigate('Details', row)} />
+
+        </View>  
+        
+        </ScrollView>
     </View>
   );
 }
@@ -182,12 +201,11 @@ const styles = StyleSheet.create({
   },
   meetingSection:{
     flex: 20,
-    borderTopWidth: 1,
-    borderTopColor: 'slategray',
+
   },
   readerSection: {
     flex: 10.7* Layout.scale.width * Layout.ratio ,
-    marginBottom: 5,
+    marginBottom: 15,
   },
   section:{
     paddingHorizontal: 10 * Layout.scale.width,
@@ -202,7 +220,6 @@ const styles = StyleSheet.create({
   },
   meetings:{
     height: '30%',
-    borderColor: '#fff',
     borderBottomWidth: 3,
     height: '30%'
   },
