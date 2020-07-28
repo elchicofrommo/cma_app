@@ -7,15 +7,18 @@ import { Ionicons } from '@expo/vector-icons';
 import {NavigationContainer } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import { connect } from 'react-redux';
-import Colors from '../constants/Colors';
+import {useColors} from '../hooks/useColors';
 import log from "../util/Logging"
+import { shallowEqual, useSelector } from "react-redux";
 const DocumentStack = createStackNavigator();
 
 export default function DocumentBrowserScreen({documents, ...props}){
-
+  const docs = useSelector((state)=>{
+    return state.general.paths[documents]
+  }, shallowEqual)
   log.info(`rendering DocumentBrowserScreen`)
   const buttons = [];
-  documents.forEach(entry=>{
+  docs.forEach(entry=>{
     const URI = encodeURI(`${entry.link}`)
     buttons.push(
         <OptionButton
@@ -32,6 +35,7 @@ export default function DocumentBrowserScreen({documents, ...props}){
         />
     )
   })
+  const styles = useStyles();
   return (
     <View style={styles.container}>
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -44,6 +48,7 @@ export default function DocumentBrowserScreen({documents, ...props}){
 
 
 function OptionButton({ icon, label, onPress, isLastOption }) {
+  const styles = useStyles()
   return (
     <RectButton style={[styles.option, isLastOption && styles.lastOption]} onPress={onPress}>
       <View style={{ flexDirection: 'row' }}>
@@ -58,32 +63,35 @@ function OptionButton({ icon, label, onPress, isLastOption }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fafafa',
-    
-  },
-  contentContainer: {
-    
-  },
-  optionIconContainer: {
-    marginRight: 12,
-  },
-  option: {
-    backgroundColor: '#fdfdfd',
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: 0,
-    borderColor: '#ededed',
-  },
-  lastOption: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  optionText: {
-    fontSize: 15,
-    alignSelf: 'flex-start',
-    marginTop: 1,
-  },
-});
+function useStyles(){
+  const {colors} = useColors();
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#fafafa',
+      
+    },
+
+    optionIconContainer: {
+      marginRight: 12,
+    },
+    option: {
+      backgroundColor: '#fdfdfd',
+      paddingHorizontal: 15,
+      paddingVertical: 15,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderBottomWidth: 0,
+      borderColor: '#ededed',
+    },
+    lastOption: {
+      borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    optionText: {
+      fontSize: 15,
+      alignSelf: 'flex-start',
+      marginTop: 1,
+    },
+  });
+  return styles;
+}
+

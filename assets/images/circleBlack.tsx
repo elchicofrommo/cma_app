@@ -1,7 +1,7 @@
 
 import * as React from 'react';
-import Svg, { Circle, G, Path, Rect } from "react-native-svg";
-import { AnimatedSVGPath } from 'react-native-svg-animations'
+import Svg, {  Path,  } from "react-native-svg";
+
 
 export default function CirclePlayer(props) {
   

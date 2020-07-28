@@ -6,6 +6,7 @@ export declare class AuthDetail {
   readonly id: string;
   readonly email: string;
   readonly password: string;
+  readonly operatingUser?: any;
   constructor(init: ModelInit<AuthDetail>);
   static copyOf(source: AuthDetail, mutator: (draft: MutableModel<AuthDetail>) => MutableModel<AuthDetail> | void): AuthDetail;
 }

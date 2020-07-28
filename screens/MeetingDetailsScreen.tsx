@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { connect } from 'react-redux';
-import AppBanner from '../components/AppBanner'
+
 import log from "../util/Logging"
 import MeetingDetailMenu from '../navigation/MeetingDetailMenu'
 import { useFocusEffect } from '@react-navigation/native';
@@ -14,13 +14,15 @@ import { HeaderStyleInterpolators, HeaderBackButton } from '@react-navigation/st
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCertificate } from '@fortawesome/free-solid-svg-icons';
 
-import Colors from '../constants/Colors';
-import Layout from "../constants/Layout"
+import {useColors} from '../hooks/useColors';
+import {useLayout} from "../hooks/useLayout"
 import {Meeting} from '../types/gratitude'
 
 function DetailsScreen({ route, navigation, ...props }) {
     log.info(`rendering DetailsScreen route is ${route.params} `)
 
+    const styles = useStyles();
+    const Layout = useLayout()
     const meeting:Meeting = route.params;
 
     let moreDetails = undefined
@@ -119,7 +121,7 @@ function DetailsScreen({ route, navigation, ...props }) {
 
     return (
         <View style={styles.container}>
-            <AppBanner />
+
             <View style={styles.details}>
                 <View style={{ flexDirection: 'row',justifyContent: 'flex-start' }}>
                     <Text style={[styles.text, styles.title]}>{meeting.name}</Text>
@@ -145,59 +147,64 @@ function DetailsScreen({ route, navigation, ...props }) {
     )
 }
 
-const styles = StyleSheet.create({
-    mapStyle: {
-        width: '100%',
-        marginBottom: 20,
-        flex: 6,
-        backgroundColor: '#dadde0'
-    },
-    address:{
-        flex: 2,
-        justifyContent: "flex-end",
-        paddingHorizontal: 10 * Layout.scale.width,
-    },
-    sectionHeader: {
-        fontWeight: 'bold',
-        paddingTop: 10* Layout.scale.width
-    },
-    directions: {
-        paddingVertical: 5 * Layout.scale.width,
-        color: 'blue',
-    },
-    title: {
-        fontSize: 22 * Layout.scale.width, 
-        fontWeight: 'bold' 
-    },
-    typesContainer:{
-        flexDirection: 'row',
-        flexWrap: 'wrap', 
-    },
-    type: {
-        width: '30%',
-        textTransform: "capitalize",
-    },
-    text: {
-        flexWrap: 'wrap',
-        fontSize: 12 * Layout.scale.width,
-        
-    },
+function useStyles(){
 
-    details: {
-        flex: 5,
-        paddingHorizontal: 10 * Layout.scale.width,
-    },
-    badge: {
-        color: '#f4b813',
-        marginTop: -3,
-    },
-    container: {
-        flex: 1, 
-        backgroundColor: '#FFF' ,
-        paddingTop: 5 * Layout.scale.width,
-    }
+    const Layout = useLayout();
+    const styles = StyleSheet.create({
+        mapStyle: {
+            width: '100%',
+            flex: 6,
+            backgroundColor: '#dadde0'
+        },
+        address:{
+            flex: 2,
+            justifyContent: "flex-end",
+            paddingHorizontal: 10 * Layout.scale.width,
+        },
+        sectionHeader: {
+            fontWeight: 'bold',
+            paddingTop: 10* Layout.scale.width
+        },
+        directions: {
+            paddingVertical: 5 * Layout.scale.width,
+            color: 'blue',
+        },
+        title: {
+            fontSize: 22 * Layout.scale.width, 
+            fontWeight: 'bold' 
+        },
+        typesContainer:{
+            flexDirection: 'row',
+            flexWrap: 'wrap', 
+        },
+        type: {
+            width: '30%',
+            textTransform: "capitalize",
+        },
+        text: {
+            flexWrap: 'wrap',
+            fontSize: 12 * Layout.scale.width,
+            
+        },
+    
+        details: {
+            flex: 5,
+            paddingHorizontal: 10 * Layout.scale.width,
+        },
+        badge: {
+            color: '#f4b813',
+            marginTop: -3,
+        },
+        container: {
+            flex: 1, 
+            backgroundColor: '#FFF' ,
+            paddingTop: 5 * Layout.scale.width,
+        }
+    
+    });
+    return styles;
+}
 
-});
 
 DetailsScreen = connect(
     function mapStateToProps(state, ownProps) {
@@ -284,12 +291,13 @@ const DetailTransition = {
 }
 
 function DetailsBackButton({ navigation, ...props }) {
+    const {colors} = useColors();
     return (
         <HeaderBackButton onPress={(event) => {
             props.dispatchHideDetail()
             navigation.goBack()
         }}
-            tintColor={Colors.primary}
+            tintColor={colors.primary}
         />
     )
 

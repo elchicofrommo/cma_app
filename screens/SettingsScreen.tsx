@@ -5,28 +5,25 @@ import {
   StyleSheet,
   View,
   TextInput,
-  Dimensions,
   TouchableOpacity,
 } from "react-native";
 import DatePicker from "react-native-datepicker";
-import { useFocusEffect } from "@react-navigation/native";
+
+
 import Modal from "react-native-modal";
-import { AppState } from "../constants/AppState";
-import Swiper from "react-native-swiper";
+
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Ionicons } from "@expo/vector-icons";
-import Colors from "../constants/Colors";
-import { connect, useDispatch } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import {Themes, useColors} from "../hooks/useColors";
+import { connect,  } from "react-redux";
+
 import {store} from '../components/store'
 import log from "../util/Logging"
 import Amplify from "@aws-amplify/core";
 import config from "../aws-exports";
-import { Auth, auth0SignInButton, API } from "aws-amplify";
+import { Auth,  } from "aws-amplify";
 
-import { DataStore, Predicates } from "@aws-amplify/datastore";
-import { Preferences, AuthDetail, Meetings } from "../models/index";
+
 import { HeaderBackButton } from "@react-navigation/stack";
 
 import mutateApi, {CreateUserInput, UpdateUserInput} from '../api/mutate'
@@ -37,9 +34,8 @@ import axios from 'axios';
 
 Amplify.configure(config);
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-import Layout from "../constants/Layout";
-import { getOperatingUser } from "../graphql/queries";
+import {useLayout} from '../hooks/useLayout'
+
 
 export type SignInResult ={
   email: string,
@@ -145,7 +141,8 @@ async function getMeetingDetails(operatingUser: User): Promise<Meeting[]> {
 function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: User, props: any}) {
   log.info(`rendering SettingsScreen`);
   
-
+  const {colors: Colors, changeTheme, currentTheme} = useColors();
+  const styles = useStyles();
   const [isCancel, setIsCancel] = useState(false);
   const [error, setSigninError] = useState({ display: "none", message: "" });
   const [confirmEmail, setConfirmEmail] = useState(false);
@@ -238,10 +235,11 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
       : "red";
 
   function SettingsSignoutButton() {
+    const {colors} = useColors();
     return (
-      <View style={{ paddingRight: 10 * Layout.scale.width, marginBottom: -5 }}>
+      <View style={{ paddingRight: 10 * layout.scale.width, marginBottom: -5 }}>
         <TouchableOpacity onPress={signOut}>
-          <Ionicons name="ios-log-out" color={Colors.primary} size={36} />
+          <Ionicons name="ios-log-out" color={colors.primary} size={36} />
         </TouchableOpacity>
       </View>
     );
@@ -252,12 +250,13 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
       headerLeft: () => <SettingsBackButton operatingUser={opUser} name={name} email={email} dosAsString={dos} navigation={props.navigation} />,
     });
   }, [props.navigation, opUser, name, email, dos, ]);
+  const layout = useLayout()
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={styles.container}
       enableOnAndroid={true}
-      extraHeight={130}
-      extraScrollHeight={130}
+      extraHeight={10}
+      extraScrollHeight={10}
     >
       <Modal
         isVisible={opUser.role =='guest' && !isCancel}
@@ -269,9 +268,7 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
 
         swipeDirection={["up", "down", "left", "right"]}
       >
-            <KeyboardAwareScrollView
-            enableOnAndroid={true}
-          >
+
         <View style={styles.modalContainer}>
         <View style={styles.modalTextContainer}>
           
@@ -283,7 +280,7 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
           <View
             style={{
               backgroundColor: "#fff",
-              paddingHorizontal: 10 * Layout.scale.width,
+              paddingHorizontal: 10 * layout.scale.width,
             }}
           >
             <TextInput
@@ -301,7 +298,7 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
           <View
             style={{
               backgroundColor: "#fff",
-              paddingHorizontal: 10 * Layout.scale.width,
+              paddingHorizontal: 10 * layout.scale.width,
               display: isSignUp? "flex" : "none",
               marginBottom: -1,
             }}
@@ -320,7 +317,7 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
           <View
             style={{
               backgroundColor: "#fff",
-              paddingHorizontal: 10 * Layout.scale.width,
+              paddingHorizontal: 10 * layout.scale.width,
             }}
           >
             <TextInput
@@ -336,9 +333,9 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
             <Text style={styles.inputLabel}>Password</Text>
             <Text
               style={{
-                fontSize: 10 * Layout.scale.width,
+                fontSize: 10 * layout.scale.width,
                 color: passwordColor,
-                paddingTop: 6 * Layout.scale.width,
+                paddingTop: 6 * layout.scale.width,
               }}
             >
               must include a uppercase, a lowercase, a number, and a special
@@ -348,8 +345,8 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
           <View
             style={{
               backgroundColor: "#fff",
-              paddingHorizontal: 10 * Layout.scale.width,
-              paddingVertical: 15 * Layout.scale.width,
+              paddingHorizontal: 10 * layout.scale.width,
+              paddingVertical: 15 * layout.scale.width,
               display: error.display,
 
             }}
@@ -364,7 +361,7 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
           </TouchableOpacity>
         </View>
         </View>
-        </KeyboardAwareScrollView>
+
       </Modal>
 
       <View>
@@ -377,7 +374,7 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
             style={[
               styles.textField,
               styles.disabledText,
-              { height: 30 * Layout.scale.width },
+              { height: 30 * layout.scale.width },
             ]}
 
           />
@@ -427,11 +424,11 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
                 display: "none",
               },
               dateText: {
-                fontSize: 20 * Layout.scale.width,
+                fontSize: 20 * layout.scale.width,
                 alignSelf: "flex-start",
               },
               placeholderText: {
-                fontSize: 20 * Layout.scale.width,
+                fontSize: 20 * layout.scale.width,
                 alignSelf: "flex-start",
               },
             }}
@@ -441,15 +438,27 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
           />
           <Text style={styles.inputLabel}>Soberiety Date</Text>
         </View>
+        <Picker selectedValue={currentTheme} style={{height: 20, width:300, alignSelf: 'center'}}
+        onValueChange={(itemValue)=>changeTheme(itemValue)} >
+
+            <Picker.Item label="Blue Magenta" value={Themes.BlueMagenta}/>
+            <Picker.Item label="Purple Magenta" value={Themes.PurpleMagenta}/>
+            <Picker.Item label="Yellow Green" value={Themes.YellowGreen} />
+            <Picker.Item label="Red Red" value={Themes.RedRed} />
+            <Picker.Item label="Red Orange" value={Themes.RedOrange}/>
+
+          </Picker> 
       </View>
       <View
         style={{
           backgroundColor: "#fff",
-          paddingHorizontal: 10 * Layout.scale.width,
-          paddingVertical: 15 * Layout.scale.width,
+          paddingHorizontal: 10 * layout.scale.width,
+          paddingVertical: 15 * layout.scale.width,
           display: opUser.role!=="guest" ? "flex" : "none",
         }}
       ></View>
+
+
     </KeyboardAwareScrollView>
   );
 }
@@ -474,118 +483,124 @@ export default connect(
   }
 )(SettingsScreen);
 
-const styles = StyleSheet.create({
-  trackTitleGroup: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  title: {
-    flex: 6,
-    flexWrap: "wrap",
-  },
-  duration: {
-    textAlign: "center",
-  },
-  trackDescription: {},
-  inputLabel: {
-    fontSize: 10 * Layout.scale.width,
-    color: "red",
-    height: 20 * Layout.scale.width,
-  },
-  textFieldContainer: {
-    paddingHorizontal: 10 * Layout.scale.width,
-    paddingVertical: 5 * Layout.scale.width,
-    flexDirection: "column",
-    height: 50 * Layout.scale.width,
-  },
-  buttonText: {
-    fontSize: 20 * Layout.scale.width,
-    color: "white",
-  },
-  modalContainer: {
-    backgroundColor: 'white',
-    borderRadius: 5 * Layout.scale.width,
-    overflow: "hidden"
-  },
-  modalButton: {
+function useStyles(){
+  const {colors: Colors} = useColors()
+  const layout = useLayout()
+  const styles = StyleSheet.create({
+    trackTitleGroup: {
+      flex: 1,
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    title: {
+      flex: 6,
+      flexWrap: "wrap",
+    },
+    duration: {
+      textAlign: "center",
+    },
+    trackDescription: {},
+    inputLabel: {
+      fontSize: 10 * layout.scale.width,
+      color: "red",
+      height: 20 * layout.scale.width,
+    },
+    textFieldContainer: {
+      paddingHorizontal: 10 * layout.scale.width,
+      paddingVertical: 5 * layout.scale.width,
+      flexDirection: "column",
+      height: 50 * layout.scale.width,
+    },
+    buttonText: {
+      fontSize: 20 * layout.scale.width,
+      color: "white",
+    },
+    modalContainer: {
+      backgroundColor: 'white',
+      borderRadius: 5 * layout.scale.width,
+      overflow: "hidden"
+    },
+    modalButton: {
+  
+    },
+    button: {
+      backgroundColor: Colors.primary,
+      paddingVertical: 5 * layout.scale.width,
+      textAlign: "center",
+      justifyContent: "center",
+      flexDirection: "row",
+      height: 40 * layout.scale.width,
+    },
+    trackCreated: {
+      flex: 2.1,
+    },
+    modalText: {
+      fontSize: 21 * layout.scale.width,
+      paddingVertical: 20 * layout.scale.width,
+      paddingHorizontal: 10 * layout.scale.width,
+      textAlign: "center",
+    },
+    modalTextContainer: {
+      borderBottomWidth: 1,
+      borderBottomColor: "grey",
+      backgroundColor: "#FFF",
+  
+      flexDirection: 'row',
+      justifyContent: 'center'
+    },
+    container: {
+      flex: 1,
+      justifyContent: "space-between",
+      backgroundColor: Colors.background,
+    },
+    header: {
+      flex: 1,
+      flexDirection: "row",
+    },
+    logo: {
+      flex: 1,
+      height: "55%",
+      width: "55%",
+      marginLeft: -10,
+      marginRight: -10,
+      borderWidth: 1,
+    },
+    headerText: {
+      width: "40%",
+      borderWidth: 1,
+    },
+    textField: {
+      fontSize: 19 * layout.scale.width,
+      height: 30 * layout.scale.width,
+    },
+    disabledText: {
+      color: "grey",
+    },
+    contentContainer: {
+      paddingTop: 15,
+    },
+    optionIconContainer: {
+      marginRight: 12,
+    },
+    option: {
+      backgroundColor: "#fdfdfd",
+      paddingHorizontal: 15,
+      paddingVertical: 15,
+      borderBottomWidth: 0,
+      borderColor: "#ededed",
+    },
+    lastOption: {
+      borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    optionText: {
+      fontSize: 15,
+      alignSelf: "flex-start",
+      marginTop: 1,
+    },
+  });
+  return styles;
+}
 
-  },
-  button: {
-    backgroundColor: Colors.primary,
-    paddingVertical: 5 * Layout.scale.width,
-    textAlign: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    height: 40 * Layout.scale.width,
-  },
-  trackCreated: {
-    flex: 2.1,
-  },
-  modalText: {
-    fontSize: 21 * Layout.scale.width,
-    paddingVertical: 20 * Layout.scale.width,
-    paddingHorizontal: 10 * Layout.scale.width,
-    textAlign: "center",
-  },
-  modalTextContainer: {
-    borderBottomWidth: 1,
-    borderBottomColor: "grey",
-    backgroundColor: "#FFF",
-
-    flexDirection: 'row',
-    justifyContent: 'center'
-  },
-  container: {
-    flex: 1,
-    justifyContent: "space-between",
-    backgroundColor: Colors.background,
-  },
-  header: {
-    flex: 1,
-    flexDirection: "row",
-  },
-  logo: {
-    flex: 1,
-    height: "55%",
-    width: "55%",
-    marginLeft: -10,
-    marginRight: -10,
-    borderWidth: 1,
-  },
-  headerText: {
-    width: "40%",
-    borderWidth: 1,
-  },
-  textField: {
-    fontSize: 19 * Layout.scale.width,
-    height: 30 * Layout.scale.width,
-  },
-  disabledText: {
-    color: "grey",
-  },
-  contentContainer: {
-    paddingTop: 15,
-  },
-  optionIconContainer: {
-    marginRight: 12,
-  },
-  option: {
-    backgroundColor: "#fdfdfd",
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    borderBottomWidth: 0,
-    borderColor: "#ededed",
-  },
-  lastOption: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  optionText: {
-    fontSize: 15,
-    alignSelf: "flex-start",
-    marginTop: 1,
-  },
-});
 
 function SettingsBackButton({
   navigation,
@@ -624,6 +639,7 @@ function SettingsBackButton({
       });
     }
   }
+  const {colors: Colors} = useColors()
   return (
     <HeaderBackButton
       label={"Save"}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, memo, useRef } from "react";
+import React, { useState,  } from "react";
 import {
 
   Text,
@@ -11,10 +11,10 @@ import {
   GestureResponderEvent,
 } from "react-native";
 import log from "../util/Logging"
-import Colors from "../constants/Colors"
-import Layout from "../constants/Layout"
+import {useColors} from "../hooks/useColors"
+import {useLayout} from "../hooks/useLayout"
 export default function Button({onPress, label, style}:{onPress: (event: GestureResponderEvent) => void, label: string, style: any}){
-
+    const styles = useStyles()
     const [pressOffset, setPressOffset] = useState(new Animated.Value(0))
     function pressDown(){
       log.info("press down")
@@ -52,7 +52,10 @@ const shadow = Platform.OS === 'ios' ? {
     shadowOffset: { width: 1, height: 1 },
     shadowOpacity: .3,
   } : { elevation: 3 }
-  
+ 
+function useStyles(){
+  const Layout = useLayout();
+  const {colors: Colors} = useColors();
   const styles = StyleSheet.create({
    
     buttonContainer: {
@@ -73,4 +76,7 @@ const shadow = Platform.OS === 'ios' ? {
   
     },
   });
+  return styles;
+}
+ 
   

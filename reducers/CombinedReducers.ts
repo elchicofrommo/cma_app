@@ -18,11 +18,15 @@ const GUEST_USER = {
 
 const INITIAL_STATE: AppState = {
   operatingUser: GUEST_USER, 
+  currentTheme: 2,
   gratitudes: [],
   broadcastsByChannel: new Map<string, Broadcast[]>(),
   ownedChannels: [],
   userChannels: [],
+  closeMeetings: [],
+  closeMeetingsLoading: false,
   meetings: [],
+  meetingsLoading: false,
   homegroup: undefined,
   meetingDetail: undefined,
   showDetail: false,
@@ -75,11 +79,17 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       newState.banner = action.banner
     //  log.info(`banner is now  ${JSON.stringify(newState.banner)}`)
       return newState;
+      break;
     case "SET_SOBERIETY_FORMAT":
       newState.soberietyFormat = action.data;
       return newState
-
-      
+      break;
+    case "UPDATE_CLOSE_MEETING": {
+      newState.closeMeetings = action.meetings;
+      newState.closeMeetingsLoading = false;
+      return newState;
+      break;
+    }
     case "ADD_OWNED_CHANNEL": {
       const ownedChannels = [...newState.ownedChannels]
       ownedChannels.push(action.ownedChannel)
@@ -93,6 +103,7 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       newState.ownedChannels = ownedChannels
       newState.userChannels = userChannels;
       return newState;
+      break;
     }
     case "SAVE_AUTH":
       log.info(`SAVE_AUTH`,  {data: action.data})
@@ -106,10 +117,16 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       saveAuth(newState);
     //  log.info(`saved auth with the followign: ${JSON.stringify(action.data, null, 2)}`)
       return newState;
+      break;
 
     case "UPDATE_OPERATING_USER":
       newState.operatingUser = action.data
+      if(action.isLoadingMeetings){
+        newState.closeMeetingsLoading= true;
+        newState.meetingsLoading= true;
+      }
       return newState;
+      break;
 
     case "SET_DETAIL":
       const {toggle, ...meetingDetail} = action.meetingDetail;
@@ -117,29 +134,36 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
 
       log.info('just returning new state but same objects')
       return newState;
-
+      break;
       
 
     case "SHOW_DETAIL":
       log.info(`in show detail, old: ${state.showDetail}`)
       newState.showDetail = true
       return newState;
+      break;
     case "HIDE_DETAIL":
       log.info(`in show detail, old: ${state.showDetail}`)
       newState.showDetail = false
       return newState;
+      break;
     
     case "SHOW_EDITOR":
         log.info(`in show menu, old: ${state.showEditor}`)
 
         return newState;
+        break;
 
-
+    case "SET_THEME": 
+      newState.currentTheme = action.theme;
+      return newState;
+      break;
     case "ADD_BROADCAST":{
       log.info(`adding BROADCAST, data is ${JSON.stringify(action.broadcast, null, 2)}`)
       if(action.broadcast.gratitude.userId === newState.operatingUser.id){
         log.info(`observed broadcast event for message I own, so throwing it away `)
         return state;
+        break;
       }
       let map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
       let broadcasts: Broadcast[] = map.get(action.broadcast.channelId);
@@ -147,6 +171,7 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       map.set(action.broadcast.channelId, broadcasts)
       newState.broadcastsByChannel = map;
       return newState;
+      break;
     }
 
     case "BROADCAST_GRATITUDE":{
@@ -366,6 +391,7 @@ function syncPrefWithDS(state, datastore){
 function syncMeetings(state, meetingList){
 
   state.meetings = meetingList;
+  state.meetingsLoading = false;
   //log.info(` datastore `, {datastore})
   return state;
 }
@@ -374,6 +400,7 @@ function syncAuthWithDS(state, datastore){
   state.email = datastore.email;
   state.password = datastore.password; 
   state.username = datastore.username;
+  
  // log.info(`datastore auth synced `, {state})
   return state;
 }
@@ -389,12 +416,13 @@ async function saveAuth(state){
     auth = AuthDetail.copyOf(original[0], updated => {
       updated.email= state.email, 
       updated.password= state.password
-
+      updated.operatingUser = JSON.stringify(state.operatingUser)
     })
   }else{
     auth = new AuthDetail({
       email: state.email, 
       password: state.password,
+      operatingUser: JSON.stringify(state.operatingUser),
     })
   }
 

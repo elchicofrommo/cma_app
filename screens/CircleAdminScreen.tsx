@@ -1,22 +1,17 @@
-import React, { useState, useEffect, useCallback, memo, useRef } from "react";
+import React, { useState, useEffect, } from "react";
 import {
 
   Platform,
   StyleSheet,
   Text,
-  TouchableOpacity,
+
   TextInput,
   View,
   TouchableWithoutFeedback,
-  ScrollView,
-  Keyboard,
+FlatList,
 
-  FlatList,
-  KeyboardAvoidingView,
   Animated,
   Easing,
-  StatusBar,
-  GestureResponderEvent,
 } from "react-native";
 import log from "../util/Logging"
 import { connect } from "react-redux";
@@ -26,14 +21,9 @@ import {
   HeaderBackButton,
 } from "@react-navigation/stack";
 
-import Colors from "../constants/Colors";
-import Layout from "../constants/Layout";
-import AppBanner from '../components/AppBanner'
+import {useColors} from '../hooks/useColors'
+import {useLayout} from '../hooks/useLayout'
 
-import moment from "moment";
-
-import Modal from "react-native-modal";
-import KeyboardStickyView from "rn-keyboard-sticky-view";
 import Button from '../components/Button'
 import {store} from '../components/store'
 import {
@@ -49,6 +39,9 @@ function CircleAdminScreen({
 
 
 log.info(`rendering CircleAdminScreen`)
+  const Layout = useLayout();
+  const {colors: Colors} = useColors();
+  const styles  = useStyles();
 
   const [offset, setOffset] = useState(new Animated.Value(0))
   const [isJournal, setIsJournal] = useState(true)
@@ -220,7 +213,7 @@ log.info(`rendering CircleAdminScreen`)
 
   return (
     <View style={styles.container}>
-      <AppBanner/>
+
 
         <View style={styles.startContainer}>
           <View style={styles.toggleContainer}>
@@ -272,7 +265,8 @@ function _BackButton({
   operatingUser,
   ...props
 }: {operatingUser: User, navigation: any}) {
- 
+
+  const {colors: Colors} = useColors();
   return (
     <HeaderBackButton
       label={"Back"}
@@ -313,161 +307,108 @@ const shadow = Platform.OS === 'ios' ? {
   shadowOpacity: .3,
 } : { elevation: 3 }
 
-const styles = StyleSheet.create({
-  text: {
-    flexWrap: "wrap",
-    fontSize: 18 * Layout.scale.width,
-    fontFamily: "opensans-bold",
-  },
-  sectionHeader: {
-    paddingVertical: 4 * Layout.scale.width,
-    backgroundColor: Colors.primary,
-    paddingLeft: 10 * Layout.scale.width,
-  },
-  sectionHeaderText: {
-    color: Colors.primaryContrast
-  },
-  startContainer: {
-    backgroundColor: '#fff', 
+function useStyles(){
+  const Layout = useLayout();
+  const {colors: Colors} = useColors();
+  const styles = StyleSheet.create({
+    text: {
+      flexWrap: "wrap",
+      fontSize: 18 * Layout.scale.width,
+      fontFamily: "opensans-bold",
+    },
 
-    paddingHorizontal: 10 * Layout.scale.width
-
-  },
-  toggleContainer: {
-    position: 'relative', 
-    zIndex: 8,  
-    flexDirection: 'row',
-    height: 36, 
-    justifyContent: 'space-between', 
-    alignItems: 'center',
-    backgroundColor: 'lightgray',
-    borderRadius: 17,
-  },
-  toggleText: {
-    position: 'relative', 
-    zIndex: 5, elevation: 4,
-    flex: 1, textAlign: 'center', 
-  },
-  inactiveToggle: {
-
-    
-  },
-  buttonContainer: {
-    backgroundColor: Colors.primary,
-    alignSelf: 'center',
-    borderRadius: 17,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    ...shadow,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'lightgray'
-  },
-  buttonText:{
-    color: Colors.primaryContrast,
-
-    fontSize: 16 * Layout.scale.width,
-
-
-  },
-
-  inputLabel: {
-    fontSize: 10 * Layout.scale.width,
-    color: "red",
-    height: 20 * Layout.scale.width,
-  },
-  textFieldContainer: {
-    paddingHorizontal: 10 * Layout.scale.width,
-    paddingVertical: 5 * Layout.scale.width,
-    flexDirection: "column",
-    height: 50 * Layout.scale.width,
-  },
-  entrySection: {
-    borderWidth: 2,
-
-    position: 'relative',
-    zIndex: 2,
-    borderColor: Colors.primary,
-    padding: 10 * Layout.scale.width,
-    marginTop: 6 * Layout.scale.width,
-    borderRadius: 17
-
-  } ,
-
-  activeToggle: {
-    position: 'absolute', 
-    zIndex: 3, 
-    height: 32, 
-    width: '50%', 
-    backgroundColor: Colors.primary, 
-    top: 2, left: 2, 
-    borderRadius: 16 ,
-
-    borderWidth: 2,
-    borderColor: Colors.primary,
-
-    ...shadow,
+    startContainer: {
+      backgroundColor: '#fff', 
   
+      paddingHorizontal: 10 * Layout.scale.width
+  
+    },
+    toggleContainer: {
+      position: 'relative', 
+      zIndex: 8,  
+      flexDirection: 'row',
+      height: 36, 
+      justifyContent: 'space-between', 
+      alignItems: 'center',
+      backgroundColor: 'lightgray',
+      borderRadius: 17,
+    },
+    toggleText: {
+      position: 'relative', 
+      zIndex: 5, elevation: 4,
+      flex: 1, textAlign: 'center', 
+    },
 
-  },
+    buttonContainer: {
+      backgroundColor: Colors.primary,
+      alignSelf: 'center',
+      borderRadius: 17,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      ...shadow,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: 'lightgray'
+    },
 
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF",
-  },
-  gratitudeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingTop: 2 * Layout.scale.width,
-  },
-  gratitudeList: {
-    paddingHorizontal: 10 * Layout.scale.width,
-  },
-  addEntryButton: {
-    marginRight: -3,
-  },
-  deleteEntryButton: {
-    marginBottom: -3,
-    paddingRight: 8,
-  },
-  bullet: {
-    flex: 0.8,
-  },
-  keyboardEntryContainer: {
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    flexDirection: "row",
-    paddingHorizontal: 10 * Layout.scale.width,
-    paddingVertical: 3 * Layout.scale.width,
-    borderTopWidth: 0.3,
-    borderTopColor: "gray",
-    overflow: "visible",
-  },
-  keyboardView: {
-    alignItems: "flex-end",
-  },
+    inputLabel: {
+      fontSize: 10 * Layout.scale.width,
+      color: "red",
+      height: 20 * Layout.scale.width,
+    },
 
-  entry: {
-    flex: 10,
-    margin: 0,
-    flexWrap: "wrap",
-    fontSize: 18,
-    fontFamily: "opensans",
-    paddingBottom: 5,
-  },
-  keyboardEntry: {
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "gray",
-    marginRight: 5,
-    marginLeft: -5,
-    paddingLeft: 10,
-    paddingRight: 10,
-  },
-  textField: {
-    fontSize: 17 * Layout.scale.width,
-    fontFamily: 'opensans'
-  },
-});
+    entrySection: {
+      borderWidth: 2,
+  
+      position: 'relative',
+      zIndex: 2,
+      borderColor: Colors.primary,
+      padding: 10 * Layout.scale.width,
+      marginTop: 6 * Layout.scale.width,
+      borderRadius: 17
+  
+    } ,
+  
+    activeToggle: {
+      position: 'absolute', 
+      zIndex: 3, 
+      height: 32, 
+      width: '50%', 
+      backgroundColor: Colors.primary, 
+      top: 2, left: 2, 
+      borderRadius: 16 ,
+  
+      borderWidth: 2,
+      borderColor: Colors.primary,
+  
+      ...shadow,
+    
+  
+    },
+  
+    container: {
+      flex: 1,
+      backgroundColor: "#FFF",
+    },
+
+  
+    entry: {
+      flex: 10,
+      margin: 0,
+      flexWrap: "wrap",
+      fontSize: 18,
+      fontFamily: "opensans",
+      paddingBottom: 5,
+    },
+
+    textField: {
+      fontSize: 17 * Layout.scale.width,
+      fontFamily: 'opensans'
+    },
+  });
+
+  return styles
+}
+
 
 export default connect(  
   function mapStateToProps(state, ownProps) {

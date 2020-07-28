@@ -12,10 +12,13 @@ import fetchApi from '../api/fetch'
 import { shallowEqual, useSelector  } from 'react-redux';
 import appLog from '../util/Logging'
 import soundCloudApi from "../api/soundcloud"
+import {searchForMeeting} from '../screens/MeetingSearchScreen';
+
 const DOCUMENT_LISTING = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vScVd04i6g1ZINmwh454Opw_OztKytorQFJyWii2MjW1CxqCKmcCezU51zBw-28k0nn9LWsc3NALw_x/pub?output=csv'
 export default function useCachedResources() {
   const [loadingState, setLoadingState] = React.useState(0);
   const user : User = useSelector  (state=>state.general.operatingUser, shallowEqual ) 
+
   // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {
     async function loadResourcesAndDataAsync() {
@@ -33,9 +36,10 @@ export default function useCachedResources() {
           'opensans-bold': require('../assets/fonts/OpenSans/OpenSans-SemiBold.ttf'),
           'opensans-light': require('../assets/fonts/OpenSans/OpenSans-Light.ttf')
         });
-        setLoadingState(1)
-        getNetworkResources();
+        
         startUpAuth()
+        getNetworkResources();
+        
 
         setTimeout(() => {
           
@@ -59,6 +63,7 @@ export default function useCachedResources() {
       promises.push(soundCloudApi.getSoundCloudTracks())
       promises.push(DataStore.query(DailyReaders, Predicates.ALL))
       promises.push(axios.get(DOCUMENT_LISTING))
+      promises.push(searchForMeeting())
 
       //const results: PromiseSettledResult<any>[] = await Promise.all(promises)
 
@@ -91,7 +96,8 @@ export default function useCachedResources() {
       try{
         const result = await promises[2]
         if (result.length > 0) { // if there are auth details to retrieve
-          appLog.info(`daily reader out of datastore are ${result}`)
+          appLog.info(`daily reader out of datastore are`, {dailyReader: result})
+
           store.dispatch({ type: "DAILY_READERS", data: JSON.parse(result[0].readings) })
         }
         else {
@@ -127,9 +133,16 @@ export default function useCachedResources() {
             store.dispatch({ type: "NETWORK_DATA", data: massaged })
 
         });
-        appLog.info(`documentResult ${JSON.stringify(massaged, null, 2)}`)
+        appLog.info(`documentResult `, {documentResult: massaged})
 
 
+      }catch(err){
+        appLog.info(`could not get documnet data`, {err})
+      }
+      try{
+        const result = await promises[4];
+        const reducedMeetings = result.meetings.slice(0,3)
+        store.dispatch({type: "UPDATE_CLOSE_MEETING", meetings: reducedMeetings})
       }catch(err){
         appLog.info(`could not get documnet data`, {err})
       }
@@ -141,7 +154,11 @@ export default function useCachedResources() {
 
 
       if (result.length > 0) { // if there are auth details to retrieve
-
+        if(result[0].operatingUser){
+          store.dispatch({type: "UPDATE_OPERATING_USER", isLoadingMeetings: true, data: JSON.parse(result[0].operatingUser)}, )
+          appLog.info(`found operating user out of datastore, setting to that for now ... ${result[0].operatingUser}`);
+        }
+        setLoadingState(1)
         // try to sign in
         const email = result[0].email;
         const signInResult = await signIn(result[0].email, result[0].password)
@@ -160,10 +177,7 @@ export default function useCachedResources() {
 
 
     }
-
-
     
-
     loadResourcesAndDataAsync();
   }, []);
 

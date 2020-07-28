@@ -2,15 +2,15 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, View, Animated, Easing, Platform, Keyboard} from 'react-native';
 
-import Colors from '../constants/Colors'
+import {useColors} from '../hooks/useColors'
 
 import AudioScreen from '../screens/AudioScreen';
 import DocumentScreen from '../screens/DocumentScreen';
 import GratitudeScreen from '../screens/GratitudeScreen';
 import HomeScreen from '../screens/HomeScreen';
-import MeetingSearchScreen from '../screens/MeetingSearchScreen';
+
 import { connect } from 'react-redux';
-import MyTabBar from './BottomTabBar';
+
 import log from '../util/Logging'
 const BottomTab = createBottomTabNavigator();
 
@@ -22,6 +22,9 @@ import HomeGroupsScreen from '../screens/HomeGroupsScreen';
 
 
 function BottomTabNavigator({ navigation, route, ...props }) {
+
+  const {colors: Colors} = useColors();
+
   // Set the header title on the parent stack navigator depending on the
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
@@ -62,16 +65,16 @@ function BottomTabNavigator({ navigation, route, ...props }) {
   return (
 
     <BottomTab.Navigator  
-    tabBar={MyTabBar}
+
     
     tabBarOptions={{
       activeTintColor: Colors.primary,
       inactiveTintColor: 'gray',
       showLabel: true,
-
+      inactiveBackgroundColor: '#00000000',
       style: {
         borderTopWidth: 1,
-        backgroundColor: 'white',
+
 
         ...display
       },
@@ -138,7 +141,7 @@ export default connect(
 
 const styles = StyleSheet.create({
   bottomNav: {
-    backgroundColor: '#fff',
-    color: 'lightgray'
+    backgroundColor: '#000000AA',
+    color: '#000000AA'
   }
 })

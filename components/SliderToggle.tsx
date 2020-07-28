@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Text, View, StyleSheet, Animated, Easing, TouchableWithoutFeedback } from 'react-native';
+import { Text, View, StyleSheet, Animated, Easing, TouchableWithoutFeedback, Platform } from 'react-native';
 
-import Layout from '../constants/Layout';
-import Colors from '../constants/Colors';
+import {useLayout} from '../hooks/useLayout'
+import {useColors} from '../hooks/useColors'
 import log from '../util/Logging'
 
 export type Toggle = {
@@ -10,13 +10,19 @@ export type Toggle = {
     callback: Function;
 }
 
-export default function SliderToggle({ toggles, containerWidth = Layout.window.width * .8 , selectedIndex}: { toggles: Toggle[], containerWidth: number , selectedIndex: number}) {
+export default function SliderToggle({ toggles, containerWidth = -1, selectedIndex, activeColor, inactiveColor }:
+    { toggles: Toggle[], containerWidth: number, selectedIndex: number, activeColor?: string, inactiveColor?: string }) {
     const toggleWidth = containerWidth / toggles.length;
+    const Layout = useLayout();
+    const {colors: Colors} = useColors();
+
+    if(containerWidth == -1)
+        containerWidth = Layout.window.width *.8
     const tempStopPoints = calculateStopPoints(toggleWidth, toggles.length)
     const [offset, setOffset] = React.useState(new Animated.Value(tempStopPoints[selectedIndex]))
     const [activeToggle, setActiveToggle] = useState(selectedIndex);
 
-    
+    const styles = useStyles()
 
     function calculateStopPoints(width, count): number[] {
         const stops = []
@@ -50,9 +56,9 @@ export default function SliderToggle({ toggles, containerWidth = Layout.window.w
         shadowColor: 'black',
         shadowOffset: { width: 1, height: 1 },
         shadowOpacity: .3,
-    } : { elevation: 3 }
+    } : { elevation: 0 }
     return (
-        <View style={{ backgroundColor: '#fff', paddingTop: 10 * Layout.scale.width }}>
+        <View style={{ paddingTop: 10 * Layout.scale.width }}>
             <View style={{
                 position: 'relative',
                 zIndex: 1,
@@ -60,35 +66,32 @@ export default function SliderToggle({ toggles, containerWidth = Layout.window.w
                 alignSelf: 'center',
                 width: containerWidth,
                 paddingVertical: 0,
-                height: 34,
+                height: 34 * Layout.scale.height,
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                backgroundColor: '#d1d7dd',
-                borderRadius: 17,
+                backgroundColor: inactiveColor ? inactiveColor : '#00000033',
+                borderRadius: 17 * Layout.scale.height,
             }}>
-                <Animated.View style={[{ position: 'absolute', zIndex: 3, height: 29, width: toggleWidth - 3, backgroundColor: 'white', top: 2.5, left: 0, borderRadius: 16, ...shadow, ...transform }]}></Animated.View>
+                <Animated.View style={[{
+                    position: 'absolute', zIndex: 3, height: 29 * Layout.scale.height, width: toggleWidth - 3, backgroundColor: activeColor ? activeColor : '#11111177',
+                    top: 2.5 * Layout.scale.height, left: 0, borderRadius: 16 * Layout.scale.height, ...shadow, ...transform
+                }]}></Animated.View>
 
-                <TouchableWithoutFeedback onPress={() => toggle(0)} >
-                    <Text style={[{
-                        position: 'relative', zIndex: 5, elevation: 4,
-                        flex: 1, textAlign: 'center', color: (activeToggle == 0 ? Colors.primary : 'black'),
-                    },
-                    styles.textField]}>{toggles[0].label}</Text>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={() => toggle(1)} >
-                    <Text style={[{
-                        position: 'relative', zIndex: 5, elevation: 4,
-                        flex: 1, textAlign: 'center', color: (activeToggle == 1 ? Colors.primary : 'black'),
-                    },
-                    styles.textField]}>{toggles[1].label}</Text>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={() => toggle(2)} >
-                    <Text style={[{
-                        position: 'relative', zIndex: 5, elevation: 4,
-                        flex: 1, textAlign: 'center', color: (activeToggle == 2 ? Colors.primary : 'black'),
-                    },
-                    styles.textField]}>{toggles[2].label}</Text>
-                </TouchableWithoutFeedback>
+
+                {
+                    toggles.map((t: Toggle, index) => {
+                        return (
+                            <TouchableWithoutFeedback onPress={() => toggle(index)} key={index}>
+                                <Text style={[styles.textField, {
+                                    position: 'relative', zIndex: 5, elevation: 4,
+                                    flex: 1, textAlign: 'center'
+                                }, activeToggle == index && { color: Colors.primary }
+                                ]}>{t.label}</Text>
+                            </TouchableWithoutFeedback>
+                        )
+                    })
+                }
+
 
             </View>
 
@@ -96,13 +99,20 @@ export default function SliderToggle({ toggles, containerWidth = Layout.window.w
         </View>
     )
 
-    
+
 }
+function useStyles() {
+    const Layout = useLayout();
+    const {colors: Colors} = useColors();
 
-const styles = StyleSheet.create({
+    const styles = StyleSheet.create({
 
-    textField: {
-        fontSize: 17 * Layout.scale.width,
-        fontFamily: 'opensans'
-      }
-})
+        textField: {
+            fontSize: 22 * Layout.scale.height,
+            fontFamily: 'opensans',
+            color: Colors.primaryContrast
+        }
+    })
+
+    return styles
+}

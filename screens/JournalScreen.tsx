@@ -8,10 +8,12 @@ import {
   StyleSheet
 } from "react-native";
 import { connect } from "react-redux";
-import Colors from "../constants/Colors";
+import {useColors} from '../hooks/useColors'
+import {useLayout} from '../hooks/useLayout'
+
 import GratitudeList from '../components/GratitudeList'
 import Modal from "react-native-modal";
-import Layout from "../constants/Layout";
+
 import log from "../util/Logging"
 import {store} from '../components/store'
 
@@ -39,14 +41,14 @@ function JournalScreen({
 }) {
 
   const [gratitudeToShare, setGratitudeToShare] = useState<Gratitude>(undefined)
-  const [selectedChannels, setSelectedChannels] = useState <UserChannel[]>([])
   const [modalHeight, setModalHeight] = useState(0)
 
   log.info(`should be rendering my gratitudes:`, {gratitudes} )
-
+  const Layout = useLayout();
+  const {colors: Colors} = useColors();
   async function shareGratitude(userChannel: UserChannel){
 
-    const results = await mutateApi.createBroadcast(gratitudeToShare.id, userChannel.channelId)
+    const results = await mutateApi.createBroadcast(gratitudeToShare.id, userChannel.channelId, gratitudeToShare.ownerId)
     log.info(`results from broadcast are:`, {results})
     store.dispatch({type: "SET_BANNER", banner: {message: "Gratitude shared", status: "info"}})
   }
@@ -96,15 +98,20 @@ function JournalScreen({
   );
 }
 
-const styles = StyleSheet.create({
+function useStyles(){
+  const Layout = useLayout();
+  const styles = StyleSheet.create({
  
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF",
-    paddingTop: 5 * Layout.scale.width,
-  }
-  
-  })
+    container: {
+      flex: 1,
+      backgroundColor: "#FFF",
+      paddingTop: 5 * Layout.scale.width,
+    }
+    
+    })
+  return styles
+}
+
 JournalScreen = connect(
   function mapStateToProps(state, ownProps) {
     const { gratitudes, operatingUser, userChannels: subscribedChannels } = state.general;
@@ -141,11 +148,5 @@ JournalScreen = connect(
   }
 )(JournalScreen);
 
-const config = {
-  animation: "timing",
-  config: {
-    duration: 200,
-  },
-};
 
 export default JournalScreen;

@@ -5,32 +5,27 @@ import {
   TouchableOpacity,
   View,
   Platform,
-  TouchableWithoutFeedback,
 
 } from "react-native";
-import Modal from "react-native-modal";
-import AppBanner from "../components/AppBanner";
+
 import { shallowEqual, useSelector } from "react-redux";
 import { store } from "../components/store";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import log from "../util/Logging"
-import {GratitueShareModal, GratitudeShareModal} from "../components/GratitudeShareModal"
+import { GratitudeShareModal} from "../components/GratitudeShareModal"
 import {
   User,
   UserChannel,
-  Channel,
   Gratitude,
   Broadcast,
 } from "../types/gratitude";
-import Colors from "../constants/Colors";
-import Layout from "../constants/Layout";
-import fetchApi from "../api/fetch";
+import {useColors} from '../hooks/useColors'
+import {useLayout} from '../hooks/useLayout'
 import mutateApi from "../api/mutate";
 import GratitudeList from "../components/GratitudeList";
 import { getInputRangeFromIndexes } from "react-native-snap-carousel";
 import { LinearGradient } from "expo-linear-gradient";
-import { Octicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {  MaterialCommunityIcons } from "@expo/vector-icons";
 
 function GratitudeCircleScreen({ route, navigation, ...props }) {
   const user: User = useSelector(
@@ -49,6 +44,9 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
   const [showModal, setShowModal] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentGratitudes, setCurrentGratitudes] = useState <Gratitude[]>([])
+  const styles = useStyles();
+  const {colors: Colors} = useColors()
+  const Layout = useLayout();
   const originalUserChannels: UserChannel[] = useSelector(
     (state) => state.general.userChannels,
     shallowEqual
@@ -88,35 +86,8 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
       store.dispatch({type: "SET_BANNER", banner: {message: `Gratitude unshared`, status: "info"}})
     }
     log.info(`results from broadcast`, {results})
-    
-  /* let results
-    if(broadcastId) {
-      results = await mutateApi.createBroadcast(gratitudeToShare.id, userChannel.channelId, user.id)
-    }
-    else{
-      
-    }
-    log.info(`results from broadcast`, {results})
-    store.dispatch({type: "BROADCAST_GRATITUDE", gratitudeId: gratitudeToShare.id, channelId: userChannel.channelId, })
-    store.dispatch({type: "SET_BANNER", banner: {message: "Gratitude shared", status: "info"}})*/
-  }
-
-  /*
-  async function loadGratitudes() {
-    setRefreshing(true);
-    const broadcastMap = await fetchApi.fetchBroadcastGratitude(userChannels,);
-    log.info(
    
-    );
-    setBroadcasts(broadcastMap);
-    setRefreshing(false);
   }
-
-  useEffect(() => {
-    loadGratitudes();
-  }, []);
-  */
-
 
   useEffect(()=>{
 
@@ -195,7 +166,7 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
 
   return (
     <View style={styles.container}>
-      <AppBanner />
+
     <View style={{flexDirection: 'row', alignItems: "center"}} >
       <View
         style={[
@@ -293,13 +264,17 @@ const shadow =
         shadowOpacity: 0.3,
       }
     : { elevation: 3 };
+function useStyles(){
+  const Layout = useLayout();
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: "#FFF",
+      paddingTop: 5 * Layout.scale.width,
+    },
+  });
+  return styles
+}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF",
-    paddingTop: 5 * Layout.scale.width,
-  },
-});
 
 export default GratitudeCircleScreen;

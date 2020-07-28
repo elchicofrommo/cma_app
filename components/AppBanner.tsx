@@ -1,36 +1,66 @@
 
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback, memo, useRef } from 'react';
 import { Text, View , StyleSheet, Animated, Easing} from 'react-native';
 import { connect } from 'react-redux';
-import { Banner } from 'react-native-paper';
-import { faHandHolding } from '@fortawesome/free-solid-svg-icons';
-import Layout from '../constants/Layout';
-import Colors from '../constants/Colors';
+import * as Animatable from 'react-native-animatable';
+import {useLayout} from '../hooks/useLayout';
+import {useColors} from '../hooks/useColors';
 import log from '../util/Logging' 
 function AppBanner(props){
     const [visible, setVisible] = useState(false)
     const [offset, setOffset] = useState(new Animated.Value(-100))
+    const layout = useLayout()
+    const extra = Platform.OS ==="ios"?0: 15;
+    const [animation, setAnimation] = useState({from: {opacity: 0, translateY: 0}, to: {opacity: 0, translateY: -100}})
+    const {colors: Colors} = useColors()
     const transform = {
         transform: [{ translateY: offset }]
     }
+    
+    
+
+    const styles = StyleSheet.flatten({
+        container: {
+          flex: 1, 
+          width: '100%',
+          justifyContent: 'flex-end',
+          backgroundColor: Colors.appBlue,
+          padding: 5 * layout.scale.height,
+          position: 'absolute',
+          zIndex: 5,
+          top: 0,
+          height: layout.belowHeader + extra,
+          left: 0,
+        },
+        warnContainer:{
+            backgroundColor: Colors.appRed,
+        },
+        bannerText: {
+            color: Colors.primaryContrast,
+            fontSize: 18 * layout.scale.width,
+        }
+    })
 
     function hold(){
         log.info(`step 2`)
-        Animated.timing(offset, {
-            toValue: 0,
+     /*   Animated.timing(offset, {
+            toValue: layout.belowHeader,
             useNativeDriver: true,
             duration: 1800,
             easing: Easing.inOut(Easing.sin),
-        }).start(()=> slideOut())
+        }).start(()=> slideOut()) */
+        
     }
     function slideOut(){
         log.info(`step 3`)
-        Animated.timing(offset, {
+        setAnimation('fadeOutUp');
+
+        /*Animated.timing(offset, {
             toValue: -100,
             useNativeDriver: true,
             duration: 400,
             easing: Easing.inOut(Easing.sin),
-        }).start(()=>cleanUp())
+        }).start(()=>cleanUp()) */
         
     }
 
@@ -40,12 +70,14 @@ function AppBanner(props){
 
     function slideIn(){
         log.info(`step 1`)
-        Animated.timing(offset, {
-            toValue: 0,
+       /* Animated.timing(offset, {
+            toValue: layout.belowHeader,
             useNativeDriver: true,
             duration: 400,
             easing: Easing.inOut(Easing.sin),
-        }).start(()=> hold())
+        }).start(()=> hold()) */
+        setAnimation('fadeInDown');
+        setTimeout(()=>slideOut(), 2000)
     }
 
     useEffect(()=>{
@@ -54,33 +86,23 @@ function AppBanner(props){
             slideIn()
         }
 
-    }, [props.banner])
-    return (
-    <Animated.View style={[styles.container, transform, props.banner && props.banner.status == 'info' && styles.infoContainer]}>
+    }, [props.banner]) 
+
+    /*    <Animated.View style={[styles.container, transform, props.banner && props.banner.status == 'info' && styles.infoContainer]}>
         <Text style={[styles.bannerText, ]}>{props.banner && props.banner.message}</Text>
         
     </Animated.View>
+
+    */
+    return (
+        <Animatable.View animation={animation} duration={300} useNativeDriver style={[styles.container, props.banner && props.banner.status != 'info' && styles.warnContainer]}>
+            <Text style={[styles.bannerText, ]}>{props.banner && props.banner.message}</Text>
+        </Animatable.View>
+    
     )
+    
 }
-const styles = StyleSheet.create({
-    container: {
-      flex: 1, 
-      width: '100%',
-      backgroundColor: Colors.appRed,
-      padding: 5 * Layout.scale.width,
-      position: 'absolute',
-      zIndex: 5,
-      top: 0,
-      left: 0,
-    },
-    infoContainer:{
-        backgroundColor: Colors.appBlue,
-    },
-    bannerText: {
-        color: 'white',
-        fontSize: 15 * Layout.scale.width,
-    }
-})
+
 export default connect(
     function mapStateToProps(state){
         log.info(`inside AppBanner observe state change, the banner is ${JSON.stringify(state.general.banner)}`)

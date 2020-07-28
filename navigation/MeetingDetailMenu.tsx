@@ -2,18 +2,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, Dimensions, Animated, Easing, Linking, Platform } from 'react-native';
 import { RectButton, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-import Colors from '../constants/Colors';
+import {useColors} from '../hooks/useColors';
+import {useLayout} from '../hooks/useLayout';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlusCircle, faMinusCircle, faDirections } from '@fortawesome/free-solid-svg-icons';
 import {User, Meeting} from '../types/gratitude'
 import log from '../util/Logging'
-const {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT
-} = Dimensions.get('window')
-import Layout from '../constants/Layout';
-import { getOperatingUser } from '../graphql/queries';
+
+
+
 import mutate from '../api/mutate'
 
 function openMap(lat, long, label) {
@@ -35,7 +33,10 @@ const DetailsMenu = ({operatingUser, showDetail, authenticated, detail, ...props
     {operatingUser: User, showDetail: boolean, authenticated: boolean,
         detail: Meeting, props: any}) => {
     log.info(`render DetailsMenu `)
-    const [offset, setOffset] = useState(new Animated.Value(104))
+    const {colors} = useColors();
+    const layout = useLayout();
+    const styles = useStyles();
+    const [offset, setOffset] = useState(new Animated.Value(layout.safeBottom + 40 * layout.scale.height))
 
 
     if (showDetail) {
@@ -49,7 +50,7 @@ const DetailsMenu = ({operatingUser, showDetail, authenticated, detail, ...props
     } else {
         log.info(`going to 100`)
         Animated.timing(offset, {
-            toValue: 104,
+            toValue: layout.safeBottom + 40 * layout.scale.height,
             useNativeDriver: true,
             duration: 200,
             easing: Easing.inOut(Easing.sin),
@@ -57,15 +58,12 @@ const DetailsMenu = ({operatingUser, showDetail, authenticated, detail, ...props
     }
 
 
-    const transform = {
-        transform: [{ translateY: offset }]
-    }
 
     if (detail) {
 
         let button = undefined;
 
-        const buttonSize = 45 * Layout.scale.width
+        const buttonSize = 45 * layout.scale.height
         log.info(`here's the lsit of meetings for this user `, {operatingUser})
         if (operatingUser.meetingIds?.includes(detail.id)) {
             button = <TouchableOpacity onPress={(event) => { 
@@ -80,7 +78,7 @@ const DetailsMenu = ({operatingUser, showDetail, authenticated, detail, ...props
             </TouchableOpacity>
         }
         return (
-            <Animated.View style={[styles.menuStyle, transform]}>
+            <View style={[styles.menuStyle]}>
                 {button}
                 <TouchableOpacity onPress={(event) => {
                     openMap(
@@ -90,48 +88,53 @@ const DetailsMenu = ({operatingUser, showDetail, authenticated, detail, ...props
                 }}>
                     <FontAwesomeIcon icon={faDirections} style={[styles.icon, styles.directions]} size={buttonSize} />
                 </TouchableOpacity>
-            </Animated.View>
+            </View>
         )
     } else {
         return (
-            <Animated.View style={[styles.menuStyle, transform]}>
+            <View style={[styles.menuStyle]}>
                 <Text> Blank menu</Text>
 
-            </Animated.View>
+            </View>
         )
     }
 }
 
 const topPadding = Platform.OS == 'ios' ? 19 : 8
 
-const styles = StyleSheet.create({
-    menuStyle: {
+function useStyles(){
+    const layout = useLayout();
+    const styles = StyleSheet.create({
+        menuStyle: {
 
-        marginTop: -20,
-        paddingTop: topPadding,
+            paddingVertical: 8 * layout.scale.height,
+            marginBottom: layout.safeBottom,
+    
+            paddingHorizontal: 40,
 
-        paddingHorizontal: 40,
-        zIndex: 200,
-        height: 100,
-        backgroundColor: 'white',
-        width: '100%',
-        flexDirection: 'row',
-        justifyContent: 'space-evenly'
-    },
-    icon: {
+            backgroundColor: 'white',
+            width: '100%',
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            alignItems: 'center'
+        },
+        icon: {
+        
+        },
+        minus: {
+            color: '#f36468'
+        },
+        plus: {
+            color: 'green'
+        },
+        directions: {
+            color: '#0273b1'
+        }
+    
+    })
+    return styles;
+}
 
-    },
-    minus: {
-        color: '#f36468'
-    },
-    plus: {
-        color: 'green'
-    },
-    directions: {
-        color: '#0273b1'
-    }
-
-})
 
 
 export default connect(
@@ -162,7 +165,7 @@ export default connect(
 
                     return new Promise(resolve=>{
                         dispatch({ type: "REMOVE_MEETING", data, meetingIds: meetingList })
-                        dispatch({ type: "SET_BANNER", banner: {message: "Meeting Saved", status: "info" }})
+                        dispatch({ type: "SET_BANNER", banner: {message: "Meeting Removed", status: "info" }})
                     })
                 })
                 

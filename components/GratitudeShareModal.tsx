@@ -17,8 +17,8 @@ import {
     UserChannel,
     Gratitude,
   } from "../types/gratitude";
-  import Colors from "../constants/Colors";
-  import Layout from "../constants/Layout";
+  import {useColors} from "../hooks/useColors";
+  import {useLayout} from "../hooks/useLayout";
 
 export function GratitudeShareModal({gratitudeId, isVisible, shareCallback, dismissCallback}: 
         {gratitudeId: string, isVisible: boolean, shareCallback: Function, dismissCallback: Function}){
@@ -27,6 +27,9 @@ export function GratitudeShareModal({gratitudeId, isVisible, shareCallback, dism
         log.info(`found gratitude for modal `, {gratitude: temp})
         return temp
     })
+    const {colors: Colors} = useColors()
+    const Layout = useLayout()
+
     const userChannels = useSelector((state)=>state.general.userChannels)
     return(
         <Modal

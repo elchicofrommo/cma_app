@@ -1,14 +1,15 @@
 
-import  React,  {useState, useEffect} from 'react';
-import {  StyleSheet, View, Text, Animated, Easing, AnimatedView } from 'react-native';
+import  React,  {useState, } from 'react';
+import {  StyleSheet, View, Text, Animated, Easing, Platform } from 'react-native';
 import Logo from '../assets/images/LogoComponent'
 import LogoNoAnimation from '../assets/images/LogoComponetNoAnimation'
-import WhiteLogo from '../assets/images/whiteLogo2.png'
-import Colors from '../constants/Colors';
-import Layout from '../constants/Layout';
+
+import {useColors} from '../hooks/useColors'
+import {useLayout} from '../hooks/useLayout'
 import log from "../util/Logging"
 export default function SplashScreen({navigation, route, ...props} ){
-
+  const styles = useStyles();
+  const Layout = useLayout();
   log.info(`rendering SplashScreen`)
   const component = Platform.OS === 'ios' ? <Logo height={"30%"} style={{marginLeft: 20}} />: 
     <LogoNoAnimation height={"30%"} style={{marginBottom: 20}} />
@@ -56,38 +57,43 @@ export default function SplashScreen({navigation, route, ...props} ){
     </Animated.View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.primary,
-    justifyContent: "center",
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    height: Layout.window.height,
-    width: Layout.window.width
-    
-  },
-  labelView: {
+function useStyles(){
+  const {colors: Colors} = useColors();
+  const Layout = useLayout();
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: Colors.primary,
       justifyContent: "center",
-      alignContent: "center",
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      height: Layout.window.height,
+      width: Layout.window.width
+      
+    },
+    labelView: {
+        justifyContent: "center",
+        alignContent: "center",
+  
+    },
+    topLine: {
+      fontFamily: 'merriweather',
+      fontSize: 50,
+      color: Colors.primaryContrast,
+      lineHeight: 65,
+      textAlign: 'center',
+    },
+    bottomLine: {
+      fontFamily: 'merriweather',
+      fontSize: 50,
+      color: Colors.primaryContrast,
+      lineHeight: 65,
+      textAlign: 'center',
+      marginLeft: 40,
+      marginTop: -15,
+    },
+  });
+  return styles;
+}
 
-  },
-  topLine: {
-    fontFamily: 'merriweather',
-    fontSize: 50,
-    color: Colors.primaryContrast,
-    lineHeight: 65,
-    textAlign: 'center',
-  },
-  bottomLine: {
-    fontFamily: 'merriweather',
-    fontSize: 50,
-    color: Colors.primaryContrast,
-    lineHeight: 65,
-    textAlign: 'center',
-    marginLeft: 40,
-    marginTop: -15,
-  },
-});

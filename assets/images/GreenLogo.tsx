@@ -1,11 +1,13 @@
 
 import * as React from 'react';
-import Svg, { Circle, G, Path, Rect } from "react-native-svg";
-import { AnimatedSVGPath } from 'react-native-svg-animations'
-import Colors from "../../constants/Colors"
+import Svg, { Circle, G, Path } from "react-native-svg";
+
+import {useColors} from '../../hooks/useColors'
 export default function Logo(props) {
   
-    const circleD = describeArc(306.965,226.5, 194, 0, 359.99999)
+;
+  const {colors: Colors} = useColors();
+   // const circleD = describeArc(306.965,226.5, 194, 0, 359.99999)
 
     return (
       <Svg

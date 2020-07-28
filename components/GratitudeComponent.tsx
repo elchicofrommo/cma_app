@@ -1,6 +1,6 @@
 import log from "../util/Logging";
-import Layout from "../constants/Layout";
-import Colors from "../constants/Colors";
+import {useLayout} from '../hooks/useLayout'
+import {useColors} from "../hooks/useColors";
 import { shallowEqual, useSelector } from "react-redux";
 import shortid from "shortid";
 
@@ -9,9 +9,9 @@ import {
   Entry,
   User,
   Comment,
-  Broadcast
+
 } from "../types/gratitude";
-import React, { useCallback, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import { Entypo, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
 import mutateApi from "../api/mutate";
@@ -22,14 +22,13 @@ import {
   Text,
   TouchableWithoutFeedback,
   View,
-  FlatList,
+
   ListRenderItemInfo,
-  SectionList
+
 } from "react-native";
 
 import { KeyboardAwareFlatList } from 'react-native-keyboard-aware-scroll-view'
-import { subscribeToMyGratitudes } from "../graphql/subscriptions";
-import { Section } from "react-native-paper/lib/typescript/src/components/List/List";
+
 
 export enum GratitudeRenderMode {
   SHORT,
@@ -39,9 +38,7 @@ export enum GratitudeRenderMode {
 
 export function GratitudeComponent({
   gratitude,
-  action,
-  navigation,
-  channelId,
+
   mode = GratitudeRenderMode.SHORT,
 }: {
   gratitude: Gratitude;
@@ -56,10 +53,13 @@ export function GratitudeComponent({
     likes: 0,
   };
 
+  const styles = useStyles()
   const [workingGratitude, setWorkingGratitude] = useState(gratitude);
 
   counts.comments += workingGratitude.comments.items.length;
   counts.likes += workingGratitude.likes.items.length;
+  const Layout = useLayout();
+  const {colors: Colors} = useColors();
 
   let userName = "";
   if (workingGratitude.likes.items.length > 0) {
@@ -229,7 +229,7 @@ export function GratitudeComponent({
 
 export function CommentButton({ callback }: { callback: Function }) {
 
-
+  const styles = useStyles()
   return <TouchableWithoutFeedback
     onPress={() => callback()}
   >
@@ -252,6 +252,7 @@ export function CommentButton({ callback }: { callback: Function }) {
 }
 
 export function DeleteButton({ callback }: { callback: Function }) {
+  const styles = useStyles()
   return <TouchableWithoutFeedback onPress={() => callback()}>
     <View
       style={[
@@ -268,6 +269,7 @@ export function DeleteButton({ callback }: { callback: Function }) {
 }
 
 export function ShareButton({ callback }: { callback: Function }) {
+  const styles = useStyles()
   return <TouchableWithoutFeedback onPress={() => callback()}>
     <View
       style={[
@@ -286,6 +288,7 @@ export function ShareButton({ callback }: { callback: Function }) {
 }
 
 export function LikeButton({ gratitude, user, iLiked }: { gratitude: Gratitude, user: User, iLiked: boolean }) {
+  const styles = useStyles()
   return <TouchableWithoutFeedback
     onPress={() => {
       mutateApi.likeGratitude({ gratitude, operatingUser: user });
@@ -328,10 +331,12 @@ function renderEntrySeprator(highlighted, leadingTiems) {
 }
 
 function CommentsComponent({ comments, mode }: { comments: Comment[], mode: GratitudeRenderMode }) {
+  const Layout = useLayout();
+
   if (comments.length == 0) {
     return <View></View>
   }
-
+  const styles = useStyles();
   if (mode == GratitudeRenderMode.SHORT) {
     const comment = comments[comments.length - 1]
     const remaining = comments.length - 1;
@@ -486,116 +491,122 @@ const shadow =
     }
     : { elevation: 15 };
 
-const styles = StyleSheet.create({
-  mapStyle: {
-    width: "100%",
-    marginBottom: 20,
-    flex: 6,
-    backgroundColor: "#dadde0",
-  },
-  gratitudeButtons: {
-    flexDirection: "row",
-    paddingVertical: 7,
-    alignItems: "center",
-  },
-  gratitudeButtonsText: {
-    flexDirection: "row",
-    fontSize: 16 * Layout.scale.width,
-    paddingLeft: 5 * Layout.scale.width,
-    color: "dimgray",
-  },
-  title: {},
-  statsRow: {
-    paddingVertical: 3,
-    paddingHorizontal: 10 * Layout.scale.width,
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    flex: 1,
-    width: "100%",
-  },
-  seperator: {
-    width: Layout.window.width - (20*Layout.scale.width),
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderColor: "gray",
-    alignSelf: "center",
-  },
-  gratitudeFooter: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    flex: 1,
-    width: "100%",
-  },
-  address: {
-    flex: 2,
-    justifyContent: "flex-end",
-    paddingHorizontal: 10 * Layout.scale.width,
-  },
-  sectionHeader: {
-    fontWeight: "bold",
-    paddingTop: 10 * Layout.scale.width,
-  },
-  directions: {
-    paddingVertical: 5 * Layout.scale.width,
-    color: "blue",
-  },
-  gratitudeRowSeprator: {
-    height: 5 * Layout.scale.width,
-    backgroundColor: Colors.primaryL3,
-    width: "100%",
-  },
-  typesContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  type: {
-    width: "30%",
-    textTransform: "capitalize",
-  },
-  text: {
-    flexWrap: "wrap",
-    fontSize: 12 * Layout.scale.width,
-  },
+function useStyles(){
+  const Layout = useLayout();
+  const {colors: Colors} = useColors();
+  const styles = StyleSheet.create({
+    mapStyle: {
+      width: "100%",
+      marginBottom: 20,
+      flex: 6,
+      backgroundColor: "#dadde0",
+    },
+    gratitudeButtons: {
+      flexDirection: "row",
+      paddingVertical: 7,
+      alignItems: "center",
+    },
+    gratitudeButtonsText: {
+      flexDirection: "row",
+      fontSize: 16 * Layout.scale.width,
+      paddingLeft: 5 * Layout.scale.width,
+      color: "dimgray",
+    },
+    title: {},
+    statsRow: {
+      paddingVertical: 3,
+      paddingHorizontal: 10 * Layout.scale.width,
+      flexDirection: "row",
+      justifyContent: "flex-start",
+      flex: 1,
+      width: "100%",
+    },
+    seperator: {
+      width: Layout.window.width - (20*Layout.scale.width),
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderColor: "gray",
+      alignSelf: "center",
+    },
+    gratitudeFooter: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      flex: 1,
+      width: "100%",
+    },
+    address: {
+      flex: 2,
+      justifyContent: "flex-end",
+      paddingHorizontal: 10 * Layout.scale.width,
+    },
+    sectionHeader: {
+      fontWeight: "bold",
+      paddingTop: 10 * Layout.scale.width,
+    },
+    directions: {
+      paddingVertical: 5 * Layout.scale.width,
+      color: "blue",
+    },
+    gratitudeRowSeprator: {
+      height: 5 * Layout.scale.width,
+      backgroundColor: Colors.primaryL3,
+      width: "100%",
+    },
+    typesContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+    },
+    type: {
+      width: "30%",
+      textTransform: "capitalize",
+    },
+    text: {
+      flexWrap: "wrap",
+      fontSize: 12 * Layout.scale.width,
+    },
+  
+    details: {
+      flex: 5,
+      paddingHorizontal: 10 * Layout.scale.width,
+    },
+    badge: {
+      color: "#f4b813",
+      marginTop: -3,
+    },
+    container: {
+      flex: 1,
+      backgroundColor: "#FFF",
+      paddingTop: 5 * Layout.scale.width,
+    },
+    gratitudeList: {},
+    gratitudeEntryList: {
+      paddingHorizontal: 10 * Layout.scale.width,
+      width: "100%",
+    },
+    gratitudeRow: {
+      flexDirection: "column",
+      alignItems: "center",
+  
+      overflow: "hidden",
+    },
+    bullet: {
+      marginRight: 3 * Layout.scale.width,
+    },
+    entryText: {
+      fontSize: 17,
+      fontFamily: "opensans",
+      color: "white",
+    },
+    keyboardEntry: {
+      width: "100%",
+      margin: 0,
+      flexWrap: "wrap",
+      fontSize: 18,
+      fontFamily: "opensans",
+      paddingBottom: 5,
+  
+      paddingHorizontal: 10 * Layout.scale.width,
+    },
+  });
+  return styles
+}
 
-  details: {
-    flex: 5,
-    paddingHorizontal: 10 * Layout.scale.width,
-  },
-  badge: {
-    color: "#f4b813",
-    marginTop: -3,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF",
-    paddingTop: 5 * Layout.scale.width,
-  },
-  gratitudeList: {},
-  gratitudeEntryList: {
-    paddingHorizontal: 10 * Layout.scale.width,
-    width: "100%",
-  },
-  gratitudeRow: {
-    flexDirection: "column",
-    alignItems: "center",
-
-    overflow: "hidden",
-  },
-  bullet: {
-    marginRight: 3 * Layout.scale.width,
-  },
-  entryText: {
-    fontSize: 17,
-    fontFamily: "opensans",
-    color: "white",
-  },
-  keyboardEntry: {
-    width: "100%",
-    margin: 0,
-    flexWrap: "wrap",
-    fontSize: 18,
-    fontFamily: "opensans",
-    paddingBottom: 5,
-
-    paddingHorizontal: 10 * Layout.scale.width,
-  },
-});

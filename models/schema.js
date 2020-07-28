@@ -31,6 +31,13 @@ export const schema = {
                     "type": "String",
                     "isRequired": true,
                     "attributes": []
+                },
+                "operatingUser": {
+                    "name": "operatingUser",
+                    "isArray": false,
+                    "type": "any",
+                    "isRequired": false,
+                    "attributes": []
                 }
             },
             "syncable": false,

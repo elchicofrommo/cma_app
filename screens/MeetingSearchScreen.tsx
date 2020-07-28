@@ -3,28 +3,28 @@ import {
   Image, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback,
   TextInput, View, Button, Dimensions, Keyboard, Linking, FlatList, Animated, Easing, Switch
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+
 import { connect } from 'react-redux';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
 import { createStackNavigator, HeaderBackButton, } from '@react-navigation/stack';
-import AppBanner from '../components/AppBanner'
+
 import * as Location from 'expo-location';
 import axios from 'axios';
 import moment from 'moment'
 import MeetingListRow from '../components/MeetingListRow'
-import { DetailsScreen } from './MeetingDetailsScreen'
+
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faFilter, faWindowClose, faStop } from '@fortawesome/free-solid-svg-icons';
-import { ToggleButton } from 'react-native-paper';
-import { ForceTouchGestureHandler } from 'react-native-gesture-handler';
+import { faFilter, } from '@fortawesome/free-solid-svg-icons';
+
+
 import { Ionicons } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
-import SoberietyTime from '../components/SoberietyTime';
-import symbolicateStackTrace from 'react-native/Libraries/Core/Devtools/symbolicateStackTrace';
-import Colors from '../constants/Colors';
-import Layout from '../constants/Layout';
+import SliderToggle, {Toggle} from '../components/SliderToggle'
+import {useColors} from '../hooks/useColors';
+import {useLayout} from '../hooks/useLayout';
 import { Meeting } from '../types/gratitude'
 import log from "../util/Logging"
+
 const daysOfWeek = {
   Sunday: 0,
   Monday: 1,
@@ -38,64 +38,7 @@ const daysOfWeek = {
 
 const MeetingStack = createStackNavigator();
 export { MeetingList, sortMeetings }
-/*function MeetingSearchScreenStack() {
-  log.info(`rendering meetingstack`)
-  return (
-    <MeetingStack.Navigator >
-      <MeetingStack.Screen
-        name="meetings"
-        component={MeetingSearchScreen}
 
-        options={({ navigation, route }) => ({
-
-          headerStyle: {
-            backgroundColor: Colors.primary,
-
-          },
-          headerLeft: () => {
-            return <Text style={{ color: 'white', fontFamily: 'opensans', fontSize: 21 * Layout.scale.width, paddingLeft: 10 * Layout.scale.width }}>Meetings</Text>
-          },
-          title: "",
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-            fontFamily: 'merriweather',
-            fontSize: 18 * Layout.scale.width
-          },
-
-
-
-        })}
-      />
-      <MeetingStack.Screen
-        name="location"
-        component={LocationScreen}
-        options={({ navigation, route }) => ({
-
-          headerStyle: {
-            backgroundColor: '#FFF',
-            shadowColor: 'transparent'
-          },
-          title: 'Location Search',
-          headerTintColor: Colors.primary,
-          headerTitleStyle: {
-            fontWeight: 'bold',
-            fontFamily: 'merriweather',
-            fontSize: 18 * Layout.scale.width,
-            borderBottomWidth: 0,
-
-
-          },
-
-        })}
-
-      />
-      
-
-    </MeetingStack.Navigator>
-  )
-}
-*/
 function LocationScreen({ navigation, ...props }) {
   const [location, setLocation] = useState()
   return (
@@ -135,54 +78,97 @@ function sortMeetings(meetings: Meeting[]) {
   meetings.sort((a, b) => {
 
     let aDay = daysOfWeek[a.weekday]
-    if (aDay < moment().weekday())
+    const today = moment().weekday()
+    if (aDay < today)
       aDay += 7;
     let
       bDay = daysOfWeek[b.weekday]
-    if (bDay < moment().weekday())
+    if (bDay < today)
       bDay += 7
+  
 
+    if(aDay != today && bDay != today)
+      return aDay - bDay
+      
+    let now = moment(moment().format("H:mm A"), "H:mm A").valueOf();
+    let aTime = moment(a.startTime, 'H:mm A').valueOf();
 
-    const dayMath = aDay - bDay
-    if (dayMath != 0)
-      return dayMath
+    if(now > aTime  && aDay == today){
+      aDay +=7;
+      aTime += 86400000
+    }
+    let bTime = moment(b.startTime, 'H:mm A').valueOf();
 
-    let aTime = moment(a.startTime, 'H:mm A');
-    let bTime = moment(b.startTime, 'H:mm A');
+    if(now > bTime && bDay == today){
+      bDay +=7
+      bTime += 86400000
+    }
 
+    if(aDay != bDay)
+      return aDay - bDay;      
+
+    //log.info(`now: ${now} aTime: ${aTime} bTime: ${bTime} aDay is today ${aDay == today} bDay is today ${bDay== today}`)
     return aTime.valueOf() - bTime.valueOf();
   })
   return meetings;
+  1595696400000
+  1595700420000
 }
 
 
-function MeetingList({ meetingData, action, style = {}, emptyMessage }: { meetingData: Meeting[], action: any, style: any, emptyMessage?: string }) {
+function MeetingList({ meetingData, action,loading=false, style = {}, emptyComponent, limit }: { meetingData: Meeting[], action: any, loading: boolean, style: any, emptyComponent?: any, limit?: number; }) {
 
   const keyExtractorCallback = useCallback((data) => { return data.id })
+  const Layout = useLayout();
 
-  const renderCallback = useCallback(({ item, index }, rowMap) => {
+  const styles = useStyles()
+  const renderCallback = useCallback(({ item}: {item: Meeting}) => {
     //renderBackRow({data, rowMaps, props}),[])
     //log.info(`item is :  index is: ${index} rowMap is ${rowMap} `)
-    return <MeetingListRow meeting={item}
+    return <MeetingListRow meeting={item} key={item.id}
       saved={true}
       action={action} />
   }, [])
 
-  return (
-    <FlatList
-      data={meetingData}
-      renderItem={renderCallback}
-      keyExtractor={keyExtractorCallback}
-      initialNumToRender={5}
-      contentContainerStyle={style}
-      ListEmptyComponent={<View style={[styles.container, { paddingHorizontal: 10 * Layout.scale.width }]}>
-        <Text style={styles.textField}>{emptyMessage}</Text>
-      </View>}
+   const loadingComponent = <View style={styles.loadingRow}>
+      <View style={styles.loadingBoxOne}>
 
-    />
-  )
+      </View>
+      <View style={styles.loadingBoxTwo}>
+
+      </View>
+    </View>
+
+
+  if(!limit)
+    return (
+      <FlatList
+        data={meetingData}
+        refreshing={loading}
+        renderItem={renderCallback}
+        keyExtractor={keyExtractorCallback}
+        initialNumToRender={5}
+        contentContainerStyle={[style, ]}
+        ListEmptyComponent={loading? loadingComponent: emptyComponent? emptyComponent : <View style={[styles.container, { paddingHorizontal: 10 * Layout.scale.width }]}>
+          <Text style={styles.textField}>No Content</Text>
+        </View>}
+
+      />
+    )
+  else {
+    let toRender = []
+    for(let i=0; i< limit && i <meetingData.length;i++){
+      toRender.push(renderCallback({item: meetingData[i]}))
+    }
+    return (
+      <View style={style}>
+        {toRender}
+      </View>
+    )
+  }
 }
 export default function MeetingSearchScreen({ navigation, ...props }) {
+  const Layout = useLayout();
 
   log.info(`rendering MeetingSearchScreen`)
   const emptyView = <View></View>
@@ -192,10 +178,13 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
   const [meetingTypes, setMeetingTypes] = useState<string[]>([]);
   const [distance, setDistance] = useState(5)
   const [message, setMessage] = useState(null)
+  const [loading, setLoading] = useState(false);
   const [meetingComponents, setMeetingComponents] = useState(emptyView)
   const [expanded, setExpanded] = useState(false)
   const [offset, setOffset] = useState(new Animated.Value(Layout.window.width * .008))
   const [isVirtual, setIsVirtual] = useState(false);
+  const {colors: Colors} = useColors();
+  const styles = useStyles()
 
   React.useLayoutEffect(() => {
     log.info("maing a new save button");
@@ -286,7 +275,7 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
   async function getMeetings() {
 
     Keyboard.dismiss();
-
+    setLoading(true)
 
     setMessage("Working ...")
     setMeetingData([])
@@ -306,7 +295,7 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
     setMessage(`${result.meetings.length} meetings found`);
     log.info(`observed there are no filters to apply to meeting search `)
     setFilteredMeetingData(result.meetings)
-
+    setLoading(false);
 
   }
 
@@ -314,6 +303,8 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
 
   function searchTraditional() {
     setIsVirtual(false)
+    const Layout = useLayout();
+
     Animated.timing(offset, {
       toValue: (Layout.window.width * .008),
       useNativeDriver: true,
@@ -324,6 +315,8 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
 
   function searchVirtual() {
     setIsVirtual(true)
+    const Layout = useLayout();
+;
     Animated.timing(offset, {
       toValue: Layout.window.width * .47,
       useNativeDriver: true,
@@ -350,24 +343,27 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
 
   // component for meeting search
   // <TouchableOpacity onPress={()=>navigation.navigate('location')} ><Text>location search</Text></TouchableOpacity>
+  const toggles: Toggle[] = [
+    {
+      callback: ()=>setIsVirtual(false),
+      label: "Traditional"
+    },
+    {
+      callback: ()=>setIsVirtual(true),
+      label: "Virtual"
+    }
+  ]
   return (
 
     <View style={styles.container}>
 
       <View style={{ backgroundColor: '#fff', paddingHorizontal: 10 * Layout.scale.width, }}>
-        <View style={{ backgroundColor: '#fff', paddingTop: 10 * Layout.scale.width }}>
-          <View style={{ position: 'relative', zIndex: 1, flexDirection: 'row', paddingVertical: 0, height: 34, justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#d1d7dd', borderRadius: 17, }}>
-            <Animated.View style={[{ position: 'absolute', zIndex: 3, height: 29, width: '49%', backgroundColor: 'white', top: 2.5, left: 0, borderRadius: 16, ...shadow, ...transform }]}></Animated.View>
-
-            <TouchableWithoutFeedback onPress={searchTraditional} ><Text style={[{ position: 'relative', zIndex: 5, elevation: 4, flex: 1, textAlign: 'center', color: (isVirtual ? 'black' : Colors.primary), }, styles.textField]}>Traditional</Text></TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={searchVirtual} ><Text style={[{ position: 'relative', zIndex: 5, elevation: 4, flex: 1, textAlign: 'center', color: (isVirtual ? Colors.primary : 'black'), }, styles.textField]}>Virtual</Text></TouchableWithoutFeedback>
-
-          </View>
-
-
-        </View>
+        <SliderToggle containerWidth={Layout.window.width - 20*Layout.scale.width} 
+          selectedIndex={isVirtual?1:0} toggles={toggles} 
+          activeColor="white" inactiveColor="#d1d7dd"></SliderToggle>
+        
         <View style={{ backgroundColor: '#fff', paddingVertical: 10 * Layout.scale.width }}>
-          <View style={{ flexDirection: 'row', paddingVertical: 0, height: 34, justifyContent: 'space-between', borderColor: Colors.primary, borderWidth: 2, borderRadius: 17, }}>
+          <View style={{ flexDirection: 'row', paddingVertical: 0, height: 34 * Layout.scale.height, justifyContent: 'space-between', alignItems: 'center', borderColor: Colors.primary, borderWidth: 2, borderRadius: 17 * Layout.scale.height, }}>
             <TextInput
               placeholder="Current Location"
               autoCapitalize="none"
@@ -376,8 +372,8 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
               onSubmitEditing={getMeetings}
             />
             <TouchableOpacity onPress={getMeetings}
-              style={{ width: 34, height: 30, justifyContent: 'center', alignItems: 'center' }} >
-              <Ionicons name="md-search" color={Colors.primary} size={24} />
+              style={{ width: 34* Layout.scale.height, height: 30* Layout.scale.height, justifyContent: 'center', alignItems: 'center' }} >
+              <Ionicons name="md-search" color={Colors.primary} size={24 * Layout.scale.height} />
             </TouchableOpacity>
           </View>
 
@@ -392,7 +388,7 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
       </View>
 
 
-      <MeetingList meetingData={filteredMeetingData}
+      <MeetingList meetingData={filteredMeetingData} loading={loading}
         action={(row) => {
           // props.dispatchHideMenu(); 
           navigation.navigate('Details', row)
@@ -526,12 +522,14 @@ export async function searchForMeeting(address=undefined, distance=5): Promise<M
 
 function MeetingFilter({ show, types, callback, message, distance }) {
 
-
-
+  const {colors: Colors} = useColors();
+  const styles = useStyles()
   const defaultFilters = { daysOfWeek: new Map(), paid: [], types: new Map(), distance: distance }
   const [visible, setVisible] = useState(false)
   const [opacity, setOpacity] = useState(new Animated.Value(0))
   const [filters, setFilters] = useState(defaultFilters)
+  const Layout = useLayout();
+
 
   log.info(`building MeetingFilter, filters is ${JSON.stringify(filters)} distance ${distance}`)
 
@@ -718,7 +716,10 @@ function MeetingFilter({ show, types, callback, message, distance }) {
     dialog
   )
 }
-const styles = StyleSheet.create({
+function useStyles(){
+  const Layout = useLayout();
+  const {colors: Colors} = useColors();
+  const styles = StyleSheet.create({
 
   icon: {
     color: Colors.primary,
@@ -750,14 +751,7 @@ const styles = StyleSheet.create({
   toggleButtonSelected: {
     backgroundColor: '#5fbfec',
   },
-  filterBackground: {
 
-    height: Layout.window.height + 200,
-    width: Layout.window.width + 200,
-    backgroundColor: 'black',
-    left: -Layout.window.width,
-    top: -Layout.window.height / 2,
-  },
   filterDialog: {
 
     backgroundColor: 'white',
@@ -775,18 +769,14 @@ const styles = StyleSheet.create({
 
   },
 
-  title: {
-    flex: 6,
-    flexWrap: 'wrap'
-  },
+  loadingRow: {height: 80*Layout.scale.height, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", backgroundColor: 'white'},
+  loadingBoxOne: {height: 65*Layout.scale.height, width: 65* Layout.scale.height, marginLeft: 10* Layout.scale.width, borderRadius: 10, backgroundColor: 'lightgray'},
+  loadingBoxTwo: {height: 65*Layout.scale.height,flex: 1, marginHorizontal: 10* Layout.scale.width, borderRadius: 10, backgroundColor: 'lightgray'},
+
 
   message: {
     fontSize: 14 * Layout.scale.width,
     paddingTop: 10 * Layout.scale.width,
-  },
-  buttonText: {
-    fontSize: 20 * Layout.scale.width,
-    color: 'white',
   },
 
   button: {
@@ -809,20 +799,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'yellow',
   },
 
-  option: {
-    backgroundColor: '#fdfdfd',
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: 0,
-    borderColor: '#ededed',
-  },
-  lastOption: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
+
 
   textField: {
     fontSize: 17 * Layout.scale.width,
     fontFamily: 'opensans'
   },
 });
+return styles}
+

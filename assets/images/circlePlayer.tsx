@@ -1,15 +1,17 @@
 
 import * as React from 'react';
-import Svg, { Circle, G, Path, Rect } from "react-native-svg";
-import { AnimatedSVGPath, States } from 'react-native-svg-animations'
-import { PlaybackMixin } from 'expo-av/build/AV';
-import Colors from '../../constants/Colors'
+import Svg, {  Path  } from "react-native-svg";
+import { AnimatedSVGPath,  } from 'react-native-svg-animations'
+
+import {useColors} from '../../hooks/useColors'
 export enum AnimationStates {
   PLAY,
   PAUSE,
   RESUME
 }
 export function CircleStart(props) {
+
+  const {colors: Colors} = useColors();
   
   const circleD = `M 283.00,30.98
   C 307.56,38.61 330.85,50.36 351.00,66.45
@@ -51,7 +53,8 @@ export function CircleStart(props) {
   )
 }
 export function CircleEnd(props) {
-  
+
+  const {colors: Colors} = useColors();
   const circleD = `M 283.00,30.98
   C 307.56,38.61 330.85,50.36 351.00,66.45
     369.42,81.17 385.49,98.94 397.94,119.00
@@ -112,8 +115,6 @@ export  function AnimatedCircle({percentDone=0, duration=3000, state=AnimationSt
     return (
       <Svg
         viewBox="0 0 450 450"
-        shapeRendering="geometricPrecision"
-        textRendering="geometricPrecision"
         {...props}
         style={{transform: [{rotate: '-18deg'}]}}
       >

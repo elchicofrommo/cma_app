@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, memo, useRef } from "react";
-import { useFocusEffect } from '@react-navigation/native';
+import React, { useState, useEffect,  useRef } from "react";
+
 import {
-  Image,
+
   Platform,
   StyleSheet,
   Text,
@@ -10,7 +10,7 @@ import {
   View,
   Keyboard,
   Button,
-  FlatList,
+
 
   Animated,
   Easing,
@@ -20,16 +20,17 @@ import log from "../util/Logging"
 import { connect } from "react-redux";
 import mutateApi, { CreateGratitudeInput} from "../api/mutate";
 import { Gratitude, Entry, Like, Comment, User, NestedArray, Broadcast } from "../types/gratitude";
-import GratitudeList from '../components/GratitudeList'
+
 import {GratitudeComponent, GratitudeRenderMode, LikeButton} from '../components/GratitudeComponent'
-import EditorMenu from "../navigation/GraditudeEditorMenu";
+
 import { shallowEqual, useSelector } from "react-redux";
 import {
   HeaderBackButton,
 } from "@react-navigation/stack";
 
-import Colors from "../constants/Colors";
-import Layout from "../constants/Layout";
+
+import {useColors} from '../hooks/useColors'
+import {useLayout} from '../hooks/useLayout'
 
 import moment from "moment";
 import {
@@ -38,13 +39,9 @@ import {
 
 import {
   FontAwesome5,
-  Entypo,
-  Octicons,
-  MaterialCommunityIcons,
+  MaterialCommunityIcons
 } from "@expo/vector-icons";
-import { Title } from "react-native-paper";
-import { nav } from "aws-amplify";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+
 
 function defaultGratitude(user: User) :Gratitude {
   log.info(`creating new defaultGratitudeentry`)
@@ -93,6 +90,9 @@ function GratitudeEditorScreen({
   const [keyboardHeight, setKeyboardHeight] = useState(new Animated.Value(-30));
   const [opacity, setOpacity] = useState(new Animated.Value(0));
   const [marginBottom, setMarginBottom] = useState(new Animated.Value(30));
+
+  const Layout = useLayout();
+  const {colors: Colors} = useColors();
 
   function startEntry(index = -1, text: string = "") {
     setRowEdit({ index, text });
@@ -464,6 +464,8 @@ function _GratitudeSaveButton({
   dispatchBanner, 
   ...props
 }: {operatingUser: User, navigation: any, gratitude: Gratitude, dispatchBanner: Function}) {
+  const Layout = useLayout();
+  const {colors: Colors} = useColors();
   async function saveGratitude() {
     log.info(`saving gratitude`)
     if (gratitude.entries.items.length == 0) {
@@ -522,11 +524,11 @@ function GratitudeCancelButton({
   navigation,
   ...props
 }: {navigation: any}) {
- 
+  const {colors} = useColors()
   return (
     <HeaderBackButton
     label={"Cancel"}
-    tintColor={Colors.primary}
+    tintColor={colors.primary}
     onPress={(event) => {
       navigation.goBack();
     }}
@@ -539,11 +541,11 @@ function GratitudeBackButton({
   navigation,
   ...props
 }: {navigation: any}) {
- 
+  const {colors} = useColors
   return (
     <HeaderBackButton
     label={"Back"}
-    tintColor={Colors.primary}
+    tintColor={colors.primary}
     onPress={(event) => {
       navigation.goBack();
     }}
@@ -573,74 +575,71 @@ const GratitudeSaveButton = connect(
   }
 )(_GratitudeSaveButton);
 
-const styles = StyleSheet.create({
-  text: {
-    flexWrap: "wrap",
-    fontSize: 18 * Layout.scale.width,
-    fontFamily: "opensans-bold",
-  },
-  title: {
-    paddingHorizontal: 10 * Layout.scale.width,
-    borderBottomColor: "gainsboro",
-    borderBottomWidth: 0.3,
-    paddingVertical: 7 * Layout.scale.width,
-    justifyContent: "center",
-  },
+function useStyles(){
 
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF",
-  },
-  gratitudeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingTop: 2 * Layout.scale.width,
-  },
-  gratitudeList: {
-    paddingHorizontal: 10 * Layout.scale.width,
-  },
-  addEntryButton: {
-    marginRight: -3,
-  },
-  deleteEntryButton: {
-    marginBottom: -3,
-    paddingRight: 8,
-  },
-  bullet: {
-    flex: 0.8,
-  },
-  keyboardEntryContainer: {
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    flexDirection: "row",
-    paddingHorizontal: 10 * Layout.scale.width,
-    paddingVertical: 3 * Layout.scale.width,
-    borderTopWidth: 0.3,
-    borderTopColor: "gray",
-    overflow: "visible",
-    backgroundColor: 'white'
-  },
-  keyboardView: {
-    alignItems: "flex-end",
-  },
+  const Layout = useLayout();
+  const styles = StyleSheet.create({
+    text: {
+      flexWrap: "wrap",
+      fontSize: 18 * Layout.scale.width,
+      fontFamily: "opensans-bold",
+    },
+    title: {
+      paddingHorizontal: 10 * Layout.scale.width,
+      borderBottomColor: "gainsboro",
+      borderBottomWidth: 0.3,
+      paddingVertical: 7 * Layout.scale.width,
+      justifyContent: "center",
+    },
+  
+    container: {
+      flex: 1,
+      backgroundColor: "#FFF",
+    },
 
-  entry: {
-    flex: 10,
-    margin: 0,
-    flexWrap: "wrap",
-    fontSize: 18,
-    fontFamily: "opensans",
-    paddingBottom: 5,
-  },
-  keyboardEntry: {
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "gray",
-    marginRight: 5,
-    marginLeft: -5,
-    paddingLeft: 10,
-    paddingRight: 10,
-  },
-});
+
+    addEntryButton: {
+      marginRight: -3,
+    },
+    deleteEntryButton: {
+      marginBottom: -3,
+      paddingRight: 8,
+    },
+
+    keyboardEntryContainer: {
+      justifyContent: "space-between",
+      alignItems: "flex-end",
+      flexDirection: "row",
+      paddingHorizontal: 10 * Layout.scale.width,
+      paddingVertical: 3 * Layout.scale.width,
+      borderTopWidth: 0.3,
+      borderTopColor: "gray",
+      overflow: "visible",
+      backgroundColor: 'white'
+    },
+
+  
+    entry: {
+      flex: 10,
+      margin: 0,
+      flexWrap: "wrap",
+      fontSize: 18,
+      fontFamily: "opensans",
+      paddingBottom: 5,
+    },
+    keyboardEntry: {
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: "gray",
+      marginRight: 5,
+      marginLeft: -5,
+      paddingLeft: 10,
+      paddingRight: 10,
+    },
+  });
+
+  return styles
+}
+
 
 export default GratitudeEditorScreen;
