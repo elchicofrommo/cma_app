@@ -11,13 +11,15 @@ export type Toggle = {
 }
 
 export default function SliderToggle({ toggles, containerWidth = -1, selectedIndex, activeColor, inactiveColor }:
-    { toggles: Toggle[], containerWidth: number, selectedIndex: number, activeColor?: string, inactiveColor?: string }) {
-    const toggleWidth = containerWidth / toggles.length;
+    { toggles: Toggle[], containerWidth?: number, selectedIndex: number, activeColor?: string, inactiveColor?: string }) {
     const Layout = useLayout();
     const {colors: Colors} = useColors();
-
     if(containerWidth == -1)
         containerWidth = Layout.window.width *.8
+    const toggleWidth = containerWidth / toggles.length;
+    
+
+
     const tempStopPoints = calculateStopPoints(toggleWidth, toggles.length)
     const [offset, setOffset] = React.useState(new Animated.Value(tempStopPoints[selectedIndex]))
     const [activeToggle, setActiveToggle] = useState(selectedIndex);
@@ -73,7 +75,7 @@ export default function SliderToggle({ toggles, containerWidth = -1, selectedInd
                 borderRadius: 17 * Layout.scale.height,
             }}>
                 <Animated.View style={[{
-                    position: 'absolute', zIndex: 3, height: 29 * Layout.scale.height, width: toggleWidth - 3, backgroundColor: activeColor ? activeColor : '#11111177',
+                    position: 'absolute', zIndex: 3, height: 29 * Layout.scale.height, width: toggleWidth - 3, backgroundColor: activeColor ? activeColor: '#11111177',
                     top: 2.5 * Layout.scale.height, left: 0, borderRadius: 16 * Layout.scale.height, ...shadow, ...transform
                 }]}></Animated.View>
 
@@ -85,7 +87,7 @@ export default function SliderToggle({ toggles, containerWidth = -1, selectedInd
                                 <Text style={[styles.textField, {
                                     position: 'relative', zIndex: 5, elevation: 4,
                                     flex: 1, textAlign: 'center'
-                                }, activeToggle == index && { color: Colors.primary }
+                                }, activeToggle == index && { color: Colors.attention1 }
                                 ]}>{t.label}</Text>
                             </TouchableWithoutFeedback>
                         )

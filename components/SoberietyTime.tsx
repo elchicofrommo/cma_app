@@ -88,7 +88,8 @@ function SoberietyTime({ dos, ...props }) {
     <View>
       <View style={{height: 40 * Layout.scale.height}}/>
       {chip}
-      <Text style={styles.dateText}  > {time} {label} </Text>
+      <Text style={styles.dateText}  > {time} {label} </Text> 
+
       <SliderToggle selectedIndex={ props.format==0?2:props.format==2?0:1} toggles={[
         {label: 'Years', callback: () => props.dispatchSetFormat(2)},
         {label: 'Months', callback: () => props.dispatchSetFormat(1)},

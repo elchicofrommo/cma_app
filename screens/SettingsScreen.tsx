@@ -67,7 +67,7 @@ export async function signIn(email: string, password: string) : Promise<SignInRe
   }
 
   try {
-    const result = await Auth.signIn(email, password);
+    const result = await Auth.signIn(email.trim(), password);
     // if we are here then successful, get user data from cloud
   //  log.info(`auth done, results are ${JSON.stringify(result, null, 2)} next get auth details`)
     const authResults = await queryApi.getAuthDetails(email)
@@ -239,7 +239,7 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
     return (
       <View style={{ paddingRight: 10 * layout.scale.width, marginBottom: -5 }}>
         <TouchableOpacity onPress={signOut}>
-          <Ionicons name="ios-log-out" color={colors.primary} size={36} />
+          <Ionicons name="ios-log-out" color={colors.primary1} size={36} />
         </TouchableOpacity>
       </View>
     );
@@ -272,8 +272,8 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
         <View style={styles.modalContainer}>
         <View style={styles.modalTextContainer}>
           
-          <TouchableOpacity onPress={()=>setIsSignup(false)}><Text style={[styles.modalText, !isSignUp ? {textDecorationLine: 'underline', textDecorationColor: Colors.primary}:{}]}>Sign in</Text></TouchableOpacity>
-          <TouchableOpacity onPress={()=>setIsSignup(true)}><Text style={[styles.modalText, isSignUp ? {textDecorationLine: 'underline', textDecorationColor: Colors.primary}:{}]}>New User</Text></TouchableOpacity>
+          <TouchableOpacity onPress={()=>setIsSignup(false)}><Text style={[styles.modalText, !isSignUp ? {textDecorationLine: 'underline', textDecorationColor: Colors.primary1}:{}]}>Sign in</Text></TouchableOpacity>
+          <TouchableOpacity onPress={()=>setIsSignup(true)}><Text style={[styles.modalText, isSignUp ? {textDecorationLine: 'underline', textDecorationColor: Colors.primary1}:{}]}>New User</Text></TouchableOpacity>
         </View>
 
         <View style={{ display: !confirmEmail ? "flex" : "none" }}>
@@ -446,7 +446,7 @@ function SettingsScreen({ operatingUser: opUser, ...props } : {operatingUser: Us
             <Picker.Item label="Yellow Green" value={Themes.YellowGreen} />
             <Picker.Item label="Red Red" value={Themes.RedRed} />
             <Picker.Item label="Red Orange" value={Themes.RedOrange}/>
-
+            <Picker.Item label="Blue Orange" value={Themes.BlueOrange} />
           </Picker> 
       </View>
       <View
@@ -524,7 +524,7 @@ function useStyles(){
   
     },
     button: {
-      backgroundColor: Colors.primary,
+      backgroundColor: Colors.primary1,
       paddingVertical: 5 * layout.scale.width,
       textAlign: "center",
       justifyContent: "center",
@@ -643,7 +643,7 @@ function SettingsBackButton({
   return (
     <HeaderBackButton
       label={"Save"}
-      tintColor={Colors.primary}
+      tintColor={Colors.primary1}
       onPress={(event) => {
 
         navigation.goBack();

@@ -2,6 +2,16 @@ import { shallowEqual, useSelector } from "react-redux";
 import {store} from "../components/store"
 
 const tintColor = '#2f95dc';
+const blueOrange = {
+  attention1: "#ffbc23",
+  attention2: "#f1b900",
+  primary1: "#167dca",
+  primary: "#167dca",
+  primary2: "#167dca",
+  header1: "#0273b1",
+  header2: "#3e4db0",
+  primaryContrast: 'white',
+}
 const greenTheme = {
   primary: "#1f6e21",
   priamryL1: "#339135",
@@ -80,7 +90,7 @@ const redRed ={
   background: "white"
 }
 export  enum Themes{
-  BlueMagenta, YellowGreen, PurpleMagenta, RedRed, RedOrange, BlueBlue
+  BlueMagenta, YellowGreen, PurpleMagenta, RedRed, RedOrange, BlueBlue, BlueOrange
 }
 
 const themes = [];
@@ -90,9 +100,10 @@ themes[Themes.PurpleMagenta] = purpleMagenta;
 themes[Themes.RedRed] = redRed;
 themes[Themes.RedOrange] = redOrange;
 themes[Themes.BlueBlue] = blueBlueTheme;
+themes[Themes.BlueOrange] = blueOrange
 
 
-export var currentTheme = Themes.BlueMagenta
+export var currentTheme = Themes.BlueOrange
 
 
 

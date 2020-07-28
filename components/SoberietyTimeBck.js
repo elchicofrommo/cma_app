@@ -219,8 +219,8 @@ const styles = StyleSheet.create({
   cal2Border: {
 
     height: 22,
-    backgroundColor: Colors.primaryL2,
-    borderBottomColor: Colors.primary,
+    backgroundColor: Colors.primary12,
+    borderBottomColor: Colors.primary1,
     borderBottomWidth: 5,
     width: '100%',
     flexDirection: 'row',
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexGrow: 1,
     backgroundColor: 'white',
-    borderColor: Colors.primary,
+    borderColor: Colors.primary1,
     borderWidth: 1,
     borderBottomLeftRadius: borderRadius,
     borderBottomRightRadius: borderRadius,

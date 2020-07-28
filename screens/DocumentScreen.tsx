@@ -27,7 +27,7 @@ function DocumentScreenStack(props){
         options={({navigation, route})=>({
           title:"",
 
-          headerMode: "float",
+          
           headerTransparent: true,
           header: ({scene,previous, navigation})=>{
             return (
@@ -63,7 +63,7 @@ function DocumentScreen({navigation, ...props}) {
   const styles = useStyles()
   return (
     <LinearGradient style={[styles.container, ]}
-    colors={[Colors.primary, Colors.primaryL1]}
+    colors={[Colors.primary1, Colors.primary2]}
     start={[0 , 0]}
     end={[1.5, 1.5]}
     locations={[0, .5]}>   

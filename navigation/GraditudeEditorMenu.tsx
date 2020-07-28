@@ -69,7 +69,7 @@ const GratitudeEditorMenu = (props) => {
         return (
             <Animated.View style={[styles.menuStyle, transform]}>
                 <TouchableOpacity onPress={ props.callback} >
-                    <AntDesign name="pluscircle" size={54} color={Colors.primary} />
+                    <AntDesign name="pluscircle" size={54} color={Colors.primary1} />
                 </TouchableOpacity>
 
             </Animated.View>

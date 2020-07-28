@@ -548,7 +548,7 @@ function useStyles(){
     },
     gratitudeRowSeprator: {
       height: 5 * Layout.scale.width,
-      backgroundColor: Colors.primaryL3,
+      backgroundColor: Colors.primary1L3,
       width: "100%",
     },
     typesContainer: {

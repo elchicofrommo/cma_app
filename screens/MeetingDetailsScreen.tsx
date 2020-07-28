@@ -297,7 +297,7 @@ function DetailsBackButton({ navigation, ...props }) {
             props.dispatchHideDetail()
             navigation.goBack()
         }}
-            tintColor={colors.primary}
+            tintColor={colors.primary1}
         />
     )
 

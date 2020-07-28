@@ -18,7 +18,7 @@ const GUEST_USER = {
 
 const INITIAL_STATE: AppState = {
   operatingUser: GUEST_USER, 
-  currentTheme: 2,
+  currentTheme: 6,
   gratitudes: [],
   broadcastsByChannel: new Map<string, Broadcast[]>(),
   ownedChannels: [],

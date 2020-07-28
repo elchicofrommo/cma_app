@@ -63,7 +63,7 @@ function useStyles(){
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: Colors.primary,
+      backgroundColor: Colors.primary1,
       justifyContent: "center",
       position: 'absolute',
       top: 0,

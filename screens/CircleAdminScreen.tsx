@@ -161,7 +161,7 @@ log.info(`rendering CircleAdminScreen`)
     return (
       <View style={{paddingTop: 10 * Layout.scale.width}}>
         <View style={{
-          backgroundColor: Colors.primary, 
+          backgroundColor: Colors.primary1, 
           width: '100%',
           paddingHorizontal: 10 * Layout.scale.width,
           paddingVertical: 1 * Layout.scale.width,
@@ -270,7 +270,7 @@ function _BackButton({
   return (
     <HeaderBackButton
       label={"Back"}
-      tintColor={Colors.primary}
+      tintColor={Colors.primary1}
       onPress={(event) => {
 
         navigation.goBack();
@@ -340,7 +340,7 @@ function useStyles(){
     },
 
     buttonContainer: {
-      backgroundColor: Colors.primary,
+      backgroundColor: Colors.primary1,
       alignSelf: 'center',
       borderRadius: 17,
       paddingHorizontal: 10,
@@ -361,7 +361,7 @@ function useStyles(){
   
       position: 'relative',
       zIndex: 2,
-      borderColor: Colors.primary,
+      borderColor: Colors.primary1,
       padding: 10 * Layout.scale.width,
       marginTop: 6 * Layout.scale.width,
       borderRadius: 17
@@ -373,12 +373,12 @@ function useStyles(){
       zIndex: 3, 
       height: 32, 
       width: '50%', 
-      backgroundColor: Colors.primary, 
+      backgroundColor: Colors.primary1, 
       top: 2, left: 2, 
       borderRadius: 16 ,
   
       borderWidth: 2,
-      borderColor: Colors.primary,
+      borderColor: Colors.primary1,
   
       ...shadow,
     

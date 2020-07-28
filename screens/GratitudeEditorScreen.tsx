@@ -327,7 +327,7 @@ function GratitudeEditorScreen({
           <MaterialCommunityIcons
             name={"delete-circle"}
             size={38}
-            color={rowEdit && rowEdit.index > -1 ? Colors.primary : "gray"}
+            color={rowEdit && rowEdit.index > -1 ? Colors.primary1 : "gray"}
             style={styles.deleteEntryButton}
           />
         </TouchableOpacity>
@@ -366,7 +366,7 @@ function GratitudeEditorScreen({
           <MaterialCommunityIcons
             name={"delete-circle"}
             size={38}
-            color={rowEdit && rowEdit.index > -1 ? Colors.primary : "gray"}
+            color={rowEdit && rowEdit.index > -1 ? Colors.primary1 : "gray"}
             style={styles.deleteEntryButton}
           />
         </TouchableOpacity>
@@ -508,7 +508,7 @@ function _GratitudeSaveButton({
     <View style={{paddingRight: 10 * Layout.scale.width}}>
     <Button
     title={"Save"}
-    color={Colors.primary}
+    color={Colors.primary1}
 
     onPress={(event) => {
 
@@ -528,7 +528,7 @@ function GratitudeCancelButton({
   return (
     <HeaderBackButton
     label={"Cancel"}
-    tintColor={colors.primary}
+    tintColor={colors.primary1}
     onPress={(event) => {
       navigation.goBack();
     }}
@@ -545,7 +545,7 @@ function GratitudeBackButton({
   return (
     <HeaderBackButton
     label={"Back"}
-    tintColor={colors.primary}
+    tintColor={colors.primary1}
     onPress={(event) => {
       navigation.goBack();
     }}

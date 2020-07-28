@@ -46,7 +46,7 @@ export default function SpeakerScreenStack() {
         options={({navigation, route})=>({
           title:"",
 
-          headerMode: "float",
+          
           headerTransparent: true,
           header: ({scene,previous, navigation})=>{
             return (
@@ -97,24 +97,24 @@ const TrackDetails = memo(({ track, state = PlayStates.INITAL, playerCallback }:
   const {colors: Colors} = useColors();
   let playStatus =  <View style={{position: 'absolute', zIndex:  5,top: 1, left: 2}}>
     <CircleStart width={60} height={60} style={{position: 'absolute', zIndex: 1, top: 0, left:0}}  />
-    <Feather name="play" size={35} color={Colors.primary} style={{position: 'absolute', zIndex: 3, top: 12.5, left:14.5}}/>
+    <Feather name="play" size={35} color={Colors.primary1} style={{position: 'absolute', zIndex: 3, top: 12.5, left:14.5}}/>
     </View>
 
 
   if(state == PlayStates.PLAYING)
     playStatus = <View style={{position: 'absolute', zIndex: 5, top: 1, left: 2}}>
       <AnimatedCircle style={{position: 'absolute', zIndex: 1, top: 0, left:0}} width={60} height={60} duration={track.duration} state={AnimationStates.PLAY} />
-      <AntDesign name="pause" size={40} color={Colors.primary} style={{position: 'absolute', zIndex: 3, top: 10, left:10}}/>
+      <AntDesign name="pause" size={40} color={Colors.primary1} style={{position: 'absolute', zIndex: 3, top: 10, left:10}}/>
       </View>
   else if(state == PlayStates.PAUSED)
     playStatus = <View style={{position: 'absolute', zIndex: 5, top: 1, left: 2}}>
       <AnimatedCircle style={{position: 'absolute', zIndex: 1, }} width={60} height={60} duration={track.duration} state={AnimationStates.PAUSE} />
-      <Feather name="play" size={35} color={Colors.primary} style={{position: 'absolute', zIndex: 3, top: 12.5, left:14.5}}/>
+      <Feather name="play" size={35} color={Colors.primary1} style={{position: 'absolute', zIndex: 3, top: 12.5, left:14.5}}/>
       </View>
   else if (state == PlayStates.RESUME)
   playStatus = <View style={{position: 'absolute', zIndex: 5, top: 1, left: 2}}>
     <AnimatedCircle style={{position: 'absolute', zIndex: 1, top: 0, left:0}} width={60} height={60} duration={track.duration} state={AnimationStates.RESUME} />
-    <AntDesign name="pause" size={40} color={Colors.primary} style={{position: 'absolute', zIndex: 3, top: 10, left:10}}/>
+    <AntDesign name="pause" size={40} color={Colors.primary1} style={{position: 'absolute', zIndex: 3, top: 10, left:10}}/>
     </View>
   //else if(state == PlayStates.LOADING)
  //   playStatus = <FontAwesomeIcon icon={faHourglassHalf} style={{ color: color }} size={50 * Layout.scale.width} />
@@ -267,7 +267,7 @@ function SpeakerScreen(props) {
   return (
 
     <LinearGradient style={[styles.container, ]}
-    colors={[Colors.primary, Colors.primaryL1]}
+    colors={[Colors.primary1, Colors.primary2]}
     start={[0 , 0]}
     end={[1.5, 1.5]}
     locations={[0, .5]}>   

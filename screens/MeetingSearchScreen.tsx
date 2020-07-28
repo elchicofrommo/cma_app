@@ -19,9 +19,9 @@ import { faFilter, } from '@fortawesome/free-solid-svg-icons';
 
 import { Ionicons } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
-import SliderToggle, {Toggle} from '../components/SliderToggle'
-import {useColors} from '../hooks/useColors';
-import {useLayout} from '../hooks/useLayout';
+import SliderToggle, { Toggle } from '../components/SliderToggle'
+import { useColors } from '../hooks/useColors';
+import { useLayout } from '../hooks/useLayout';
 import { Meeting } from '../types/gratitude'
 import log from "../util/Logging"
 
@@ -85,27 +85,27 @@ function sortMeetings(meetings: Meeting[]) {
       bDay = daysOfWeek[b.weekday]
     if (bDay < today)
       bDay += 7
-  
 
-    if(aDay != today && bDay != today)
+
+    if (aDay != today && bDay != today)
       return aDay - bDay
-      
+
     let now = moment(moment().format("H:mm A"), "H:mm A").valueOf();
     let aTime = moment(a.startTime, 'H:mm A').valueOf();
 
-    if(now > aTime  && aDay == today){
-      aDay +=7;
+    if (now > aTime && aDay == today) {
+      aDay += 7;
       aTime += 86400000
     }
     let bTime = moment(b.startTime, 'H:mm A').valueOf();
 
-    if(now > bTime && bDay == today){
-      bDay +=7
+    if (now > bTime && bDay == today) {
+      bDay += 7
       bTime += 86400000
     }
 
-    if(aDay != bDay)
-      return aDay - bDay;      
+    if (aDay != bDay)
+      return aDay - bDay;
 
     //log.info(`now: ${now} aTime: ${aTime} bTime: ${bTime} aDay is today ${aDay == today} bDay is today ${bDay== today}`)
     return aTime.valueOf() - bTime.valueOf();
@@ -116,40 +116,44 @@ function sortMeetings(meetings: Meeting[]) {
 }
 
 
-function MeetingList({ meetingData, action,loading=false, style = {}, emptyComponent, limit }: { meetingData: Meeting[], action: any, loading: boolean, style: any, emptyComponent?: any, limit?: number; }) {
+function MeetingList({ meetingData, action, loading = false, style = {}, emptyComponent, limit }: { meetingData: Meeting[], action: any, loading: boolean, style: any, emptyComponent?: any, limit?: number; }) {
 
   const keyExtractorCallback = useCallback((data) => { return data.id })
   const Layout = useLayout();
-
+  const { colors } = useColors();
   const styles = useStyles()
-  const renderCallback = useCallback(({ item}: {item: Meeting}) => {
+  const renderCallback = useCallback(({ item, ...props }: { item: Meeting }) => {
     //renderBackRow({data, rowMaps, props}),[])
     //log.info(`item is :  index is: ${index} rowMap is ${rowMap} `)
+
     return <MeetingListRow meeting={item} key={item.id}
+
       saved={true}
       action={action} />
   }, [])
 
-   const loadingComponent = <View style={styles.loadingRow}>
-      <View style={styles.loadingBoxOne}>
+  const loadingComponent = <View style={styles.loadingRow}>
+    <View style={styles.loadingBoxOne}>
 
-      </View>
-      <View style={styles.loadingBoxTwo}>
-
-      </View>
     </View>
+    <View style={styles.loadingBoxTwo}>
 
+    </View>
+  </View>
 
-  if(!limit)
+  const seperatorComponent = <View style={styles.seperatorComponent}></View>
+
+  if (!limit)
     return (
       <FlatList
         data={meetingData}
-        refreshing={loading}
+
         renderItem={renderCallback}
         keyExtractor={keyExtractorCallback}
         initialNumToRender={5}
-        contentContainerStyle={[style, ]}
-        ListEmptyComponent={loading? loadingComponent: emptyComponent? emptyComponent : <View style={[styles.container, { paddingHorizontal: 10 * Layout.scale.width }]}>
+        contentContainerStyle={[style,]}
+        ItemSeparatorComponent={() => <View style={styles.seperatorComponent}></View>}
+        ListEmptyComponent={loading ? loadingComponent : emptyComponent ? emptyComponent : <View style={[styles.container, { paddingHorizontal: 10 * Layout.scale.width }]}>
           <Text style={styles.textField}>No Content</Text>
         </View>}
 
@@ -157,9 +161,12 @@ function MeetingList({ meetingData, action,loading=false, style = {}, emptyCompo
     )
   else {
     let toRender = []
-    for(let i=0; i< limit && i <meetingData.length;i++){
-      toRender.push(renderCallback({item: meetingData[i]}))
+    for (let i = 0; i < limit && i < meetingData.length; i++) {
+      toRender.push(renderCallback({ item: meetingData[i] }))
+      toRender.push(seperatorComponent)
     }
+    if (toRender.length > 0)
+      toRender.pop()
     return (
       <View style={style}>
         {toRender}
@@ -183,8 +190,9 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
   const [expanded, setExpanded] = useState(false)
   const [offset, setOffset] = useState(new Animated.Value(Layout.window.width * .008))
   const [isVirtual, setIsVirtual] = useState(false);
-  const {colors: Colors} = useColors();
+  const { colors: Colors } = useColors();
   const styles = useStyles()
+  const layout = useLayout();
 
   React.useLayoutEffect(() => {
     log.info("maing a new save button");
@@ -194,8 +202,8 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
 
       headerLeft: () => (
         <HeaderBackButton
-          label={"Home Groups"}
-          tintColor={Colors.primary}
+          label={"Back"}
+          tintColor={Colors.primary1}
           onPress={(event) => {
 
             navigation.goBack();
@@ -270,7 +278,7 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
   }
 
 
-  
+
 
   async function getMeetings() {
 
@@ -282,7 +290,7 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
     setFilteredMeetingData(null)
     setMeetingComponents(emptyView)
 
-    const result = await searchForMeeting( address, distance )
+    const result = await searchForMeeting(address, distance)
     if (result.error) {
       setMessage(result.error)
       return;
@@ -316,7 +324,7 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
   function searchVirtual() {
     setIsVirtual(true)
     const Layout = useLayout();
-;
+    ;
     Animated.timing(offset, {
       toValue: Layout.window.width * .47,
       useNativeDriver: true,
@@ -345,25 +353,24 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
   // <TouchableOpacity onPress={()=>navigation.navigate('location')} ><Text>location search</Text></TouchableOpacity>
   const toggles: Toggle[] = [
     {
-      callback: ()=>setIsVirtual(false),
+      callback: () => setIsVirtual(false),
       label: "Traditional"
     },
     {
-      callback: ()=>setIsVirtual(true),
+      callback: () => setIsVirtual(true),
       label: "Virtual"
     }
   ]
   return (
 
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: layout.safeBottom }]}>
 
-      <View style={{ backgroundColor: '#fff', paddingHorizontal: 10 * Layout.scale.width, }}>
-        <SliderToggle containerWidth={Layout.window.width - 20*Layout.scale.width} 
-          selectedIndex={isVirtual?1:0} toggles={toggles} 
+        <SliderToggle containerWidth={Layout.window.width - 20 * Layout.scale.width}
+          selectedIndex={isVirtual ? 1 : 0} toggles={toggles}
           activeColor="white" inactiveColor="#d1d7dd"></SliderToggle>
-        
-        <View style={{ backgroundColor: '#fff', paddingVertical: 10 * Layout.scale.width }}>
-          <View style={{ flexDirection: 'row', paddingVertical: 0, height: 34 * Layout.scale.height, justifyContent: 'space-between', alignItems: 'center', borderColor: Colors.primary, borderWidth: 2, borderRadius: 17 * Layout.scale.height, }}>
+
+        <View style={{ backgroundColor: '#fff', paddingHorizontal: 10*Layout.scale.width, paddingVertical: 10 * Layout.scale.width }}>
+          <View style={{ flexDirection: 'row', paddingVertical: 0, height: 34 * Layout.scale.height, justifyContent: 'space-between', alignItems: 'center', borderColor: Colors.primary1, borderWidth: 2, borderRadius: 17 * Layout.scale.height, }}>
             <TextInput
               placeholder="Current Location"
               autoCapitalize="none"
@@ -372,28 +379,29 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
               onSubmitEditing={getMeetings}
             />
             <TouchableOpacity onPress={getMeetings}
-              style={{ width: 34* Layout.scale.height, height: 30* Layout.scale.height, justifyContent: 'center', alignItems: 'center' }} >
-              <Ionicons name="md-search" color={Colors.primary} size={24 * Layout.scale.height} />
+              style={{ width: 34 * Layout.scale.height, height: 30 * Layout.scale.height, justifyContent: 'center', alignItems: 'center' }} >
+              <Ionicons name="md-search" color={Colors.primary1} size={24 * Layout.scale.height} />
             </TouchableOpacity>
           </View>
 
 
         </View>
 
+        <View style={{paddingHorizontal: 10*Layout.scale.width,}}>
+        <MeetingFilter show={meetingData && meetingData.length > 0} callback={filterMeetingsCallback} 
+        types={meetingTypes} message={finalMessage} distance={distance} />
+        </View>
+        
 
-        <MeetingFilter show={meetingData && meetingData.length > 0} callback={filterMeetingsCallback} types={meetingTypes} message={finalMessage} distance={distance} />
+   
+        <MeetingList meetingData={filteredMeetingData} loading={loading}
+          action={(row) => {
+            // props.dispatchHideMenu(); 
+            navigation.navigate('Details', row)
+          }} />
 
 
-
-      </View>
-
-
-      <MeetingList meetingData={filteredMeetingData} loading={loading}
-        action={(row) => {
-          // props.dispatchHideMenu(); 
-          navigation.navigate('Details', row)
-        }} />
-
+      
     </View>
 
 
@@ -441,7 +449,7 @@ type MeetingSearchResult = {
   error?: string;
 }
 
-export async function searchForMeeting(address=undefined, distance=5): Promise<MeetingSearchResult> {
+export async function searchForMeeting(address = undefined, distance = 5): Promise<MeetingSearchResult> {
 
   let { status } = await Location.requestPermissionsAsync();
   let lat;
@@ -522,7 +530,7 @@ export async function searchForMeeting(address=undefined, distance=5): Promise<M
 
 function MeetingFilter({ show, types, callback, message, distance }) {
 
-  const {colors: Colors} = useColors();
+  const { colors: Colors } = useColors();
   const styles = useStyles()
   const defaultFilters = { daysOfWeek: new Map(), paid: [], types: new Map(), distance: distance }
   const [visible, setVisible] = useState(false)
@@ -630,7 +638,7 @@ function MeetingFilter({ show, types, callback, message, distance }) {
         <Text style={[styles.message,]}>{message}</Text>
         <View style={[styles.filter, { display: show ? "flex" : "none" }]}>
           <TouchableOpacity onPress={hideDialog}
-            style={{ width: 34, height: 34, backgroundColor: '#FFF', borderColor: Colors.primary, borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center' }} >
+            style={{ width: 34, height: 34, backgroundColor: '#FFF', borderColor: Colors.primary1, borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center' }} >
             <FontAwesomeIcon icon={faFilter} style={styles.icon} size={17} />
           </TouchableOpacity>
 
@@ -687,7 +695,7 @@ function MeetingFilter({ show, types, callback, message, distance }) {
               onPress={reset}>
               <Text style={[styles.toggleText]}>Reset</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.toggleButton, { backgroundColor: Colors.primary }]}
+            <TouchableOpacity style={[styles.toggleButton, { backgroundColor: Colors.primary1 }]}
               onPress={() => {
 
 
@@ -706,7 +714,7 @@ function MeetingFilter({ show, types, callback, message, distance }) {
       <Text style={[styles.message,]}>{message}</Text>
       <View style={[styles.filter, { display: show ? "flex" : "none" }]}>
         <TouchableOpacity onPress={showDialog}
-          style={{ width: 34, height: 34, backgroundColor: '#FFF', borderColor: Colors.primary, borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center' }} >
+          style={{ width: 34, height: 34, backgroundColor: '#FFF', borderColor: Colors.primary1, borderWidth: 2, borderRadius: 17, justifyContent: 'center', alignItems: 'center' }} >
           <FontAwesomeIcon icon={faFilter} style={styles.icon} size={17} />
         </TouchableOpacity>
       </View>
@@ -716,95 +724,106 @@ function MeetingFilter({ show, types, callback, message, distance }) {
     dialog
   )
 }
-function useStyles(){
+function useStyles() {
   const Layout = useLayout();
-  const {colors: Colors} = useColors();
+  const { colors: Colors } = useColors();
   const styles = StyleSheet.create({
 
-  icon: {
-    color: Colors.primary,
+    icon: {
+      color: Colors.primary1,
 
-  },
-  dayButtonContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between'
-  },
-  toggleText: {
-    fontSize: 13 * Layout.scale.width,
+    },
+    dayButtonContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between'
+    },
+    toggleText: {
+      fontSize: 13 * Layout.scale.width,
 
-    textAlign: 'center',
-    color: 'white'
-  },
-  toggleButton: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 7 * Layout.scale.width,
-    flexBasis: '31%',
-    flexGrow: 0,
-    paddingVertical: 5 * Layout.scale.width,
-    width: 20 * Layout.scale.width,
-    backgroundColor: '#0273b1',
-    shadowOffset: { width: 3, height: 3 },
-    marginBottom: 5 * Layout.scale.width,
-  },
-  toggleButtonSelected: {
-    backgroundColor: '#5fbfec',
-  },
+      textAlign: 'center',
+      color: 'white'
+    },
+    toggleButton: {
+      borderWidth: 1,
+      borderColor: 'gray',
+      borderRadius: 7 * Layout.scale.width,
+      flexBasis: '31%',
+      flexGrow: 0,
+      paddingVertical: 5 * Layout.scale.width,
+      width: 20 * Layout.scale.width,
+      backgroundColor: '#0273b1',
+      shadowOffset: { width: 3, height: 3 },
+      marginBottom: 5 * Layout.scale.width,
+    },
+    toggleButtonSelected: {
+      backgroundColor: '#5fbfec',
+    },
 
-  filterDialog: {
+    filterDialog: {
 
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 10 * Layout.scale.width,
-    flexDirection: 'column',
-    justifyContent: 'space-between'
-
-
-  },
-  filter: {
-    position: 'relative',
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-
-  },
-
-  loadingRow: {height: 80*Layout.scale.height, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", backgroundColor: 'white'},
-  loadingBoxOne: {height: 65*Layout.scale.height, width: 65* Layout.scale.height, marginLeft: 10* Layout.scale.width, borderRadius: 10, backgroundColor: 'lightgray'},
-  loadingBoxTwo: {height: 65*Layout.scale.height,flex: 1, marginHorizontal: 10* Layout.scale.width, borderRadius: 10, backgroundColor: 'lightgray'},
+      backgroundColor: 'white',
+      borderRadius: 10,
+      padding: 10 * Layout.scale.width,
+      flexDirection: 'column',
+      justifyContent: 'space-between'
 
 
-  message: {
-    fontSize: 14 * Layout.scale.width,
-    paddingTop: 10 * Layout.scale.width,
-  },
+    },
+    filter: {
+      position: 'relative',
+      flexDirection: 'column',
+      justifyContent: 'flex-end',
 
-  button: {
-    backgroundColor: Colors.primary,
-    paddingVertical: 5 * Layout.scale.width,
-    marginBottom: 5 * Layout.scale.width,
-    textAlign: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row'
-  },
+    },
 
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF',
-    justifyContent: "space-between"
-  },
-  header: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'yellow',
-  },
+    loadingRow: { height: 80 * Layout.scale.height, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", backgroundColor: 'white' },
+    loadingBoxOne: { height: 65 * Layout.scale.height, width: 65 * Layout.scale.height, marginLeft: 10 * Layout.scale.width, borderRadius: 10, backgroundColor: 'lightgray' },
+    loadingBoxTwo: { height: 65 * Layout.scale.height, flex: 1, marginHorizontal: 10 * Layout.scale.width, borderRadius: 10, backgroundColor: 'lightgray' },
 
 
+    message: {
+      fontSize: 14 * Layout.scale.width,
+      paddingTop: 10 * Layout.scale.width,
+    },
 
-  textField: {
-    fontSize: 17 * Layout.scale.width,
-    fontFamily: 'opensans'
-  },
-});
-return styles}
+    button: {
+      backgroundColor: Colors.primary1,
+      paddingVertical: 5 * Layout.scale.width,
+      marginBottom: 5 * Layout.scale.width,
+      textAlign: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row'
+    },
+
+    seperatorComponent: {
+      width: '100%',
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: "transparent",
+      alignSelf: 'center',
+    },
+    container: {
+      flex: 1,
+      backgroundColor: '#FFF',
+
+    },
+    header: {
+      flex: 1,
+      flexDirection: 'row',
+      backgroundColor: 'yellow',
+    },
+
+    sectionContainer: {
+      marginHorizontal: 8 * Layout.scale.width,
+      borderRadius: 8 * Layout.scale.width,
+      overflow: 'hidden',
+    },
+
+    textField: {
+      fontSize: 17 * Layout.scale.width,
+      fontFamily: 'opensans'
+    },
+  });
+  return styles
+}
 

@@ -70,15 +70,17 @@ function ReadingSection({section, reading }) {
   log.info(`rendering ReadingSection`)
   let lines = Platform.OS === 'ios' ? 5.5 * layout.scale.width : 4.7 * layout.scale.width
   const [visible, setVisible] = useState(false)
-
-  return (
-
+/*
     <LinearGradient
       colors={['#FFFFFF22', '#FFFFFFAA']}
       start={[0, 0]}
       end={[0, 3]}
       style={{paddingHorizontal: 5 * layout.scale.width}}
     >
+    */
+  return (
+    <View style={styles.readingContainer}>
+
       <Text style={styles.sectionHeading}>{section}</Text>
 
       <ReadMore
@@ -105,7 +107,7 @@ function ReadingSection({section, reading }) {
 
         <Text style={styles.sectionText} >{reading[section]}</Text>
       </ReadMore>
-    </LinearGradient>
+    </View>
 
   )
 }
@@ -116,7 +118,10 @@ function useStyles() {
   const layout = useLayout();
   const styles = StyleSheet.create({
 
-
+    readingContainer: {
+      backgroundColor: Colors.primaryContrast,
+      paddingHorizontal: 5* layout.scale.width
+    },
     title: {
       fontFamily: 'merriweather-italic',
       textAlign: 'left',
@@ -124,7 +129,7 @@ function useStyles() {
     },
     viewMore: {
       paddingTop: 6 * layout.scale.width,
-      color: Colors.primary,
+      color: Colors.primary1,
     },
     section: {
 
@@ -140,14 +145,12 @@ function useStyles() {
     sectionText: {
       fontSize: layout.scale.width * 15,
       fontFamily: 'opensans-light',
-      color: Colors.primaryContrast,
       marginHorizontal: 5 * layout.scale.width
     },
     sectionHeading: {
       textAlign: 'center',
       fontSize: layout.scale.width * 15,
       fontFamily: 'opensans-bold',
-      color: Colors.primaryContrast,
       textAlignVertical: "bottom",
       paddingTop: 10 * layout.scale.width,
     },

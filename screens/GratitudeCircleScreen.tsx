@@ -176,7 +176,7 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
             alignItems: "center" , 
             borderRadius: 25,
             borderWidth: 2,
-            borderColor: Colors.primary,
+            borderColor: Colors.primary1,
             marginHorizontal: 10 * Layout.scale.width,
             paddingVertical: 2,
             overflow: 'hidden'
@@ -228,10 +228,10 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
                 marginBottom: -4
               }}
               inactiveDotElement={
-                <View style={{backgroundColor:Colors.primaryL2, width: 5, height: 5,borderRadius: 3, marginLeft: 3, marginRight: 3, marginTop: 0, marginBottom: -45,}} />
+                <View style={{backgroundColor:Colors.primary12, width: 5, height: 5,borderRadius: 3, marginLeft: 3, marginRight: 3, marginTop: 0, marginBottom: -45,}} />
               }
             dotElement={
-                <View style={{backgroundColor:Colors.primary, width: 5, height: 5,borderRadius: 3,  marginLeft: 3, marginRight: 3, marginTop: 0, marginBottom: -45,}} />
+                <View style={{backgroundColor:Colors.primary1, width: 5, height: 5,borderRadius: 3,  marginLeft: 3, marginRight: 3, marginTop: 0, marginBottom: -45,}} />
               }
               inactiveDotOpacity={0.4}
               inactiveDotScale={0.6}
@@ -240,7 +240,7 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
       </View>
       <TouchableOpacity  onPress={() => navigation.navigate('editor')} style={{marginLeft: -2}}>
     
-        <MaterialCommunityIcons name="feather" color={Colors.primary} size={22} style={{paddingRight: 20 * Layout.scale.width, paddingTop: 4, height: 34, width: 34, borderWidth: 2, borderColor: Colors.primary, borderRadius: 17, paddingLeft: 4}} />
+        <MaterialCommunityIcons name="feather" color={Colors.primary1} size={22} style={{paddingRight: 20 * Layout.scale.width, paddingTop: 4, height: 34, width: 34, borderWidth: 2, borderColor: Colors.primary1, borderRadius: 17, paddingLeft: 4}} />
       </TouchableOpacity>
 
   </View>

@@ -190,7 +190,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
                 onChangeText={(value)=>setRowEdit({index: rowEdit.index, text: value})}
             />
              <TouchableOpacity style={styles.addEntryButton} onPress={rowEdit &&rowEdit.index > -1?deleteEntry: undefined}>
-                <MaterialCommunityIcons name={"delete-circle"} size={38} color={rowEdit &&rowEdit.index > -1?Colors.primary:'gray'} style={styles.deleteEntryButton}/>
+                <MaterialCommunityIcons name={"delete-circle"} size={38} color={rowEdit &&rowEdit.index > -1?Colors.primary1:'gray'} style={styles.deleteEntryButton}/>
             </TouchableOpacity>  
             <TouchableOpacity style={styles.addEntryButton} onPress={commitEntry}>
                 
@@ -209,7 +209,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
                 onChangeText={(value)=>setRowEdit({index: rowEdit.index, text: value})}
             />
              <TouchableOpacity style={styles.addEntryButton} onPress={rowEdit &&rowEdit.index > -1?deleteEntry: undefined}>
-                <MaterialCommunityIcons name={"delete-circle"} size={38} color={rowEdit &&rowEdit.index > -1?Colors.primary:'gray'} style={styles.deleteEntryButton}/>
+                <MaterialCommunityIcons name={"delete-circle"} size={38} color={rowEdit &&rowEdit.index > -1?Colors.primary1:'gray'} style={styles.deleteEntryButton}/>
             </TouchableOpacity>  
             <TouchableOpacity style={styles.addEntryButton} onPress={commitEntry}>
                 

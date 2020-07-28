@@ -59,7 +59,7 @@ function useStyles(){
   const styles = StyleSheet.create({
    
     buttonContainer: {
-      backgroundColor: Colors.primary,
+      backgroundColor: Colors.primary1,
       alignSelf: 'center',
       borderRadius: 17,
       paddingHorizontal: 10,

@@ -48,9 +48,9 @@ export function GratitudeShareModal({gratitudeId, isVisible, shareCallback, dism
 >
           <SafeAreaView style={{ width: '100%', marginTop: -30 , paddingBottom: 15 }}>
             <View style={{alignItems: "center"}}>
-              <View style={{width: 50, height: 5, backgroundColor: Colors.primary, borderRadius: 5, borderColor: Colors.primary}}></View>
+              <View style={{width: 50, height: 5, backgroundColor: Colors.primary1, borderRadius: 5, borderColor: Colors.primary1}}></View>
             </View>
-            <Text style={{ paddingHorizontal: 10, paddingTop: 10, fontFamily: 'opensans', color: Colors.primary, fontSize: 21 * Layout.scale.width}}>Your Circles</Text>
+            <Text style={{ paddingHorizontal: 10, paddingTop: 10, fontFamily: 'opensans', color: Colors.primary1, fontSize: 21 * Layout.scale.width}}>Your Circles</Text>
             {userChannels.map((userChannel: UserChannel)=>{
               const broadcast = gratitude?.broadcasts.items.filter(
                 broadcast=>broadcast.channelId===userChannel.channelId

@@ -26,6 +26,7 @@ type Layout =  {
     safeLeft: number,
     safeRight: number,
     belowHeader: number,
+    marginTop: number
   };
 
 const staticLayout: Layout =  {
@@ -38,7 +39,8 @@ const staticLayout: Layout =  {
     width: widthScale,
     height: heightScale
   } ,
-  headerHeight: 40 * heightScale,
+  marginTop: heightScale * 10,
+  headerHeight: 40 * heightScale ,
   ratio: ratio,
   safeTop: undefined,
   safeBottom: undefined,
@@ -52,6 +54,7 @@ export function useLayout(): Layout{
     staticLayout.safeBottom = deviceLayout.bottom;
     staticLayout.safeLeft = deviceLayout.left;
     staticLayout.safeRight = deviceLayout.right;
-    staticLayout.belowHeader = staticLayout.safeTop + staticLayout.headerHeight 
+    staticLayout.belowHeader = staticLayout.safeTop + staticLayout.headerHeight + 20* staticLayout.scale.height
+
     return staticLayout;
 }

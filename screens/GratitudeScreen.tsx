@@ -35,7 +35,7 @@ export default function GratitudeScreenStack() {
         options={({ navigation, route }) => ({
           title: "",
           headerStyle: {
-            backgroundColor: Colors.primary,
+            backgroundColor: Colors.primary1,
           },
           headerLeft: () => {
             return <Text style={{ color: 'white', fontFamily: 'opensans', fontSize: 21 * Layout.scale.width, paddingLeft: 10 * Layout.scale.width }}>Gratitude</Text>
@@ -78,7 +78,7 @@ function JournalScreenStack() {
 
           },
           title: '',
-          headerTintColor: Colors.primary,
+          headerTintColor: Colors.primary1,
           headerTitleStyle: {
             fontFamily: 'opensans-bold',
             fontSize: 18 * Layout.scale.width,
@@ -97,7 +97,7 @@ function JournalScreenStack() {
 
           },
 
-          headerTintColor: Colors.primary,
+          headerTintColor: Colors.primary1,
 
 
           headerTitleStyle: {

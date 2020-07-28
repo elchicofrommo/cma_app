@@ -41,7 +41,7 @@ export function CircleStart(props) {
       <Path
 
           strokeWidth={30}
-          stroke={Colors.primary}
+          stroke={Colors.primary1}
           d={circleD}
           fill={"none"}
 
@@ -83,7 +83,7 @@ export function CircleEnd(props) {
       <Path
 
           strokeWidth={28}
-          stroke={Colors.primary}
+          stroke={Colors.primary1}
           d={circleD}
           fill={"none"}
 

@@ -153,7 +153,7 @@ function useStyles(){
 
 
     deleteButtonContainer: {
-      backgroundColor: Colors.primary,
+      backgroundColor: Colors.primary1,
       alignSelf: 'center',
       borderRadius: 17,
       paddingHorizontal: 10,
@@ -163,7 +163,7 @@ function useStyles(){
       borderColor: 'lightgray'
     },
     cancelButtonContainer: {
-      backgroundColor: Colors.primary,
+      backgroundColor: Colors.primary1,
       alignSelf: 'center',
       borderRadius: 17,
       paddingHorizontal: 10,
@@ -182,7 +182,7 @@ function useStyles(){
 
     gratitudeRowSeprator: {
       height: 5 * Layout.scale.width,
-      backgroundColor: Colors.primaryL3,
+      backgroundColor: Colors.primary1L3,
       width: "100%",
     },
 

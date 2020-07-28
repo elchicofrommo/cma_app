@@ -77,9 +77,9 @@ function JournalScreen({
           }}>
           <SafeAreaView style={{ width: '100%', marginTop: -30  }}>
             <View style={{alignItems: "center"}}>
-              <View style={{width: 50, height: 5, backgroundColor: Colors.primary, borderRadius: 5, borderColor: Colors.primary}}></View>
+              <View style={{width: 50, height: 5, backgroundColor: Colors.primary1, borderRadius: 5, borderColor: Colors.primary1}}></View>
             </View>
-            <Text style={{ paddingHorizontal: 10, fontFamily: 'opensans', color: Colors.primary, fontSize: 21 * Layout.scale.width}}>Your Circles</Text>
+            <Text style={{ paddingHorizontal: 10, fontFamily: 'opensans', color: Colors.primary1, fontSize: 21 * Layout.scale.width}}>Your Circles</Text>
             {subscribedChannels.map((userChannel: UserChannel)=>{
               return(
                 <View key={userChannel.id} style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 3,}}>

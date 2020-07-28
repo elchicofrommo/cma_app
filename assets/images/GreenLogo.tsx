@@ -22,7 +22,7 @@ export default function Logo(props) {
         <Circle
              cx="300" 
              cy="225" 
-             fill={Colors.primary}
+             fill={Colors.primary1}
              r="205" 
              stroke={Colors.primaryContrast} strokeWidth={10}/>
         

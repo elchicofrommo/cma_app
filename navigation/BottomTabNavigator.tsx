@@ -68,7 +68,7 @@ function BottomTabNavigator({ navigation, route, ...props }) {
 
     
     tabBarOptions={{
-      activeTintColor: Colors.primary,
+      activeTintColor: Colors.primary1,
       inactiveTintColor: 'gray',
       showLabel: true,
       inactiveBackgroundColor: '#00000000',

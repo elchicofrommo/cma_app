@@ -27,7 +27,7 @@ export default function MeetingSearchScreenStack() {
 
         options={({ navigation, route }) => ({
 
-          headerMode: "float",
+          
           headerTransparent: true,
           header: ({ scene, previous, navigation }) => {
             return (
@@ -67,16 +67,16 @@ function HomeGroupsScreen({ navigation, route, ...props }) {
 
   return (
     <LinearGradient style={[styles.container,]}
-      colors={[Colors.primary, Colors.primaryL1]}
+      colors={[Colors.primary1, Colors.primary2]}
       start={[0, 0]}
       end={[1.5, 1.5]}
       locations={[0, .5]}
     >
 
-      <View style={{ paddingTop: insets.top + 50 * layout.scale.height }}></View>
+      <View style={[styles.sectionContainer, { marginTop: layout.belowHeader, marginBottom: 10 * layout.scale.height }]}>
       <MeetingList meetingData={meetings} style={{}} emptyComponent={emptyComponent}
         action={row => navigation.navigate('Details', row)} />
-
+</View>
 
     </LinearGradient>
 
@@ -89,9 +89,12 @@ function useStyles() {
   const styles = StyleSheet.create({
 
     container: {
-      flex: 1,
-      backgroundColor: '#FFF',
-      justifyContent: "flex-start"
+      flex: 1
+    },
+    sectionContainer: { 
+      marginHorizontal: 8 * layout.scale.width, 
+      borderRadius: 8 * layout.scale.width, 
+      overflow: 'hidden' 
     },
     meetingSection: {
       flex: 20,

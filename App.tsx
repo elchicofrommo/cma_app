@@ -114,7 +114,7 @@ function AppStackStack({initialRoute}){
         
         options={({navigation, route})=>({
           headerStyle: styles.whiteHeader,
-          headerTintColor: Colors.primary,
+          headerTintColor: Colors.primary1,
           headerTitleStyle: styles.headerTitle,
         })}/>
       <AppStack.Screen
@@ -125,7 +125,7 @@ function AppStackStack({initialRoute}){
 
           headerStyle: styles.headerStyle,
           title: '',
-          headerTintColor: Colors.primary,
+          headerTintColor: Colors.primary1,
           headerTitleStyle: styles.headerTitle,
         })} />
 
@@ -137,7 +137,7 @@ function AppStackStack({initialRoute}){
 
           headerStyle: styles.whiteHeader,
           title: '',
-          headerTintColor: Colors.primary,
+          headerTintColor: Colors.primary1,
           headerTitleStyle: styles.headerTitle,
 
 
@@ -150,7 +150,7 @@ function AppStackStack({initialRoute}){
 
           headerStyle: styles.headerStyle,
           title: '',
-          headerTintColor: Colors.primary,
+          headerTintColor: Colors.primary1,
           headerTitleStyle: styles.headerTitle,
 
 
@@ -163,8 +163,8 @@ function AppStackStack({initialRoute}){
         options={({ navigation, route }) => ({
 
           headerStyle: styles.headerStyle,
-          title: '',
-          headerTintColor: Colors.primary,
+          title: 'Meeting Search',
+          headerTintColor: Colors.primary1,
           headerTitleStyle: styles.headerTitle
         })} />  
 <AppStack.Screen  
@@ -174,7 +174,7 @@ function AppStackStack({initialRoute}){
 
           title: 'Formats',
           headerStyle: styles.headerStyle,
-          headerTintColor: Colors.primary,
+          headerTintColor: Colors.primary1,
           headerTitleStyle: styles.headerTitle,    
         })}/>
       <AppStack.Screen 
@@ -184,7 +184,7 @@ function AppStackStack({initialRoute}){
 
           title: 'Pamphlets',
           headerStyle: styles.headerStyle,
-          headerTintColor: Colors.primary,
+          headerTintColor: Colors.primary1,
           headerTitleStyle: styles.headerTitle, 
         })}/>      
       <AppStack.Screen 
@@ -195,7 +195,7 @@ function AppStackStack({initialRoute}){
 
           title: 'Readings',
           headerStyle: styles.headerStyle,
-          headerTintColor: Colors.primary,
+          headerTintColor: Colors.primary1,
           headerTitleStyle: styles.headerTitle,
         })}/>      
     </AppStack.Navigator>
@@ -252,7 +252,7 @@ function useStyles(){
       backgroundColor: 'white',
 
     },
-    loading: {backgroundColor: Colors.primary, flex: 1},
+    loading: {backgroundColor: Colors.primary1, flex: 1},
     headerStyle: {
       backgroundColor: '#FFF',
       shadowColor: 'transparent'
