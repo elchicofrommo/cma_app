@@ -6,7 +6,7 @@ import { DataStore, Predicates } from "@aws-amplify/datastore";
 import axios from 'axios';
 import { store } from '../components/store'
 import { DailyReaders, Preferences, AuthDetail } from "../models/index";
-import { signIn, SignInResult } from '../screens/SettingsScreen'
+import { signIn, SignInResult } from '../screens/SignIn'
 import { User, Meeting, UserChannel } from '../types/gratitude'
 import fetchApi from '../api/fetch'
 import { shallowEqual, useSelector  } from 'react-redux';
@@ -32,7 +32,7 @@ export default function useSubscriptions() {
   React.useEffect(() => {
 
     function listenForGratitudes(user) {
-        if(user.role!="guest"){
+        if(user && user.role!="guest"){
 
             const subs = [];
             subs.push(fetchApi.subscribeToMyGratitudes(user))

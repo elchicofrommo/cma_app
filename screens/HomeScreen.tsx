@@ -2,14 +2,14 @@
 import * as React from 'react';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dimensions, Linking, Animated } from 'react-native';
 import { BorderlessButton, ScrollView } from 'react-native-gesture-handler';
-
-import { createStackNavigator } from '@react-navigation/stack';
+import { shallowEqual, useSelector  } from 'react-redux';
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { LinearGradient } from "expo-linear-gradient"
 import { connect } from 'react-redux';
 import moment from 'moment'
 import log from '../util/Logging'
-
+import useCloseMeetings from '../hooks/useCloseMeetings';
 import HeaderComponent from '../components/HeaderComponent'
 
 import { MeetingList, sortMeetings } from './MeetingSearchScreen'
@@ -43,13 +43,17 @@ function openMap(lat, long, label) {
 // assets imported
 
 import { Ionicons } from '@expo/vector-icons';
+import { AppLoading } from 'expo';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 
 const HomeStack = createStackNavigator();
 
 export default function HomeScreenStack() {
   const Layout = useLayout();
+  const role = useSelector((state)=>state.general.operatingUser?.role, shallowEqual)
 
+  log.info(`is authenciated ${role}`)
   return (
     <HomeStack.Navigator >
       <HomeStack.Screen
@@ -65,7 +69,7 @@ export default function HomeScreenStack() {
             return (
               <HeaderComponent scene={scene} previous={previous} navigation={navigation}
                 title={"Home"} rightIcon={<Ionicons name="md-person" color='#FFF' size={22 * Layout.scale.height} style={{ marginLeft: 1 }} />}
-                rightIconNavigation={'Settings'} />)
+                rightIconNavigation={(role=="guest")?'Signin':'Settings'} />)
           }
 
         })}
@@ -87,8 +91,9 @@ function CustomButton({ icon, callback, ...rest }) {
 }
 
 
-function HomeScreen({ navigation, closeMeetings, closeMeetingsLoading, meetingsLoading, ...props }) {
+function HomeScreen({ navigation, meetingsLoading, ...props }) {
 
+  const {meetings:closeMeetings, loading: closeMeetingsLoading,  error: closeMeetingsError} = useCloseMeetings();
   if (!props.dailyReaders)
     return <Text>Stil Loading</Text>
 
@@ -96,13 +101,15 @@ function HomeScreen({ navigation, closeMeetings, closeMeetingsLoading, meetingsL
 
   const styles = useStyles()
   const layout = useLayout()
+  const {colors} = useColors();
+  const role = useSelector((state)=>state.general.operatingUser?.role, shallowEqual)
 
   let meetingSection = undefined;
   if ((props.meetings && props.meetings.length > 0) || meetingsLoading) {
     const meetings = sortMeetings(props.meetings)
     meetingSection =
       <View style={styles.sectionContainer}>
-        <MeetingList meetingData={meetings} limit={3} loading={meetingsLoading}
+        <MeetingList meetingData={meetings} limit={4} loading={meetingsLoading}
           action={row => navigation.navigate('Details', row)} />
       </View>
   } else {
@@ -110,10 +117,10 @@ function HomeScreen({ navigation, closeMeetings, closeMeetingsLoading, meetingsL
     if (!props.authenticated)
       signin = "Start by signing in or creating an account. ";
     meetingSection =
-      <View style={styles.sectionContainer}>
-        <View style={[styles.section, styles.emptyMeetingSection]}>
+      <View style={[styles.sectionContainer, {backgroundColor: colors.primaryContrast}]}>
+
           <Text style={styles.emtpyMeetingSectionText}>You have no saved seats. {signin} Search for your favorite meeting and save a seat.
-    </Text></View>
+    </Text>
       </View>
   }
   return (
@@ -133,23 +140,29 @@ function HomeScreen({ navigation, closeMeetings, closeMeetingsLoading, meetingsL
           </View>
 
         </View>
-        <View style={styles.meetingSection}>
-          <View style={styles.sectionHeading}>
 
-            <Text style={styles.sectionHeadingText}>Upcoming Home Group Meetings</Text>
-          </View>
-          {meetingSection}
-
-        </View>
 
         <View style={styles.meetingSection}>
           <View style={styles.sectionHeading}>
 
             <Text style={styles.sectionHeadingText}>Closest Upcoming Meetings</Text>
           </View>
-          <View style={{ marginHorizontal: 8 * layout.scale.width, borderRadius: 8 * layout.scale.width, overflow: 'hidden' }}>
-            <MeetingList meetingData={closeMeetings} loading={closeMeetingsLoading} limit={3} action={row => navigation.navigate('Details', row)} />
+          <View style={{ marginHorizontal: 8 * layout.scale.width, borderRadius: 8 * layout.scale.width, overflow: 'hidden', backgroundColor: colors.primaryContrast }}>
+          {closeMeetingsError?
+              <Text style={{padding: 10, fontSize: 15 * layout.scale.width, fontFamily: 'opensans-light'}}>
+                Turn on Geolocation to see the closest meetings.
+              </Text> :
+            <MeetingList  meetingData={closeMeetings} loading={closeMeetingsLoading} limit={4} action={row => navigation.navigate('Details', row)} />
+          }
           </View>
+        </View>
+        <View style={styles.meetingSection}>
+          <View style={styles.sectionHeading}>
+
+            <Text style={styles.sectionHeadingText}>Upcoming Home Group Meetings</Text>
+          </View>
+          { meetingSection}
+
         </View>
         <View style={styles.footer}>
         </View>
@@ -194,10 +207,10 @@ function ScrollViewWithBackground({ children, ...props }) {
 }
 HomeScreen = connect(
   function mapStateToProps(state, ownProps) {
-    const { dailyReaders, meetings, authenticated, closeMeetings, closeMeetingsLoading, meetingsLoading } = state.general
-    console.log(`meetingsLoading: ${meetingsLoading}, closeMeetingsLoading: ${closeMeetingsLoading}`)
+    const { dailyReaders, meetings, authenticated, meetingsLoading } = state.general
+
     return {
-      dailyReaders, meetings, authenticated, closeMeetings, closeMeetingsLoading, meetingsLoading
+      dailyReaders, meetings, authenticated, meetingsLoading
     };
   },
   function mapDispatchToProps(dispatch) {
@@ -231,7 +244,7 @@ function useStyles() {
 
     },
     emptyMeetingSection: { backgroundColor: '#FFFFFF33', paddingBottom: 10 * Layout.scale.height },
-    emtpyMeetingSectionText: { fontFamily: 'opensans', fontSize: 18 * Layout.scale.width, color: Colors.primaryContrast },
+    emtpyMeetingSectionText: { fontFamily: 'opensans-light', fontSize: 14 * Layout.scale.width, padding: 5* Layout.scale.width },
     meetingSection: {
       flex: 20,
 
@@ -240,7 +253,7 @@ function useStyles() {
       flex: 10.7 * Layout.scale.width * Layout.ratio,
       marginTop: 10 * Layout.scale.height
     },
-    sectionContainer: { marginHorizontal: 8 * Layout.scale.width, borderRadius: 8 * Layout.scale.width, overflow: 'hidden' },
+    sectionContainer: { marginHorizontal: 8 * Layout.scale.width, borderRadius: 8 * Layout.scale.width, overflow: 'hidden' , },
 
     sectionHeading: {
       flexDirection: 'row',

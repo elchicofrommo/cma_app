@@ -129,7 +129,7 @@ function GratitudeScreen({ navigation, ...props }) {
       headerRight: () => {
         return (
           <TouchableOpacity onPress={() => navigation.navigate('circleAdmin')} >
-            <Octicons name="gear" color={Colors.primaryContrast} size={24} style={{ marginRight: 10 * Layout.scale.width, paddingTop: 2.5, height: 34, width: 34, borderWidth: 2, borderColor: Colors.primaryContrast, borderRadius: 17, paddingLeft: 4 }} />
+            <Octicons name="gear" color={Colors.primaryContrast} size={24} style={{ marginRight: 10 * Layout.scale.width, paddingTop: 2.5, height: 34, width: 34, borderWidth: 2, borderColor: Colors.primaryContrast, borderRadius: 17, paddingLeft: 4 * Layout.scale.width }} />
           </TouchableOpacity>
         )
       },

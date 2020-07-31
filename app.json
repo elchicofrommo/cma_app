@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "cma app beta 3.1",
-    "slug": "cma-app-beta3-1",
+    "name": "cma app beta 3.2",
+    "slug": "cma-app-beta3-2",
     "platforms": [
       "ios",
       "android",
@@ -27,7 +27,7 @@
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
-    "description": "Light integration with backend appsync",
+    "description": "New UI and fixes for gratitude",
     "androidStatusBar": {
       "backgroundColor": "#000000"
     }

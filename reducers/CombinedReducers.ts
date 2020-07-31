@@ -10,21 +10,27 @@ import log from '../util/Logging'
 
 const GUEST_USER = {
   role: "guest",
-  name: "",
+  name: "guest",
   shortId: "none",
+  email: "guest@gmail.com",
+  meetingIds: []
+}
+
+const NEW_USER = {
+  role: 'new',
+  name: '',
+  shortId: 'new',
   email: "",
   meetingIds: []
 }
 
 const INITIAL_STATE: AppState = {
-  operatingUser: GUEST_USER, 
+  operatingUser: undefined, 
   currentTheme: 6,
   gratitudes: [],
   broadcastsByChannel: new Map<string, Broadcast[]>(),
   ownedChannels: [],
   userChannels: [],
-  closeMeetings: [],
-  closeMeetingsLoading: false,
   meetings: [],
   meetingsLoading: false,
   homegroup: undefined,
@@ -62,6 +68,10 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       newState.broadcastsByChannel = map;
       return newState;
       break;
+    case "SET_GUEST_USER":
+      newState.operatingUser = {...GUEST_USER};
+      saveAuth(newState)
+      return newState
 
     case "SUBSCRIBE_CHANNEL": {
       log.info(`subscribe channel data is ${JSON.stringify(action.data)}`)
@@ -84,12 +94,7 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       newState.soberietyFormat = action.data;
       return newState
       break;
-    case "UPDATE_CLOSE_MEETING": {
-      newState.closeMeetings = action.meetings;
-      newState.closeMeetingsLoading = false;
-      return newState;
-      break;
-    }
+
     case "ADD_OWNED_CHANNEL": {
       const ownedChannels = [...newState.ownedChannels]
       ownedChannels.push(action.ownedChannel)
@@ -121,8 +126,7 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
 
     case "UPDATE_OPERATING_USER":
       newState.operatingUser = action.data
-      if(action.isLoadingMeetings){
-        newState.closeMeetingsLoading= true;
+      if(action.isLoadingMeetings && action.data.role!="guest"){
         newState.meetingsLoading= true;
       }
       return newState;
@@ -301,12 +305,15 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       return newState;
       
     case "SIGN_OUT":
-      newState = INITIAL_STATE;
+      newState = {...INITIAL_STATE};
+      newState.operatingUser = {...GUEST_USER}
       newState.dailyReaders = state.dailyReaders;
       newState.soundCloudDetails = state.soundCloudDetails;
       newState.soundCloudTracks = state.soundCloudTracks;
       newState.paths = state.paths;
+
       saveAuth(newState)
+
       return newState;
 
 
@@ -419,11 +426,14 @@ async function saveAuth(state){
       updated.operatingUser = JSON.stringify(state.operatingUser)
     })
   }else{
-    auth = new AuthDetail({
-      email: state.email, 
-      password: state.password,
-      operatingUser: JSON.stringify(state.operatingUser),
-    })
+    const input ={};
+    if(state.email)
+      input.email = state.email;
+    if(state.password)
+      input.password = state.password;
+    if(state.operatingUser)
+      input.operatingUser = JSON.stringify(state.operatingUser)
+    auth = new AuthDetail(input)
   }
 
   const result = await DataStore.save(auth)

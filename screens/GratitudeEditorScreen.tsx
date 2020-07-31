@@ -90,9 +90,9 @@ function GratitudeEditorScreen({
   const [keyboardHeight, setKeyboardHeight] = useState(new Animated.Value(-30));
   const [opacity, setOpacity] = useState(new Animated.Value(0));
   const [marginBottom, setMarginBottom] = useState(new Animated.Value(30));
-
+  const styles = useStyles();
   const Layout = useLayout();
-  const {colors: Colors} = useColors();
+  const {colors: Colors} = useColors(); 
 
   function startEntry(index = -1, text: string = "") {
     setRowEdit({ index, text });
@@ -327,7 +327,7 @@ function GratitudeEditorScreen({
           <MaterialCommunityIcons
             name={"delete-circle"}
             size={38}
-            color={rowEdit && rowEdit.index > -1 ? Colors.primary1 : "gray"}
+            color={rowEdit && rowEdit.index > -1 ? Colors.primary : "gray"}
             style={styles.deleteEntryButton}
           />
         </TouchableOpacity>
@@ -366,7 +366,7 @@ function GratitudeEditorScreen({
           <MaterialCommunityIcons
             name={"delete-circle"}
             size={38}
-            color={rowEdit && rowEdit.index > -1 ? Colors.primary1 : "gray"}
+            color={rowEdit && rowEdit.index > -1 ? Colors.primary : "gray"}
             style={styles.deleteEntryButton}
           />
         </TouchableOpacity>
@@ -508,7 +508,7 @@ function _GratitudeSaveButton({
     <View style={{paddingRight: 10 * Layout.scale.width}}>
     <Button
     title={"Save"}
-    color={Colors.primary1}
+    color={Colors.primary}
 
     onPress={(event) => {
 
@@ -541,7 +541,7 @@ function GratitudeBackButton({
   navigation,
   ...props
 }: {navigation: any}) {
-  const {colors} = useColors
+  const {colors} = useColors()
   return (
     <HeaderBackButton
     label={"Back"}
@@ -586,8 +586,7 @@ function useStyles(){
     },
     title: {
       paddingHorizontal: 10 * Layout.scale.width,
-      borderBottomColor: "gainsboro",
-      borderBottomWidth: 0.3,
+
       paddingVertical: 7 * Layout.scale.width,
       justifyContent: "center",
     },

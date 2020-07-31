@@ -6,10 +6,12 @@ import LogoNoAnimation from '../assets/images/LogoComponetNoAnimation'
 
 import {useColors} from '../hooks/useColors'
 import {useLayout} from '../hooks/useLayout'
+import { Provider, shallowEqual, useSelector  } from 'react-redux';
 import log from "../util/Logging"
 export default function SplashScreen({navigation, route, ...props} ){
   const styles = useStyles();
   const Layout = useLayout();
+
   log.info(`rendering SplashScreen`)
   const component = Platform.OS === 'ios' ? <Logo height={"30%"} style={{marginLeft: 20}} />: 
     <LogoNoAnimation height={"30%"} style={{marginBottom: 20}} />

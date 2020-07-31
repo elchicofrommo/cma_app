@@ -2,7 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, HeaderTitle } from '@react-navigation/stack';
 import React, { useEffect, useState} from 'react';
 import { Platform, StatusBar, StyleSheet, View, Text } from 'react-native';
-import useCachedResources from './hooks/useCachedResources';
+import useCachedResources, {APP_STATE} from './hooks/useCachedResources';
 import useSubscriptions from './hooks/useSubscriptions';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import LinkingConfiguration from './navigation/LinkingConfiguration';
@@ -10,6 +10,7 @@ import { store } from './components/store'
 import {useColors} from './hooks/useColors';
 import {useLayout} from './hooks/useLayout';
 import { Provider, shallowEqual, useSelector  } from 'react-redux';
+import SigninScreen from './screens/SignIn'
 import { AppLoading } from 'expo';
 import AppBanner from './components/AppBanner'
 import {SafeAreaProvider} from 'react-native-safe-area-context'
@@ -118,6 +119,17 @@ function AppStackStack({initialRoute}){
           headerTitleStyle: styles.headerTitle,
         })}/>
       <AppStack.Screen
+        name="Signin"
+        component={SigninScreen} 
+        title=""
+        
+        options={({navigation, route})=>({
+          headerStyle: styles.whiteHeader,
+          headerTintColor: Colors.primary1,
+          headerTitleStyle: styles.headerTitle,
+          headerShown: false,
+        })}/>
+      <AppStack.Screen
         name="Details"
         component={DetailsScreen}
 
@@ -209,18 +221,11 @@ function AppStackStack({initialRoute}){
     useSubscriptions();
     const styles = useStyles();
     const [ready, setAppReady] = useState(false)
+
     
-    let initialRoute = "splash" 
-    if(loadingState == 3)
-      initialRoute = "home"
 
-    if (loadingState==0) {
-      return(
 
-            <View style={styles.loading}></View>
-
-      )
-    } else {
+    if(loadingState==APP_STATE.NEW_USER){
         return (
           
             <View style={styles.container}>
@@ -229,13 +234,36 @@ function AppStackStack({initialRoute}){
               <AppBanner />
               <NavigationContainer linking={LinkingConfiguration}>
 
-                <AppStackStack initialRoute={initialRoute} />
+                <AppStackStack initialRoute={'Signin'} />
               </NavigationContainer>
             </View>
 
 
         )
-    } 
+    } else if(loadingState==APP_STATE.AUTH_READY){
+      return (
+          
+        <View style={styles.container}>
+          {Platform.OS === 'ios' && <StatusBar barStyle="dark-content" />}
+          <StatusBar barStyle={"light-content"} />
+          <AppBanner />
+          <NavigationContainer linking={LinkingConfiguration}>
+
+            <AppStackStack initialRoute={'splash'} />
+          </NavigationContainer>
+        </View>
+
+
+    )
+    }else{
+
+        return(
+  
+              <View style={styles.loading}></View>
+  
+        )
+
+    }
 
 
   }

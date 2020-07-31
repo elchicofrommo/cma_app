@@ -38,7 +38,7 @@ async function likeGratitude({ gratitude, operatingUser }: { gratitude: Gratitud
     log.info(`broadcast results  from like`, {broadcasts: result})
     if(result.data.listBrodcastByGratitude){
         result.data.listBrodcastByGratitude.items.forEach((broadcast: Broadcast)=>{
-           API.graphql(gql(mutate.updateBroadcast, {input: {id: broadcast.id}}))
+           API.graphql(gql(mutate.updateBroadcast, {input: {id: broadcast.id}, gratitudeId: gratitude.id}))
             log.info(`like caused broadcast update to channel ${broadcast.channelId}`)
         })
     }

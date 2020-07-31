@@ -1,27 +1,32 @@
-import React, {  } from 'react';
-import { Text, View, StyleSheet,  Platform} from 'react-native';
+import React, { } from 'react';
+import { Text, View, StyleSheet, Platform } from 'react-native';
 
 import { connect } from 'react-redux';
 import moment from "moment";
 import SliderToggle from '../components/SliderToggle'
-import {useColors} from '../hooks/useColors';
-import {useLayout} from '../hooks/useLayout'
+import { useColors } from '../hooks/useColors';
+import { useLayout } from '../hooks/useLayout'
 import log from '../util/Logging'
 import { LinearGradient } from "expo-linear-gradient"
 
 function SoberietyTime({ dos, ...props }) {
 
   const Layout = useLayout()
-
+  const styles = useStyles()
 
   log.info(`rendering SoberietyTime`)
   if (!dos) {
-    return <WelcomeChip />
+    return (
+      <View>
+        <View style={{ height: 40 * Layout.scale.height }} />
+        <WelcomeChip />
+      </View>
+    )
   }
 
 
-  const styles = useStyles()
   
+
   let time = "";
   let label = ""
   const firstDate = moment(dos)
@@ -86,14 +91,14 @@ function SoberietyTime({ dos, ...props }) {
 
   return (
     <View>
-      <View style={{height: 40 * Layout.scale.height}}/>
+      <View style={{ height: 40 * Layout.scale.height }} />
       {chip}
-      <Text style={styles.dateText}  > {time} {label} </Text> 
+      <Text style={styles.dateText}  > {time} {label} </Text>
 
-      <SliderToggle selectedIndex={ props.format==0?2:props.format==2?0:1} toggles={[
-        {label: 'Years', callback: () => props.dispatchSetFormat(2)},
-        {label: 'Months', callback: () => props.dispatchSetFormat(1)},
-        {label: 'Days', callback: () => props.dispatchSetFormat(0)}]}/>
+      <SliderToggle selectedIndex={props.format == 0 ? 2 : props.format == 2 ? 0 : 1} toggles={[
+        { label: 'Years', callback: () => props.dispatchSetFormat(2) },
+        { label: 'Months', callback: () => props.dispatchSetFormat(1) },
+        { label: 'Days', callback: () => props.dispatchSetFormat(0) }]} />
     </View>
   )
 }
@@ -196,13 +201,13 @@ function CoreChip({ chipStyle, chipText, contrastColor = undefined, reverse = fa
   const Layout = useLayout();
 
 
-  const _coin = <View style={[ shadow, {
+  const _coin = <View style={[shadow, {
     height: 170 * Layout.scale.width, alignSelf: 'center', marginTop: Layout.safeTop + 10 * Layout.scale.height,
-    width: 170 * Layout.scale.width, borderRadius: 170 * Layout.scale.width, 
+    width: 170 * Layout.scale.width, borderRadius: 170 * Layout.scale.width,
   }]}>
     <LinearGradient
       colors={[outer1, outer2, outer1]}
-      style={[ styles.chip, chipStyle, contrastColor && { borderColor: contrastColor }]}
+      style={[styles.chip, chipStyle, contrastColor && { borderColor: contrastColor }]}
       start={[0, 0]}
       end={[1, 1]}
       locations={[0, 0.5, 1]}
@@ -219,19 +224,19 @@ function CoreChip({ chipStyle, chipText, contrastColor = undefined, reverse = fa
     </LinearGradient>
   </View>
 
-//  if(Platform.OS==='ios'){
-    return (
-      _coin
-    )
-/*  }
-  else {
-    return(
-      <BoxShadow setting={shadowOpt}>
-        {_coin}
-      </BoxShadow>
-    )
-  }*/
-      
+  //  if(Platform.OS==='ios'){
+  return (
+    _coin
+  )
+  /*  }
+    else {
+      return(
+        <BoxShadow setting={shadowOpt}>
+          {_coin}
+        </BoxShadow>
+      )
+    }*/
+
 }
 function calcDate(date1, date2) {
 
@@ -295,8 +300,8 @@ let innerShadow = Platform.OS === 'ios' ? {
   shadowRadius: 2,
 } : { elevation: 0 }
 
-function useStyles(){
-  const {colors} = useColors();
+function useStyles() {
+  const { colors } = useColors();
   const layout = useLayout();
   const styles = StyleSheet.create({
 
@@ -309,11 +314,11 @@ function useStyles(){
       width: 170 * layout.scale.width,
       borderWidth: StyleSheet.hairlineWidth,
       borderRadius: 85 * layout.scale.width,
-      
-  
+
+
     },
     innerChip: {
-  
+
       height: 130 * layout.scale.width,
       width: 130 * layout.scale.width,
       borderWidth: 1,
@@ -321,7 +326,7 @@ function useStyles(){
       borderColor: '#00000070',
       justifyContent: 'center',
       alignItems: 'center',
-  
+
     },
     welcome: {
       backgroundColor: 'white'
@@ -363,23 +368,23 @@ function useStyles(){
       backgroundColor: 'black',
       borderColor: 'white'
     },
-  
-  
+
+
     chipText: {
       fontFamily: 'merriweather',
       fontSize: 24 * layout.scale.width,
       textAlign: 'center',
-  
+
     },
-  
+
     dateText: {
       fontSize: 35 * layout.scale.height,
       fontFamily: 'opensans-light',
       textAlign: 'center',
       color: colors.primaryContrast,
     }
-  
-  
+
+
   });
   return styles
 }

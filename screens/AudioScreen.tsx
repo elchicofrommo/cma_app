@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect, memo, useCallback } from 'react';
+import apiGateway from '../api/apiGateway'
 import { shallowEqual, useSelector } from "react-redux";
-import { StyleSheet, Text, View, Dimensions, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, FlatList, LayoutAnimation } from 'react-native';
 import { RectButton, ScrollView, BorderlessButton, TouchableOpacity } from 'react-native-gesture-handler';
 import AppBanner from '../components/AppBanner'
 
@@ -11,17 +12,17 @@ import Logo from '../assets/images/GreenLogo'
 import moment from 'moment'
 import { Audio } from 'expo-av'
 import axios from 'axios';
-import {useColors} from '../hooks/useColors'
-import {useLayout} from '../hooks/useLayout'
+import { useColors } from '../hooks/useColors'
+import { useLayout } from '../hooks/useLayout'
 
-import {LinearGradient} from "expo-linear-gradient"
+import { LinearGradient } from "expo-linear-gradient"
 import log from "../util/Logging"
-import {AnimationStates, AnimatedCircle, CircleEnd, CircleStart} from '../assets/images/circlePlayer'
+import { AnimationStates, AnimatedCircle, CircleEnd, CircleStart } from '../assets/images/circlePlayer'
 
 const SpeakerStack = createStackNavigator();
 
 import { faPlayCircle, faPauseCircle } from '@fortawesome/free-regular-svg-icons'
-import { Feather, AntDesign } from '@expo/vector-icons'; 
+import { Feather, AntDesign } from '@expo/vector-icons';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -43,18 +44,19 @@ export default function SpeakerScreenStack() {
       <SpeakerStack.Screen
         name="Speakers Shares"
         component={SpeakerScreen}
-        options={({navigation, route})=>({
-          title:"",
+        options={({ navigation, route }) => ({
+          title: "",
 
-          
+
           headerTransparent: true,
-          header: ({scene,previous, navigation})=>{
+          header: ({ scene, previous, navigation }) => {
             return (
               <HeaderComponent scene={scene} previous={previous} navigation={navigation}
-            title={"Speaker Shares"} /> ) }
-           
-          })}
-        />
+                title={"Speaker Shares"} />)
+          }
+
+        })}
+      />
     </SpeakerStack.Navigator>
   )
 }
@@ -64,11 +66,11 @@ export default function SpeakerScreenStack() {
 
 
 
-const TrackDetails = memo(({ track, state = PlayStates.INITAL, playerCallback }: 
-  {track: any, state: PlayStates, playerCallback:Function}) => {
+const TrackDetails = memo(({ track, state = PlayStates.INITAL, playerCallback , index}:
+  { track: any, state: PlayStates, playerCallback: Function, index: number }) => {
 
   log.info(`new PlayerComponent past memo input is track:${track.state} and state:${state}`)
-  
+
 
   const duration = moment.duration(track.duration)
   const time = moment.utc(duration.as('milliseconds')).format('mm:ss')
@@ -88,47 +90,49 @@ const TrackDetails = memo(({ track, state = PlayStates.INITAL, playerCallback }:
   const layout = useLayout();
   const buttons = [faPlayCircle, faPauseCircle]
 
-
+  const circleWidth = 40 * layout.scale.width;
+  const playIconSize = 22 * layout.scale.width;
+  const pauseIconSize = 24 * layout.scale.width;
   function playbackStatus(status) {
 
     log.info(`playbackStatus`)
   }
   const styles = useStyle();
-  const {colors: Colors} = useColors();
-  let playStatus =  <View style={{position: 'absolute', zIndex:  5,top: 1, left: 2}}>
-    <CircleStart width={60} height={60} style={{position: 'absolute', zIndex: 1, top: 0, left:0}}  />
-    <Feather name="play" size={35} color={Colors.primary1} style={{position: 'absolute', zIndex: 3, top: 12.5, left:14.5}}/>
+  const { colors: Colors } = useColors();
+  let playStatus = <View style={{ position: 'absolute', zIndex: 5, top: 1, left: 2 }}>
+    <CircleStart width={circleWidth} height={circleWidth} style={{ position: 'absolute', zIndex: 1, top: 0, left: 0 }} />
+    <Feather name="play" size={playIconSize} color={Colors.primary1} style={{ position: 'absolute', zIndex: 3, top: playIconSize *.4, left: playIconSize *.45 }} />
+  </View>
+
+
+  if (state == PlayStates.PLAYING)
+    playStatus = <View style={{ position: 'absolute', zIndex: 5, top: 1, left: 2 }}>
+      <AnimatedCircle style={{ position: 'absolute', zIndex: 1, top: 0, left: 0 }} width={circleWidth} height={circleWidth} duration={track.duration} state={AnimationStates.PLAY} />
+      <AntDesign name="pause" size={pauseIconSize} color={Colors.primary1} style={{ position: 'absolute', zIndex: 3, top: pauseIconSize * .35, left: pauseIconSize * .32 }} />
     </View>
-
-
-  if(state == PlayStates.PLAYING)
-    playStatus = <View style={{position: 'absolute', zIndex: 5, top: 1, left: 2}}>
-      <AnimatedCircle style={{position: 'absolute', zIndex: 1, top: 0, left:0}} width={60} height={60} duration={track.duration} state={AnimationStates.PLAY} />
-      <AntDesign name="pause" size={40} color={Colors.primary1} style={{position: 'absolute', zIndex: 3, top: 10, left:10}}/>
-      </View>
-  else if(state == PlayStates.PAUSED)
-    playStatus = <View style={{position: 'absolute', zIndex: 5, top: 1, left: 2}}>
-      <AnimatedCircle style={{position: 'absolute', zIndex: 1, }} width={60} height={60} duration={track.duration} state={AnimationStates.PAUSE} />
-      <Feather name="play" size={35} color={Colors.primary1} style={{position: 'absolute', zIndex: 3, top: 12.5, left:14.5}}/>
-      </View>
+  else if (state == PlayStates.PAUSED)
+    playStatus = <View style={{ position: 'absolute', zIndex: 5, top: 1, left: 2 }}>
+      <AnimatedCircle style={{ position: 'absolute', zIndex: 1, }} width={circleWidth} height={circleWidth} duration={track.duration} state={AnimationStates.PAUSE} />
+      <Feather name="play" size={playIconSize} color={Colors.primary1} style={{ position: 'absolute', zIndex: 3, top: playIconSize *.4, left: playIconSize *.45 }} />
+    </View>
   else if (state == PlayStates.RESUME)
-  playStatus = <View style={{position: 'absolute', zIndex: 5, top: 1, left: 2}}>
-    <AnimatedCircle style={{position: 'absolute', zIndex: 1, top: 0, left:0}} width={60} height={60} duration={track.duration} state={AnimationStates.RESUME} />
-    <AntDesign name="pause" size={40} color={Colors.primary1} style={{position: 'absolute', zIndex: 3, top: 10, left:10}}/>
+    playStatus = <View style={{ position: 'absolute', zIndex: 5, top: 1, left: 2 }}>
+      <AnimatedCircle style={{ position: 'absolute', zIndex: 1, top: 0, left: 0 }} width={circleWidth} height={circleWidth} duration={track.duration} state={AnimationStates.RESUME} />
+      <AntDesign name="pause" size={pauseIconSize} color={Colors.primary1} style={{ position: 'absolute', zIndex: 3, top: pauseIconSize * .35, left: pauseIconSize * .32}} />
     </View>
   //else if(state == PlayStates.LOADING)
- //   playStatus = <FontAwesomeIcon icon={faHourglassHalf} style={{ color: color }} size={50 * Layout.scale.width} />
+  //   playStatus = <FontAwesomeIcon icon={faHourglassHalf} style={{ color: color }} size={50 * Layout.scale.width} />
 
   return (
-    <View style={{ height: layout.scale.width * 80, flexDirection: 'row', backgroundColor: '#FFF', borderBottomWidth: 1, }}>
-      
-      <View style={[{ justifyContent: 'center', paddingHorizontal: 5 }, track.state==PlayStates.LOADING && {opacity: .5}]}>
-        <BorderlessButton style={[styles.button, {height: 65, width: 65}]} onPress={()=>{track.state!=PlayStates.LOADING&& playerCallback(track)}}>
+    <View style={[{ height: layout.scale.width * 80, flexDirection: 'row', flex: 0, marginTop: -.3, backgroundColor: '#FFF'}, index==0 && {borderTopLeftRadius: 8 * layout.scale.width, borderTopRightRadius: 8 * layout.scale.width} ]}>
+
+      <View style={[{  justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5,  }, track.state == PlayStates.LOADING && { opacity: .5 }]}>
+        <BorderlessButton style={[styles.button, {  height: circleWidth * 1.1, width: circleWidth * 1.1 , marginRight: 0, paddingRight: 0 }]} onPress={() => { track.state != PlayStates.LOADING && playerCallback(track) }}>
           {playStatus}
-          <View style={{position: 'absolute', zIndex: 3, top: 1, left: 2}}><CircleEnd width={60} height={60} /></View>
+          <View style={{ position: 'absolute', zIndex: 3, top: 1, left: 2 }}><CircleEnd width={circleWidth} height={circleWidth} /></View>
         </BorderlessButton>
 
-        <Text style={styles.duration}>{`${durationText}`}</Text>
+        <Text style={[styles.duration, ]}>{`${durationText}`}</Text>
       </View>
       <View key={title} style={{ flex: 10, borderColor: 'grey', }}>
         <View style={styles.trackTitleGroup}>
@@ -151,137 +155,135 @@ function compareStates(prev, next) {
 
 
 function SpeakerScreen(props) {
-  const {colors: Colors} = useColors();
+  const { colors: Colors } = useColors();
   const layout = useLayout();
   const styles = useStyle()
   log.info(`rendering SpeakerScreen`)
   const [playingTrack, setPlayingTrack] = useState();
 
   const [player, setPlayer] = useState();
-  const{tracks, details} = useSelector((state)=>{
+  const { tracks, details } = useSelector((state) => {
     const tracks = state.general.soundCloudTracks;
     const details = state.general.soundCloudDetails;
-    return {tracks, details}
+    return { tracks, details }
   })
 
 
-  async function playerCallback (track){
+  async function playerCallback(track) {
 
-    const temp = {player: undefined};
-    setPlayer(player=>{
+    const temp = { player: undefined };
+    setPlayer(player => {
       temp.player = player;
       return player;
     })
 
-    log.info(`playerCallback called`, {track, player})
+    log.info(`playerCallback called`, { track, player })
 
-    if(!playingTrack||track.id != playingTrack.id){
+    if (!playingTrack || track.id != playingTrack.id) {
       track.state = PlayStates.LOADING
-      setPlayingTrack({...track})
+      setPlayingTrack({ ...track })
 
-      log.info(`going to play the following`, {track})
-      
+      log.info(`going to play `)
 
-      axios.get(track.trackUrl)
-        .then(response => {
-          // log.info(`have playing url ${response.data.url}`)
-          if(temp.player){
+      const playableTrack = await apiGateway.getPlayableTrack(track.trackUrl)
 
-                temp.player.unloadAsync().then(r2=>{
-                  temp.player.loadAsync(
-                    { uri: response.data.url },
-                    { shouldPlay: true },
-                    false
-                  ).then((status) => {
-                    log.info(`playing status ${status}`);
+      if (temp.player) {
 
-                    track.state = PlayStates.PLAYING
-                    setPlayingTrack({...track})
-                  }).catch((err) => {
-                    log.info('problem playing the file ' + err)
-                  })
-                })
+        temp.player.unloadAsync().then(r2 => {
+          temp.player.loadAsync(
+            { uri: playableTrack },
+            { shouldPlay: true },
+            false
+          ).then((status) => {
+            log.info(`playing status ${status}`);
 
-               
-          }else{
-            Audio.Sound.createAsync(
-              { uri: response.data.url },
-              { shouldPlay: true },
-              null,
-              false
-            ).then(({ sound, status }) => {
-              log.info(`playing track ${track.id}`);
-              setPlayer(sound)
-              track.state = PlayStates.PLAYING
-              setPlayingTrack({...track})
-            }).catch((err) => {
-              log.info('problem playing the file ' + err)
-            })
-          }
-        }).catch(error => {
-          log.info("could not get network resources " + error)
+            track.state = PlayStates.PLAYING
+            setPlayingTrack({ ...track })
+          }).catch((err) => {
+            log.info('problem playing the file ' + err)
+          })
         })
-    } else if (track.id==playingTrack.id){
-      if(track.state != PlayStates.PAUSED){
+
+
+      } else {
+        Audio.Sound.createAsync(
+          { uri: playableTrack },
+          { shouldPlay: true },
+          null,
+          false
+        ).then(({ sound, status }) => {
+          log.info(`playing track ${track.id}`);
+          setPlayer(sound)
+          track.state = PlayStates.PLAYING
+          setPlayingTrack({ ...track })
+        }).catch((err) => {
+          log.info('problem playing the file ' + err)
+        })
+      }
+
+    } else if (track.id == playingTrack.id) {
+      if (track.state != PlayStates.PAUSED) {
         track.state = PlayStates.PAUSED
-        setPlayingTrack({...track})
+        setPlayingTrack({ ...track })
         temp.player.pauseAsync().then(
           (result) => {
             log.info('pausing');
 
           }
         )
-      }else{
+      } else {
         track.state = PlayStates.RESUME
-        setPlayingTrack({...track})
+        setPlayingTrack({ ...track })
         temp.player.playAsync().then(
           (result) => {
             log.info(`restarting track ${track.id}`);
 
           }
-        ) 
+        )
       }
-    } 
+    }
   }
 
-  log.info(`tracks and details are null? ${tracks==undefined} ${details==undefined}`)
+  log.info(`tracks and details are null? ${tracks == undefined} ${details == undefined}`)
   //console.log(`${JSON.stringify(tracks)}`)
-  function renderTrackDetails({item:track, index}) {
-   // log.info(`playing track ${playingTrack?.id} and this track id ${track.id}`)
+  function renderTrackDetails({ item: track, index }) {
+    // log.info(`playing track ${playingTrack?.id} and this track id ${track.id}`)
     let state = PlayStates.INITAL;
-    if(playingTrack?.id == track.id){
+    if (playingTrack?.id == track.id) {
       state = playingTrack.state
       log.info(`got a hit, changing state to ${state}`)
     }
-    return <TrackDetails track={track} playerCallback={playerCallback} state={state}/>
+    return <TrackDetails track={track} playerCallback={playerCallback} state={state} index={index} />
   }
   const keyExtractorCallback = useCallback(({ item }) => { return item.track.id }, [])
   const insets = useSafeArea()
-  const headerComponent =         <View style={{backgroundColor: '#FFFFFF33', marginTop: insets.top + 50 * layout.scale.height , height: 150 * layout.scale.height, flexDirection: 'row'}}>
-  <Logo style={{ flex: 1, marginLeft: -10, marginRight: -30, }} />
+  const headerComponent = <View style={{  marginTop: insets.top + 50 * layout.scale.height, height: 150 * layout.scale.height, flexDirection: 'row' }}>
+    <Logo style={{ flex: 1, marginLeft: -10, marginRight: -30, }} />
 
-  <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 * layout.scale.width }}>
-    <Text style={{color: Colors.primaryContrast, fontFamily: 'opensans', fontSize: 13 * layout.scale.width}}>{details.description}</Text>
+    <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 * layout.scale.width }}>
+      <Text style={{ color: Colors.primaryContrast, fontFamily: 'opensans', fontSize: 13 * layout.scale.width }}>{details.description}</Text>
+    </View>
   </View>
-</View>
   return (
 
-    <LinearGradient style={[styles.container, ]}
+    <LinearGradient style={[styles.container,]}
     colors={[Colors.primary1, Colors.primary2]}
-    start={[0 , 0]}
+    start={[0, 0]}
     end={[1.5, 1.5]}
-    locations={[0, .5]}>   
-
-
-
-        <FlatList data={tracks}
+    locations={[0, .7]}
+  >
+      <FlatList data={tracks}
         extraData={playingTrack}
-        contentContainerStyle={{}}
+        ItemSeparatorComponent={() => <View style={styles.seperatorComponent}></View>}
+
+        contentContainerStyle={{ marginHorizontal: 8 * layout.scale.width,  borderRadius: 8 * layout.scale.width, overflow: 'hidden' , }}
         ListHeaderComponent={headerComponent}
-        maxToRenderPerBatch={10}
+        maxToRenderPerBatch={20}
         initialNumToRender={10}
         renderItem={renderTrackDetails} />
-    </LinearGradient>
+  </LinearGradient>
+
+
   );
 }
 
@@ -303,71 +305,88 @@ function OptionButton({ icon, label, onPress, isLastOption }) {
     </RectButton>
   );
 }
-function useStyle(){
-  const {colors: Colors} = useColors()
+function useStyle() {
+  const { colors: Colors } = useColors()
   const layout = useLayout();
 
-const styles = StyleSheet.create({
-  trackTitleGroup: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  title: {
-    flex: 6
-  },
-  duration: {
-    textAlign: 'center'
-  },
-  trackDescription: {
+  const styles = StyleSheet.create({
+    trackTitleGroup: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'space-between'
+    },
+    title: {
+      flex: 6
+    },
+    duration: {
+      textAlign: 'center',
+      fontFamily: 'opensans',
+      fontSize: 12* layout.scale.width,
+    },
+    trackDescription: {
 
-  },
-  trackCreated: {
-    flex: 2.1
-  },
-  container: {
-    flex: 1,
-  },
-  header: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'yellow',
-  },
-  logo: {
-    flex: 1,
-    height: '55%',
-    width: '55%',
-    marginLeft: -10,
-    marginRight: -10,
-    borderWidth: 1,
-  },
-  headerText: {
-    width: '40%',
-    borderWidth: 1
-  },
-  contentContainer: {
-    paddingTop: 15,
-  },
-  optionIconContainer: {
-    marginRight: 12,
-  },
-  option: {
-    backgroundColor: '#fdfdfd',
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: 0,
-    borderColor: '#ededed',
-  },
-  lastOption: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  optionText: {
-    fontSize: 15,
-    alignSelf: 'flex-start',
-    marginTop: 1,
-  },
-});
-return styles;
+    },
+    seperatorComponent: {
+      width: '100%',
+      height: 3,
+      flexShrink: 0,
+      borderTopWidth: .2,
+      borderColor: Colors.primary1,
+      backgroundColor: Colors.primaryContrast,
+      borderBottomWidth: 0,
+      alignSelf: 'center',
+    },
+    trackCreated: {
+      flex: 2.1,
+      textAlign: 'center',
+      fontFamily: 'opensans',
+      fontSize: 10* layout.scale.width,
+    },
+    container: {
+      flex: 1,
+      paddingBottom: 8 * layout.scale.width,
+
+    },
+    header: {
+      flex: 1,
+      flexDirection: 'row',
+      backgroundColor: 'yellow',
+    },
+    logo: {
+      flex: 1,
+      height: '55%',
+      width: '55%',
+      marginLeft: -10,
+      marginRight: -10,
+      borderWidth: 1,
+    },
+    headerText: {
+      width: '40%',
+      borderWidth: 1
+    },
+    contentContainer: {
+      paddingTop: 15,
+    },
+    optionIconContainer: {
+      marginRight: 12,
+    },
+    option: {
+      backgroundColor: '#fdfdfd',
+      paddingHorizontal: 15,
+      paddingVertical: 15,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderBottomWidth: 0,
+      borderColor: '#ededed',
+    },
+    lastOption: {
+      borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    optionText: {
+      fontSize: 15,
+      alignSelf: 'flex-start',
+      marginTop: 1,
+    },
+  });
+  return styles;
 }
 

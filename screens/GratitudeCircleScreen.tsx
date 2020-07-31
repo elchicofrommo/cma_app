@@ -228,10 +228,10 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
                 marginBottom: -4
               }}
               inactiveDotElement={
-                <View style={{backgroundColor:Colors.primary12, width: 5, height: 5,borderRadius: 3, marginLeft: 3, marginRight: 3, marginTop: 0, marginBottom: -45,}} />
+                <View style={{backgroundColor:Colors.primary2, width: 5, height: 5,borderRadius: 3, marginLeft: 3, marginRight: 3, marginTop: 0, marginBottom: -45,}} />
               }
             dotElement={
-                <View style={{backgroundColor:Colors.primary1, width: 5, height: 5,borderRadius: 3,  marginLeft: 3, marginRight: 3, marginTop: 0, marginBottom: -45,}} />
+                <View style={{backgroundColor:Colors.attention2, width: 5, height: 5,borderRadius: 3,  marginLeft: 3, marginRight: 3, marginTop: 0, marginBottom: -45,}} />
               }
               inactiveDotOpacity={0.4}
               inactiveDotScale={0.6}

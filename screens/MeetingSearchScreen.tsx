@@ -24,6 +24,8 @@ import { useColors } from '../hooks/useColors';
 import { useLayout } from '../hooks/useLayout';
 import { Meeting } from '../types/gratitude'
 import log from "../util/Logging"
+import apiGateway from '../api/apiGateway';
+import { isLoading } from 'expo-font';
 
 const daysOfWeek = {
   Sunday: 0,
@@ -147,11 +149,13 @@ function MeetingList({ meetingData, action, loading = false, style = {}, emptyCo
     return (
       <FlatList
         data={meetingData}
-
+        alwaysBounceHorizontal={true}
+        bounces={false}
         renderItem={renderCallback}
         keyExtractor={keyExtractorCallback}
         initialNumToRender={5}
-        contentContainerStyle={[style,]}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[style]}
         ItemSeparatorComponent={() => <View style={styles.seperatorComponent}></View>}
         ListEmptyComponent={loading ? loadingComponent : emptyComponent ? emptyComponent : <View style={[styles.container, { paddingHorizontal: 10 * Layout.scale.width }]}>
           <Text style={styles.textField}>No Content</Text>
@@ -161,6 +165,9 @@ function MeetingList({ meetingData, action, loading = false, style = {}, emptyCo
     )
   else {
     let toRender = []
+    if(loading){
+      return loadingComponent
+    }
     for (let i = 0; i < limit && i < meetingData.length; i++) {
       toRender.push(renderCallback({ item: meetingData[i] }))
       toRender.push(seperatorComponent)
@@ -363,13 +370,13 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
   ]
   return (
 
-    <View style={[styles.container, { paddingBottom: layout.safeBottom }]}>
+    <View style={[styles.container, { paddingBottom: layout.safeBottom, paddingHorizontal: 10*Layout.scale.width }]}>
 
         <SliderToggle containerWidth={Layout.window.width - 20 * Layout.scale.width}
           selectedIndex={isVirtual ? 1 : 0} toggles={toggles}
           activeColor="white" inactiveColor="#d1d7dd"></SliderToggle>
 
-        <View style={{ backgroundColor: '#fff', paddingHorizontal: 10*Layout.scale.width, paddingVertical: 10 * Layout.scale.width }}>
+        <View style={{ backgroundColor: '#fff',  paddingVertical: 10 * Layout.scale.width }}>
           <View style={{ flexDirection: 'row', paddingVertical: 0, height: 34 * Layout.scale.height, justifyContent: 'space-between', alignItems: 'center', borderColor: Colors.primary1, borderWidth: 2, borderRadius: 17 * Layout.scale.height, }}>
             <TextInput
               placeholder="Current Location"
@@ -387,13 +394,13 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
 
         </View>
 
-        <View style={{paddingHorizontal: 10*Layout.scale.width,}}>
+        <View style={{}}>
         <MeetingFilter show={meetingData && meetingData.length > 0} callback={filterMeetingsCallback} 
         types={meetingTypes} message={finalMessage} distance={distance} />
         </View>
         
 
-   
+        
         <MeetingList meetingData={filteredMeetingData} loading={loading}
           action={(row) => {
             // props.dispatchHideMenu(); 
@@ -478,21 +485,14 @@ export async function searchForMeeting(address = undefined, distance = 5): Promi
       }
     }
 
-    const query = `https://api.bit-word.com/api/cma/meeting?long=${lat}&lat=${long}&distance=${distance * 1609}`;
 
-    log.info(`runnign query ${query}`)
 
-    let response = undefined
-    try {
-      response = await axios.get(query)
-    } catch{
-      return { error: "Network problmes. Try again" };
+    let response = await apiGateway.getMeetings(lat, long, distance)
 
-    }
 
-    if (response.data.error) {
-      log.info(`problem getting data ${response.data.error}`)
-      return { error: "System problem finding meetings. Try again later" }
+    if (response.error) {
+      log.info(`problem getting data ${response.error}`)
+      return response
     } else {
 
 
@@ -798,8 +798,11 @@ function useStyles() {
 
     seperatorComponent: {
       width: '100%',
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: "transparent",
+      height: 3,
+      flexShrink: 0,
+      borderTopWidth: .3,
+      borderColor: Colors.primary1,
+      backgroundColor: Colors.primaryContrast,
       alignSelf: 'center',
     },
     container: {

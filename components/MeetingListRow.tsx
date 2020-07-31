@@ -81,10 +81,10 @@ function useStyles() {
             backgroundColor: colors.primaryContrast,
             paddingLeft: 10 * Layout.scale.width,
             paddingVertical: 15 * Layout.scale.width,
-
+            flexShrink: 1,
+            height: 55 * Layout.scale.height,
             justifyContent: "space-between",
             flexDirection: "row",
-            position: 'relative',
 
         },
         rowData: {

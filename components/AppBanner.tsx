@@ -105,7 +105,7 @@ function AppBanner(props){
 
 export default connect(
     function mapStateToProps(state){
-        log.info(`inside AppBanner observe state change, the banner is ${JSON.stringify(state.general.banner)}`)
+       // log.info(`inside AppBanner observe state change, the banner is ${JSON.stringify(state.general.banner)}`)
         const {banner} = state.general;
         return { banner: banner}
     },
