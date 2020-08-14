@@ -3,36 +3,23 @@ import * as React from 'react';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dimensions, Linking, Animated } from 'react-native';
 
 import Svg, {
-  Circle,
+
   Ellipse,
-  G,
 
-  TSpan,
-  TextPath,
-  Path,
-  Polygon,
-  Polyline,
-  Line,
   Rect,
-  Use,
-
-  Symbol,
   Defs,
   LinearGradient,
   RadialGradient,
   Stop,
-  ClipPath,
-  Pattern,
-  Mask,
 } from 'react-native-svg';
 
 import log from '../util/Logging'
-import { BoxShadow } from 'react-native-shadow'
+
 
 import AppBanner from './AppBanner'
 import { useLayout } from '../hooks/useLayout'
 import { useColors } from '../hooks/useColors';
-export default function HeaderComponent({ scene, previous, navigation, title, rightIcon, rightIconNavigation }:
+export default function HeaderComponent({  navigation, title, rightIcon, rightIconNavigation }:
   { scene: any, previous: any, navigation: any, title: string, rightIcon?: any, rightIconNavigation?: string }) {
 
   const { colors: Colors } = useColors();
@@ -61,7 +48,7 @@ export default function HeaderComponent({ scene, previous, navigation, title, ri
     <View style={{position: 'relative', zIndex: 100}} >
      
 
-      <Svg height={(layout.headerHeight + layout.safeBottom) + (layout.scale.height * 20) +1} width={layout.window.width}
+      <Svg height={(layout.headerHeight + layout.safeTop) + (layout.scale.height * 20) +1} width={layout.window.width}
         style={{ position: 'absolute', top: 0, left: 0, zIndex: 5, }}>
         <Defs>
           <LinearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
@@ -82,16 +69,16 @@ export default function HeaderComponent({ scene, previous, navigation, title, ri
             <Stop offset="100%" stopColor="black" stopOpacity=".08" />
           </RadialGradient>
         </Defs>
-        <Ellipse cx={layout.window.width / 2} cy={layout.headerHeight + layout.safeBottom +1}
+        <Ellipse cx={layout.window.width / 2} cy={layout.headerHeight + layout.safeTop +1}
           rx={layout.window.width / 1.8} ry={layout.scale.height * 20} fill="url(#shadow)"
         />
-        <Ellipse cx={layout.window.width / 2} cy={layout.headerHeight + layout.safeBottom - 5}
+        <Ellipse cx={layout.window.width / 2} cy={layout.headerHeight + layout.safeTop - 5}
           rx={layout.window.width / 1.8} ry={layout.scale.height * 20} fill="url(#grad)"
 
         />
 
         <Rect x={0} y={0} width={layout.window.width}
-          height={layout.headerHeight + layout.safeBottom} fill="url(#grad)" />
+          height={layout.headerHeight + layout.safeTop} fill="url(#grad)" />
 
       </Svg>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', position: 'relative', top: layout.safeTop - 5, left: 0, right: 0, zIndex: 10, paddingHorizontal: 10 * layout.scale.width }}>

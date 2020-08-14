@@ -11,29 +11,23 @@ import {
 import DatePicker from "react-native-datepicker";
 
 
-import Modal from "react-native-modal";
 
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Ionicons } from "@expo/vector-icons";
 import { Themes, useColors } from "../hooks/useColors";
 import { connect, } from "react-redux";
 
-import { store } from '../components/store'
-import log from "../util/Logging"
-import Amplify from "@aws-amplify/core";
-import config from "../aws-exports";
-import { Auth, } from "aws-amplify";
 
+import log from "../util/Logging"
+import {signOut} from "./SignIn"
 
 import { HeaderBackButton } from "@react-navigation/stack";
-import apiGateway from '../api/apiGateway'
-import mutateApi, { CreateUserInput, UpdateUserInput } from '../api/mutate'
-import queryApi from '../api/fetch'
-import { User, Channel, UserChannel, Gratitude, Broadcast, Meeting } from '../types/gratitude'
+
+import mutateApi, { UpdateUserInput } from '../api/mutate'
+
 import moment from 'moment'
 
 
-Amplify.configure(config);
 
 import { useLayout } from '../hooks/useLayout'
 
@@ -56,14 +50,11 @@ function SettingsScreen({ operatingUser: opUser, ...props }: { operatingUser: Us
 
   const [mode, setMode] = useState(Mode.VIEW)
 
-  function signOut() {
+  function signOutAction() {
     setIsCancel(false);
 
 
-    new Promise((resolve) => {
-      props.dispatchSignOut();
-      resolve();
-    }).then(() => {
+   signOut().then(() => {
       props.navigation.goBack();
     })
 
@@ -107,7 +98,7 @@ function SettingsScreen({ operatingUser: opUser, ...props }: { operatingUser: Us
     const { colors } = useColors();
     return (
       <View style={{ paddingRight: 10 * layout.scale.width, marginBottom: -5 }}>
-        <TouchableOpacity onPress={signOut}>
+        <TouchableOpacity onPress={signOutAction}>
           <Ionicons name="ios-log-out" color={colors.primary1} size={36} />
         </TouchableOpacity>
       </View>
@@ -223,7 +214,7 @@ function SettingsScreen({ operatingUser: opUser, ...props }: { operatingUser: Us
           />
           <Text style={styles.inputLabel}>Soberiety Date</Text>
         </View>
-        <Picker selectedValue={currentTheme} style={{ height: 20, width: 300, alignSelf: 'center' }}
+     {  /* <Picker selectedValue={currentTheme} style={{ height: 20, width: 300, alignSelf: 'center' }}
           onValueChange={(itemValue) => changeTheme(itemValue)} >
 
           <Picker.Item label="Blue Magenta" value={Themes.BlueMagenta} />
@@ -232,7 +223,7 @@ function SettingsScreen({ operatingUser: opUser, ...props }: { operatingUser: Us
           <Picker.Item label="Red Red" value={Themes.RedRed} />
           <Picker.Item label="Red Orange" value={Themes.RedOrange} />
           <Picker.Item label="Blue Orange" value={Themes.BlueOrange} />
-        </Picker>
+          </Picker> */ }
       </View>
       <View
         style={{
@@ -255,11 +246,6 @@ export default connect(
   function mapDispatchToProps(dispatch, ownState) {
     return {
 
-
-      dispatchSignOut: (data) => {
-        log.info("dispatching sign out");
-        dispatch({ type: "SIGN_OUT", data });
-      },
       dispatchBanner: (banner => {
         dispatch({ type: "SET_BANNER", banner })
       }),

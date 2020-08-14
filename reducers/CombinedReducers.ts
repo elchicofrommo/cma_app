@@ -73,6 +73,12 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       saveAuth(newState)
       return newState
 
+    case "SET_AUTH_TOKENS":{
+      newState.password = action.tokens.password;
+      newState.email = action.tokens.email
+      return newState;
+    }
+
     case "SUBSCRIBE_CHANNEL": {
       log.info(`subscribe channel data is ${JSON.stringify(action.data)}`)
       newState.userChannels = [...newState.userChannels];
@@ -112,8 +118,6 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
     }
     case "SAVE_AUTH":
       log.info(`SAVE_AUTH`,  {data: action.data})
-      newState.email = action.data.email
-      newState.password = action.data.password
       newState.operatingUser = action.data.operatingUser
       newState.gratitudes = action.data.gratitudes
       newState.ownedChannels = action.data.ownedChannels

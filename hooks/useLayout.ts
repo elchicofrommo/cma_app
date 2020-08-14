@@ -40,7 +40,7 @@ const staticLayout: Layout =  {
     height: heightScale
   } ,
   marginTop: heightScale * 10,
-  headerHeight: 40 * heightScale ,
+  headerHeight:30 * heightScale ,
   ratio: ratio,
   safeTop: undefined,
   safeBottom: undefined,

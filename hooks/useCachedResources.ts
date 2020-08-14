@@ -6,7 +6,7 @@ import { DataStore, Predicates } from "@aws-amplify/datastore";
 import axios from 'axios';
 import { store } from '../components/store'
 import { DailyReaders, AuthDetail } from "../models/index";
-import { signIn, SignInResult } from '../screens/SignIn'
+import { authorize, getUserDetails } from '../screens/SignIn'
 import { User, Meeting } from '../types/gratitude'
 
 import { shallowEqual, useSelector } from 'react-redux';
@@ -16,7 +16,7 @@ import apiGateway from "../api/apiGateway"
 
 export enum APP_STATE {
   INITIAL,
-  LOADING,
+  FONTS_LOADED,
   NEW_USER,
   AUTH_READY,
   GUEST_READY,
@@ -43,6 +43,7 @@ export default function useCachedResources() {
           'opensans-bold': require('../assets/fonts/OpenSans/OpenSans-SemiBold.ttf'),
           'opensans-light': require('../assets/fonts/OpenSans/OpenSans-Light.ttf')
         });
+        setLoadingState(APP_STATE.FONTS_LOADED)
 
         startUpAuth()
         getNetworkResources();
@@ -167,7 +168,8 @@ export default function useCachedResources() {
         if (user.role != 'guest') {
           // try to sign in
           const email = result[0].email;
-          const signInResult = await signIn(result[0].email, result[0].password)
+          const authTokens = await authorize()
+          const signInResult = await getUserDetails(email)
           if (signInResult.error) {
             store.dispatch({
               type: "SET_BANNER", banner: {

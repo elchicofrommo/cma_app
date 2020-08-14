@@ -9,8 +9,6 @@ import {
     UserChannel,
     Gratitude,
     Entry,
-    Comment,
-    Like,
     Broadcast,
     NestedArray,
     Channel,
@@ -235,11 +233,11 @@ async function fetchOperatingUser(userId):
                 user: userResult,
             }
         } catch (err) {
-            log.info(`could not destructure because of ${err}`);
+            log.error(`could not destructure because of ${err}`);
             return undefined
         }
     } catch (err) {
-        log.info(`fetchOperatingUser error:  `, { err });
+        log.error(`fetchOperatingUser error:  `, { err });
         return undefined
     }
     log.info(`fetchOperatingUser done`);

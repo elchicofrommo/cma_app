@@ -50,7 +50,7 @@ function info(output, toStringify:object = {}){
 }
 
 function error(output, toStringify:object = {}){
-	_log(output, toStringify, fmt_error)
+	_log(output, toStringify, fmt_error, true)
 }
 
 function warn(output, toStringify ={}){

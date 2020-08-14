@@ -47,6 +47,7 @@ async function likeGratitude({ gratitude, operatingUser }: { gratitude: Gratitud
 }
 
 export type CreateUserInput = {
+    id: string,
     email: string,
     name: string,
     dos?: number,
@@ -92,6 +93,7 @@ async function createUser(input: CreateUserInput) {
         return;
     }
     const user: User = {
+        id: input.id,
         name: input.name,
         email: input.email,
         role: `basic`,
@@ -105,15 +107,6 @@ async function createUser(input: CreateUserInput) {
             listUserByEmail: NestedArray<User>
         }
 
-        // don't want to create multiple accounts with same email. 
-        const userExists = await API.graphql(
-            gql(queries.listUserByEmail, { email: input.email })
-        ) as { data: UserResult }
-
-        if (userExists.data.listUserByEmail.items.length > 0) {
-            log.info(`trying to create multiple users with same email, fail fast`);
-            return;
-        }
         const userResult = await API.graphql(
             gql(mutate.createUser, { input: user })
         );

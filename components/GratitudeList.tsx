@@ -74,7 +74,7 @@ export default function GratitudeList({
         </TouchableWithoutFeedback>
         <View style={[styles.gratitudeFooter, ]}>
           { !isMine && <LikeButton gratitude={gratitude} user={user} iLiked={iLiked}></LikeButton>}
-          { isMine && <DeleteButton callback={() => confirmDelete(gratitude)}></DeleteButton>}
+          { false && isMine && <DeleteButton callback={() => confirmDelete(gratitude)}></DeleteButton>}
           { isMine && <ShareButton callback={() => action(gratitude)}></ShareButton>}
           <CommentButton callback={commentCallback} ></CommentButton>
         </View>

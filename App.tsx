@@ -11,6 +11,7 @@ import {useColors} from './hooks/useColors';
 import {useLayout} from './hooks/useLayout';
 import { Provider, shallowEqual, useSelector  } from 'react-redux';
 import SigninScreen from './screens/SignIn'
+import SigninScreenExperiments from './screens/SignInExperiments'
 import { AppLoading } from 'expo';
 import AppBanner from './components/AppBanner'
 import {SafeAreaProvider} from 'react-native-safe-area-context'
@@ -24,7 +25,10 @@ import MeetingSearchScreen from './screens/MeetingSearchScreen'
 import appLog from './util/Logging';
 
 import {InteractionManager} from 'react-native';
+import {Amplify} from "aws-amplify"
+import config from './aws-exports'
 
+Amplify.configure(config)
 
 const _setTimeout = global.setTimeout;
 const _clearTimeout = global.clearTimeout;
@@ -87,7 +91,7 @@ function AppStackStack({initialRoute}){
     <DocumentBrowserScreen  documents={'readings'}/>
   );
   return (
-    <AppStack.Navigator initialRouteName={initialRoute}  >
+    <AppStack.Navigator  >
       <AppStack.Screen 
         name="splash" 
         component={SplashScreen} 
@@ -129,6 +133,20 @@ function AppStackStack({initialRoute}){
           headerTitleStyle: styles.headerTitle,
           headerShown: false,
         })}/>
+
+<AppStack.Screen
+        name="SignInExperiments"
+        component={SigninScreenExperiments} 
+        title=""
+        
+        options={({navigation, route})=>({
+          headerStyle: styles.whiteHeader,
+          headerTintColor: Colors.primary1,
+          headerTitleStyle: styles.headerTitle,
+          headerShown: false,
+        })}/>
+
+
       <AppStack.Screen
         name="Details"
         component={DetailsScreen}
@@ -221,18 +239,33 @@ function AppStackStack({initialRoute}){
     useSubscriptions();
     const styles = useStyles();
     const [ready, setAppReady] = useState(false)
+/*
+    if(loadingState == APP_STATE.FONTS_LOADED){
+      appLog.info('fonts loaded, showing experiements')
+      return(
+      <View style={styles.container}>
+      {Platform.OS === 'ios' && <StatusBar barStyle="dark-content" />}
+      <StatusBar barStyle={"light-content"} />
+      <AppBanner />
+      <NavigationContainer linking={LinkingConfiguration}>
 
-    
-
+        <AppStackStack initialRoute={'SignInExperiments'} />
+      </NavigationContainer>
+    </View>
+      )
+    }
+    else 
+*/
 
     if(loadingState==APP_STATE.NEW_USER){
+      appLog.info(' showing new user')
         return (
           
             <View style={styles.container}>
               {Platform.OS === 'ios' && <StatusBar barStyle="dark-content" />}
               <StatusBar barStyle={"light-content"} />
               <AppBanner />
-              <NavigationContainer linking={LinkingConfiguration}>
+              <NavigationContainer >
 
                 <AppStackStack initialRoute={'Signin'} />
               </NavigationContainer>
@@ -241,13 +274,14 @@ function AppStackStack({initialRoute}){
 
         )
     } else if(loadingState==APP_STATE.AUTH_READY){
+      appLog.info('showing auth ready')
       return (
           
         <View style={styles.container}>
           {Platform.OS === 'ios' && <StatusBar barStyle="dark-content" />}
           <StatusBar barStyle={"light-content"} />
           <AppBanner />
-          <NavigationContainer linking={LinkingConfiguration}>
+          <NavigationContainer >
 
             <AppStackStack initialRoute={'splash'} />
           </NavigationContainer>
@@ -256,7 +290,7 @@ function AppStackStack({initialRoute}){
 
     )
     }else{
-
+      appLog.info('splash screen')
         return(
   
               <View style={styles.loading}></View>

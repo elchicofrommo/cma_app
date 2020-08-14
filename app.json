@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "cma app beta 3.2",
-    "slug": "cma-app-beta3-2",
+    "name": "cma app beta 3.3",
+    "slug": "cma-app-beta-3-3",
+    "privacy": "unlisted",
     "platforms": [
       "ios",
       "android",
@@ -13,7 +14,7 @@
     "scheme": "cmaapp",
     "splash": {
       "resizeMode": "contain",
-      "backgroundColor": "#e44f2e"
+      "backgroundColor": "#3e89c1"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -22,12 +23,13 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true, 
+      "bundleIdentifier": "org.crystalmeth.fellowshipfinder"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
-    "description": "New UI and fixes for gratitude",
+    "description": "updated signin flow, and first time users screen. ",
     "androidStatusBar": {
       "backgroundColor": "#000000"
     }

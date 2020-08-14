@@ -1,0 +1,10 @@
+[
+    {
+        "groupName": "cmaguest",
+        "precedence": 1
+    },
+    {
+        "groupName": "cmaauthbasic",
+        "precedence": 2
+    }
+]

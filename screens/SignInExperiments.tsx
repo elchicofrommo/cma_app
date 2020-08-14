@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+//import signer from 'aws-signature-v4'
 import {
   Picker,
   Text,
@@ -7,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
+  Keyboard,
   findNodeHandle,
   LayoutAnimation,
 } from "react-native";
@@ -44,20 +46,16 @@ import { connect, } from "react-redux";
 
 import { store } from '../components/store'
 import log from "../util/Logging"
-import Amplify from "@aws-amplify/core";
-import config from "../aws-exports";
+
 import { Auth, } from "aws-amplify";
 
-import apiGateway from '../api/apiGateway'
 import mutateApi, { CreateUserInput, UpdateUserInput } from '../api/mutate'
 import queryApi from '../api/fetch'
 import { User, Channel, UserChannel, Gratitude, Broadcast, Meeting } from '../types/gratitude'
 
 
-
-
-
 import { useLayout } from '../hooks/useLayout'
+
 
 export type SignInResult = {
 
@@ -72,29 +70,14 @@ export type SignInResult = {
 }
 
 export type AuthorizeTokens = {
-  userName?: string, 
+  userName: string, 
   jwtToken?: string,
   refreshToken?: string,
   email: string,
   password: string,
   error?: string
 }
-
-export async function signOut(){
-  const result = Auth.signOut();
-  const currentCredentials = await Auth.currentCredentials();
-  log.verbose(`current credentials`, {currentCredentials})
-  store.dispatch({ type: "SIGN_OUT"});
-}
-export async function authorize(){
-    // if we are here then successful, get user data from cloud
-
-    const currentCredentials = await Auth.currentUserCredentials();
-    const currentUser = await Auth.currentAuthenticatedUser();
-    const currentUserPoolUser = await Auth.currentUserPoolUser();
-    log.verbose(`current credentials`, {currentCredentials})
-}
-async function signIn(email: string, password: string): Promise<AuthorizeTokens>{
+export async function authorize(email: string, password: string): Promise<AuthorizeTokens>{
 
 
   log.info(
@@ -112,8 +95,9 @@ async function signIn(email: string, password: string): Promise<AuthorizeTokens>
   }
 
   try {
-    const result = await Auth.signIn(email.trim(), password, );
-    log.verbose(`auth done`, {authResults: result})
+    const result = await Auth.signIn(email.trim(), password);
+    // if we are here then successful, get user data from cloud
+      log.verbose(`auth done`, {authResults: result})
     // now pull out jwtToken and refresh token
     const userName = result.username;
     const jwtToken = result.signInUserSession.idToken.jwtToken;
@@ -122,17 +106,17 @@ async function signIn(email: string, password: string): Promise<AuthorizeTokens>
     return {userName, email, password, jwtToken, refreshToken}
   }catch(err){
     log.verbose("error in authentication", {error: err})
-    return {jwtToken: undefined, refreshToken: undefined, email, password}
+    return {userName: undefined, jwtToken: undefined, refreshToken: undefined, email, password}
   }
 }
 
-export async function getUserDetails(email: string): Promise<SignInResult> {
+export async function getUserDetails(email: string, jwtToken: string): Promise<SignInResult> {
 
   try{
     const authResults = await queryApi.getAuthDetails(email)
-      log.verbose(`authResults are`, {authResults} )
+    //  log.info(`authResults are ${JSON.stringify(result, null, 2)} next get auth details`)
     const opResults = await queryApi.fetchOperatingUser(authResults.id)
-    log.info(`successful retrevial of operating user `);
+    log.info(`successful sign in, now dispatching save auth `);
 
     const broadcastsByChannel = await queryApi.fetchBroadcastGratitude(opResults.user, opResults.userChannels);
     log.info(`broadcastByChannel`, { broadcastsByChannel })
@@ -145,8 +129,8 @@ export async function getUserDetails(email: string): Promise<SignInResult> {
 
     store.dispatch({ type: "SAVE_AUTH", data: signInResult });
 
-    const meetingDetails = await apiGateway.getMeetingDetails(opResults.user)
-    store.dispatch({ type: 'SYNC_MEETINGS', data: meetingDetails })
+   // const meetingDetails = await apiGateway.getMeetingDetails(opResults.user)
+   // store.dispatch({ type: 'SYNC_MEETINGS', data: meetingDetails })
 
     return signInResult
   } catch (err) {
@@ -156,29 +140,71 @@ export async function getUserDetails(email: string): Promise<SignInResult> {
   }
 }
 
+
+
 function SignInScreen({ operatingUser: opUser, ...props }: { operatingUser: User, props: any }) {
-  log.info(`rendering SettingsScreen`);
-
-
 
   const { colors: Colors } = useColors();
   const styles = useStyles();
   const [isCancel, setIsCancel] = useState(false);
   const [error, setSigninError] = useState({ display: "none", message: "" });
-
+  const [confirmEmail, setConfirmEmail] = useState(false);
   const [isSignUp, setIsSignup] = useState(false);
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("");
   const [name, setName] = useState("")
+  const [loading, setLoading ] = useState(false)
+  let scrollRef = undefined;
+  async function runAuthLogs(){
 
+    const authUserP = Auth.currentAuthenticatedUser()
+    const userInfoP =  Auth.currentUserInfo();
+    const sessionP =  Auth.currentSession();
+    const credsP =  Auth.currentCredentials()
+    try{
+      const authUser = await authUserP;
+      log.verbose('', {authUser })
+    }catch(authErr){
+      log.verbose('error with authUser', {authErr})
+    }
+    try{
+      const userInfo = await userInfoP;
+      log.verbose('', {userInfo})
+    }catch(infoErr){
+      log.verbose('error with userInfo', {infoErr})
+    }
+    
+    try{
+      const session = await sessionP;
+      log.verbose(``, {session})
+    }catch(sessionErr){
+      log.verbose('error with session', {sessionErr})
+    }
+    
+    try{
+      const creds = await credsP;
+     // const signature = signer.createSignature(creds.secretAccessKey, Date.now(), 'us-west-2', undefined,creds.accessKeyId )
+      log.verbose('', {creds })
+    }catch(credsErr){
+      log.verbose('error with creds', {credsErr})
+    }
+
+
+    
+  }
 
   useEffect(() => {
+
     setName("")
     setEmail("")
+    runAuthLogs();
+
   }, [])
 
 
   const emailInput = useRef(null)
+
+
 
 
   async function signUp() {
@@ -187,36 +213,26 @@ function SignInScreen({ operatingUser: opUser, ...props }: { operatingUser: User
       const signup = await Auth.signUp(email, password);
       log.verbose(`sign up response `, {signup});
 
+      if(signup.userConfirmed){
+        const authResult = await authorize(email, password);
+
       const userInput: CreateUserInput = {
+        id: authResult.userName,
         email: email,
         name: name
       }
-      if(signup.userConfirmed){
-        try{
-          const result = await signIn(email, password)
-          await mutateApi.createUser(userInput)
-          const userDetails = await getUserDetails(email)
-      
-          if (result.error) {
-            setSigninError({ display: "flex", message: result.error });
-          }else{
-            props.navigation.navigate('home')
-          }
-          
-        }catch(createUserError){
-          log.error(`problem creating user, probably just duplicate`, {createUserError})
-        }
-
+        await mutateApi.createUser(userInput)
+        await getUserDetails(email, undefined)
       }
       
 
-      
+      setIsSignup(false)
     } catch (err2) {
       log.verbose(`sign up error `, {signUpErr: err2});
       if (err2.code == "UsernameExistsException")
         setSigninError({
           display: "flex",
-          message: "A Similar account exists already. If you have forgotten your password contact administrator to reset.",
+          message: "You must confirm your account. Check your email to complete registration.",
         });
       else
         setSigninError({
@@ -224,19 +240,34 @@ function SignInScreen({ operatingUser: opUser, ...props }: { operatingUser: User
           message: JSON.stringify(err2),
         });
     }
+    runAuthLogs();
+
   }
 
   async function signInAction() {
-    const result = await signIn(email, password)
-    const userDetails = await getUserDetails(email)
-
+    log.info('sign in action');
+    Keyboard.dismiss();
+    setLoading(true);
+    const tokens = await authorize(email, password)
+    log.verbose("",{tokens})
+    const result = await getUserDetails(email, tokens.jwtToken)
+    setLoading(false);
     if (result.error) {
       setSigninError({ display: "flex", message: result.error });
     }else{
-      props.navigation.navigate('home')
+      setEmail()
+      setPassword()
+      
+     // props.navigation.navigate('home')
     }
+    runAuthLogs();
   }
 
+  async function signOut(){
+    await Auth.signOut()
+    const creds = await Auth.currentCredentials();
+
+  }
 
   function cancel() {
     log.info(`setting cancel ${isCancel}`);
@@ -267,8 +298,9 @@ function SignInScreen({ operatingUser: opUser, ...props }: { operatingUser: User
   const layout = useLayout()
   return (
     <View style={{flex: 1, backgroundColor: Colors.primaryContrast }}  >
+
     <KeyboardAvoidingView behavior={"position"} keyboardVerticalOffset={(10) *layout.scale.height}>
-      <Svg height={(layout.headerHeight + layout.safeTop) + (layout.scale.width * 125) + 1} width={layout.window.width}
+      <Svg height={(layout.headerHeight + layout.safeBottom) + (layout.scale.width * 125) + 1} width={layout.window.width}
       >
         <Defs>
           <LinearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
@@ -296,7 +328,7 @@ function SignInScreen({ operatingUser: opUser, ...props }: { operatingUser: User
 
         <G stroke={Colors.primaryContrast} fill="none" strokeWidth={6}
           transform={{
-            scale: [.28 * layout.scale.width, .28 * layout.scale.width],
+            scale: [.3 * layout.scale.width, .3 * layout.scale.width],
             translate: [90 * layout.scale.width, 60 * layout.scale.height]
           }}>
           <Path
@@ -362,7 +394,7 @@ C 287.00,268.00 157.00,268.00 157.00,268.00`}
             <TouchableOpacity onPress={() => setIsSignup(true)}><Text style={[styles.modalText, isSignUp ? { textDecorationLine: 'underline', textDecorationColor: Colors.primary1 } : {}]}>New User</Text></TouchableOpacity>
           </View>
 
-          <View style={{ display: "flex" }}>
+          <View style={{ display: !confirmEmail ? "flex" : "none" }}>
             <View
               style={{
                 backgroundColor: "#fff",
@@ -448,7 +480,12 @@ C 287.00,268.00 157.00,268.00 157.00,268.00`}
             >
               <Text style={[styles.buttonText]}>{isSignUp ? "Sign Up" : "Sign In"}</Text>
             </TouchableOpacity>
-
+            <TouchableOpacity
+              style={[styles.button, styles.modalButton,]}
+              onPress={async () => { await Auth.signOut(); runAuthLogs() }}
+            >
+              <Text style={[styles.buttonText]}>{ "Sign Out"}</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={{}}
               onPress={() => {
