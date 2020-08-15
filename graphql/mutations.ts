@@ -2,16 +2,16 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const commentOnGratitude = /* GraphQL */ `
-mutation CommentOnGratitude(
-    $gratitudeId: ID!
+export const commentOnPost = /* GraphQL */ `
+mutation CommentOnPost(
+    $postId: ID!
     $userId: ID!
     $comment: String!
   ) {
-    createComment(input: {gratitudeId: $gratitudeId, userId: $userId, comment: $comment}) {
+    createComment(input: {postId: $postId, userId: $userId, comment: $comment}) {
       id
       userId
-      gratitudeId
+      postId
       user{
           id
           name
@@ -20,23 +20,15 @@ mutation CommentOnGratitude(
       createdAt
       updatedAt
     }
-    updateGratitude( input: {id: $gratitudeId}){
+    updatePost( input: {id: $postId}){
       id
-      title
-      ownerId
+            ownerId
       owner {
         id
         shortId
         name
       }
-      entries {
-        items {
-          id
-          gratitudeId
-          content
-          index
-        }
-      }
+      content
       likes {
         items {
           id
@@ -45,7 +37,7 @@ mutation CommentOnGratitude(
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           createdAt
         }
@@ -59,7 +51,7 @@ mutation CommentOnGratitude(
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           comment
           createdAt
@@ -69,7 +61,7 @@ mutation CommentOnGratitude(
       broadcasts{
         items{
           id
-          gratitudeId
+          postId
           ownerId
           channelId
         }
@@ -79,10 +71,10 @@ mutation CommentOnGratitude(
       updatedAt
       delta
     }
-    listBrodcastByGratitude( gratitudeId: $gratitudeId){
+    listBrodcastByPost( postId: $postId){
       items {
         id
-        gratitudeId
+        postId
         channelId
         createdAt
         updatedAt
@@ -91,15 +83,15 @@ mutation CommentOnGratitude(
   }
 `;
 
-export const likeGratitude = /* GraphQL */ `
-mutation LikeGratitude(
-    $gratitudeId: ID!
+export const likePost = /* GraphQL */ `
+mutation LikePost(
+    $postId: ID!
     $userId: ID!
   ) {
-    createLike(input: {gratitudeId: $gratitudeId, userId: $userId}) {
+    createLike(input: {postId: $postId, userId: $userId}) {
       id
       userId
-      gratitudeId
+      postId
       user{
           id
           name
@@ -108,23 +100,15 @@ mutation LikeGratitude(
       createdAt
       updatedAt
     }
-    updateGratitude( input: {id: $gratitudeId}){
+    updatePost( input: {id: $postId}){
       id
-      title
-      ownerId
+            ownerId
       owner {
         id
         shortId
         name
       }
-      entries {
-        items {
-          id
-          gratitudeId
-          content
-          index
-        }
-      }
+      content
       likes {
         items {
           id
@@ -133,7 +117,7 @@ mutation LikeGratitude(
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           createdAt
         }
@@ -147,7 +131,7 @@ mutation LikeGratitude(
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           comment
           createdAt
@@ -157,7 +141,7 @@ mutation LikeGratitude(
       broadcasts{
         items{
           id
-          gratitudeId
+          postId
           ownerId
           channelId
         }
@@ -167,10 +151,10 @@ mutation LikeGratitude(
       updatedAt
       delta
     }
-    listBrodcastByGratitude( gratitudeId: $gratitudeId){
+    listBrodcastByPost( postId: $postId){
       items {
         id
-        gratitudeId
+        postId
         channelId
         createdAt
         updatedAt
@@ -179,15 +163,15 @@ mutation LikeGratitude(
   }
 `;
 
-export const unlikeGratitude = /* GraphQL */ `
-  mutation UnlikeGratitude(
+export const unlikePost = /* GraphQL */ `
+  mutation UnlikePost(
     $likeId: ID!
-    $gratitudeId: ID!
+    $postId: ID!
   ) {
     deleteLike(input: {id: $likeId}) {
       id
       userId
-      gratitudeId
+      postId
       user{
             name
           }
@@ -195,23 +179,15 @@ export const unlikeGratitude = /* GraphQL */ `
       createdAt
       updatedAt
     }
-    updateGratitude( input: {id: $gratitudeId}){
+    updatePost( input: {id: $postId}){
       id
-      title
-      ownerId
+            ownerId
       owner {
         id
         shortId
         name
       }
-      entries {
-        items {
-          id
-          gratitudeId
-          content
-          index
-        }
-      }
+      content
       likes {
         items {
           id
@@ -220,7 +196,7 @@ export const unlikeGratitude = /* GraphQL */ `
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           createdAt
         }
@@ -234,7 +210,7 @@ export const unlikeGratitude = /* GraphQL */ `
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           comment
           createdAt
@@ -244,7 +220,7 @@ export const unlikeGratitude = /* GraphQL */ `
       broadcasts{
         items{
           id
-          gratitudeId
+          postId
           ownerId
           channelId
         }
@@ -254,10 +230,10 @@ export const unlikeGratitude = /* GraphQL */ `
       updatedAt
       delta
     }
-    listBrodcastByGratitude( gratitudeId: $gratitudeId){
+    listBrodcastByPost( postId: $postId){
       items {
         id
-        gratitudeId
+        postId
         channelId
         createdAt
         updatedAt
@@ -267,33 +243,26 @@ export const unlikeGratitude = /* GraphQL */ `
 `;
 
 
-export const uncommentOnGratitude = /* GraphQL */ `
-  mutation UncommentOnGratitude(
+export const uncommentOnPost = /* GraphQL */ `
+  mutation UncommentOnPost(
     $commentId: ID!
-    $gratitudeId: ID!
+    $postId: ID!
   ) {
     deleteLike(input: {id: $likeId}) {
       id
       userId
-      gratitudeId
+      postId
       entryId
       createdAt
       updatedAt
     }
-    updateGratitude( input: {id: $gratitudeId}){
+    updatePost( input: {id: $postId}){
       id
-      title
-      ownerId
+            ownerId
       createdAt
       updatedAt
       delta
-      entries{
-        items{
-          id
-          content
-          index
-        }
-      }
+      content
       comments{
         items{
           userId
@@ -315,7 +284,7 @@ export const uncommentOnGratitude = /* GraphQL */ `
       broadcasts{
         items{
           id
-          gratitudeId
+          postId
           ownerId
           channelId
         }
@@ -324,14 +293,13 @@ export const uncommentOnGratitude = /* GraphQL */ `
   }
 `;
 
-export const createGratitude = /* GraphQL */ `
-  mutation CreateGratitude(
-    $input: CreateGratitudeInput!
+export const createPost = /* GraphQL */ `
+  mutation CreatePost(
+    $input: CreatePostInput!
   ) {
-    createGratitude( input: $input){
+    createPost( input: $input){
       id
-      title
-      ownerId
+            ownerId
       owner {
         id
         shortId
@@ -340,14 +308,7 @@ export const createGratitude = /* GraphQL */ `
       createdAt
       updatedAt
       delta
-      entries{
-        items{
-          id
-          gratitudeId
-          content
-          index
-        }
-      }
+      content
       comments{
         items{
           userId
@@ -371,7 +332,7 @@ export const createGratitude = /* GraphQL */ `
       broadcasts{
         items{
           id
-          gratitudeId
+          postId
           ownerId
           channelId
         }
@@ -381,15 +342,14 @@ export const createGratitude = /* GraphQL */ `
   }
 `;
 
-export const updateGratitude = /* GraphQL */ `
-  mutation UpdateGratitude(
-    $input: UpdateGratitudeInput!
-    $condition: ModelGratitudeConditionInput
+export const updatePost = /* GraphQL */ `
+  mutation UpdatePost(
+    $input: UpdatePostInput!
+    $condition: ModelPostConditionInput
   ) {
-    updateGratitude(input: $input, condition: $condition) {
+    updatePost(input: $input, condition: $condition) {
       id
-      title
-      ownerId
+            ownerId
       owner {
         id
         shortId
@@ -398,14 +358,7 @@ export const updateGratitude = /* GraphQL */ `
       createdAt
       updatedAt
       delta
-      entries{
-        items{
-          id
-          gratitudeId
-          content
-          index
-        }
-      }
+      content
       comments{
         items{
           userId
@@ -429,7 +382,7 @@ export const updateGratitude = /* GraphQL */ `
       broadcasts{
         items{
           id
-          gratitudeId
+          postId
           ownerId
           channelId
         }
@@ -437,15 +390,14 @@ export const updateGratitude = /* GraphQL */ `
     }
   }
 `;
-export const deleteGratitude = /* GraphQL */ `
-  mutation DeleteGratitude(
-    $input: DeleteGratitudeInput!
-    $condition: ModelGratitudeConditionInput
+export const deletePost = /* GraphQL */ `
+  mutation DeletePost(
+    $input: DeletePostInput!
+    $condition: ModelPostConditionInput
   ) {
-    deleteGratitude(input: $input, condition: $condition) {
+    deletePost(input: $input, condition: $condition) {
       id
-      title
-      ownerId
+            ownerId
       createdAt
       updatedAt
       delta
@@ -460,7 +412,7 @@ export const createLike = /* GraphQL */ `
     createLike(input: $input, condition: $condition) {
       id
       userId
-      gratitudeId
+      postId
       userName
       entryId
       createdAt
@@ -476,7 +428,7 @@ export const updateLike = /* GraphQL */ `
     updateLike(input: $input, condition: $condition) {
       id
       userId
-      gratitudeId
+      postId
       userName
       entryId
       createdAt
@@ -492,7 +444,7 @@ export const deleteLike = /* GraphQL */ `
     deleteLike(input: $input, condition: $condition) {
       id
       userId
-      gratitudeId
+      postId
       userName
       entryId
       createdAt
@@ -508,7 +460,7 @@ export const createComment = /* GraphQL */ `
     createComment(input: $input, condition: $condition) {
       id
       userId
-      gratitudeId
+      postId
       entryId
       comment
       createdAt
@@ -524,7 +476,7 @@ export const updateComment = /* GraphQL */ `
     updateComment(input: $input, condition: $condition) {
       id
       userId
-      gratitudeId
+      postId
       entryId
       comment
       createdAt
@@ -540,7 +492,7 @@ export const deleteComment = /* GraphQL */ `
     deleteComment(input: $input, condition: $condition) {
       id
       userId
-      gratitudeId
+      postId
       entryId
       comment
       createdAt
@@ -555,7 +507,7 @@ export const createEntry = /* GraphQL */ `
   ) {
     createEntry(input: $input, condition: $condition) {
       id
-      gratitudeId
+      postId
       content
       index
     }
@@ -568,7 +520,7 @@ export const updateEntry = /* GraphQL */ `
   ) {
     updateEntry(input: $input, condition: $condition) {
       id
-      gratitudeId
+      postId
       content
       index
     }
@@ -581,7 +533,7 @@ export const deleteEntry = /* GraphQL */ `
   ) {
     deleteEntry(input: $input, condition: $condition) {
       id
-      gratitudeId
+      postId
       content
       index
     }
@@ -736,30 +688,22 @@ export const deleteUserChannel = /* GraphQL */ `
 export const createBroadcast = /* GraphQL */ `
   mutation CreateBroadcast(
     $input: CreateBroadcastInput!
-    $gratitudeId: ID!
+    $postId: ID!
     $condition: ModelBroadcastConditionInput
   ) {
     createBroadcast(input: $input, condition: $condition) {
       id
-      gratitudeId
+      postId
       channelId
       ownerId
-      gratitude {
+      post {
         id
-        title
-        ownerId
+                ownerId
         owner {
           id
           name
         }
-        entries {
-          items {
-            id
-            gratitudeId
-            content
-            index
-          }
-        }
+        content
         likes {
           items {
             id
@@ -768,7 +712,7 @@ export const createBroadcast = /* GraphQL */ `
               name
               id
             }
-            gratitudeId
+            postId
             entryId
             createdAt
           }
@@ -782,7 +726,7 @@ export const createBroadcast = /* GraphQL */ `
               name
               id
             }
-            gratitudeId
+            postId
             entryId
             comment
             createdAt
@@ -797,23 +741,15 @@ export const createBroadcast = /* GraphQL */ `
       updatedAt
       delta
     }
-    updateGratitude( input: {id: $gratitudeId}){
+    updatePost( input: {id: $postId}){
       id
-      title
-      ownerId
+            ownerId
       owner {
         id
         shortId
         name
       }
-      entries {
-        items {
-          id
-          gratitudeId
-          content
-          index
-        }
-      }
+      content
       likes {
         items {
           id
@@ -822,7 +758,7 @@ export const createBroadcast = /* GraphQL */ `
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           createdAt
         }
@@ -836,7 +772,7 @@ export const createBroadcast = /* GraphQL */ `
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           comment
           createdAt
@@ -846,7 +782,7 @@ export const createBroadcast = /* GraphQL */ `
       broadcasts{
         items{
           id
-          gratitudeId
+          postId
           ownerId
           channelId
         }
@@ -861,30 +797,22 @@ export const createBroadcast = /* GraphQL */ `
 export const updateBroadcast = /* GraphQL */ `
   mutation UpdateBroadcast(
     $input: UpdateBroadcastInput!
-    $gratitudeId: ID!
+    $postId: ID!
     $condition: ModelBroadcastConditionInput
   ) {
     updateBroadcast(input: $input, condition: $condition) {
       id
-      gratitudeId
+      postId
       channelId
       ownerId
-      gratitude {
+      post {
         id
-        title
-        ownerId
+                ownerId
         owner {
           id
           name
         }
-        entries {
-          items {
-            id
-            gratitudeId
-            content
-            index
-          }
-        }
+        content
         likes {
           items {
             id
@@ -893,7 +821,7 @@ export const updateBroadcast = /* GraphQL */ `
               name
               id
             }
-            gratitudeId
+            postId
             entryId
             createdAt
           }
@@ -907,7 +835,7 @@ export const updateBroadcast = /* GraphQL */ `
               name
               id
             }
-            gratitudeId
+            postId
             entryId
             comment
             createdAt
@@ -922,23 +850,15 @@ export const updateBroadcast = /* GraphQL */ `
       updatedAt
       delta  
     }
-    updateGratitude( input: {id: $gratitudeId}){
+    updatePost( input: {id: $postId}){
       id
-      title
-      ownerId
+            ownerId
       owner {
         id
         shortId
         name
       }
-      entries {
-        items {
-          id
-          gratitudeId
-          content
-          index
-        }
-      }
+      content
       likes {
         items {
           id
@@ -947,7 +867,7 @@ export const updateBroadcast = /* GraphQL */ `
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           createdAt
         }
@@ -961,7 +881,7 @@ export const updateBroadcast = /* GraphQL */ `
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           comment
           createdAt
@@ -971,7 +891,7 @@ export const updateBroadcast = /* GraphQL */ `
       broadcasts{
         items{
           id
-          gratitudeId
+          postId
           ownerId
           channelId
         }
@@ -986,30 +906,22 @@ export const updateBroadcast = /* GraphQL */ `
 export const deleteBroadcast = /* GraphQL */ `
   mutation DeleteBroadcast(
     $input: DeleteBroadcastInput!
-    $gratitudeId: ID!
+    $postId: ID!
     $condition: ModelBroadcastConditionInput
   ) {
     deleteBroadcast(input: $input, condition: $condition) {
       id
-      gratitudeId
+      postId
       channelId
       ownerId
-      gratitude {
+      post {
         id
-        title
-        ownerId
+                ownerId
         owner {
           id
           name
         }
-        entries {
-          items {
-            id
-            gratitudeId
-            content
-            index
-          }
-        }
+        content
         likes {
           items {
             id
@@ -1018,7 +930,7 @@ export const deleteBroadcast = /* GraphQL */ `
               name
               id
             }
-            gratitudeId
+            postId
             entryId
             createdAt
           }
@@ -1032,7 +944,7 @@ export const deleteBroadcast = /* GraphQL */ `
               name
               id
             }
-            gratitudeId
+            postId
             entryId
             comment
             createdAt
@@ -1047,23 +959,15 @@ export const deleteBroadcast = /* GraphQL */ `
       updatedAt
       delta  
     }
-    updateGratitude( input: {id: $gratitudeId}){
+    updatePost( input: {id: $postId}){
       id
-      title
-      ownerId
+            ownerId
       owner {
         id
         shortId
         name
       }
-      entries {
-        items {
-          id
-          gratitudeId
-          content
-          index
-        }
-      }
+      content
       likes {
         items {
           id
@@ -1072,7 +976,7 @@ export const deleteBroadcast = /* GraphQL */ `
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           createdAt
         }
@@ -1086,7 +990,7 @@ export const deleteBroadcast = /* GraphQL */ `
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           comment
           createdAt
@@ -1096,7 +1000,7 @@ export const deleteBroadcast = /* GraphQL */ `
       broadcasts{
         items{
           id
-          gratitudeId
+          postId
           ownerId
           channelId
         }

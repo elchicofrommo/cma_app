@@ -4,9 +4,9 @@ import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import {NavigationContainer } from '@react-navigation/native';
+
 import {createStackNavigator} from '@react-navigation/stack';
-import { connect } from 'react-redux';
+
 import {useColors} from '../hooks/useColors';
 import log from "../util/Logging"
 import { shallowEqual, useSelector } from "react-redux";

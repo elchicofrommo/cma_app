@@ -39,7 +39,7 @@ type Meetings @model @auth(rules: [{allow: owner}])
   meetings: [String]!
 }
 
-type Gratitude @model @auth(rules: [{allow: owner}]) 
+type Post @model @auth(rules: [{allow: owner}]) 
   @key( fields:["email", "time"])
 {
   email: String!

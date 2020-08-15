@@ -1,11 +1,11 @@
 import { combineReducers, Action } from 'redux';
-import NowPlaying from './NowPlayingReducer'
 
-import { DataStore, Predicates } from "@aws-amplify/datastore";
-import { Preferences, AuthDetail} from "../models/index";
+
+import { DataStore, } from "@aws-amplify/datastore";
+import {  AuthDetail } from "../models/index";
 
 import {AppState} from "../constants/AppState";
-import {User, Gratitude, Broadcast, Entry, Comment, Like} from '../types/gratitude'
+import {User, Post, Broadcast,} from '../types/circles'
 import log from '../util/Logging'
 
 const GUEST_USER = {
@@ -27,7 +27,7 @@ const NEW_USER = {
 const INITIAL_STATE: AppState = {
   operatingUser: undefined, 
   currentTheme: 6,
-  gratitudes: [],
+  posts: [],
   broadcastsByChannel: new Map<string, Broadcast[]>(),
   ownedChannels: [],
   userChannels: [],
@@ -74,7 +74,6 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       return newState
 
     case "SET_AUTH_TOKENS":{
-      newState.password = action.tokens.password;
       newState.email = action.tokens.email
       return newState;
     }
@@ -119,7 +118,7 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
     case "SAVE_AUTH":
       log.info(`SAVE_AUTH`,  {data: action.data})
       newState.operatingUser = action.data.operatingUser
-      newState.gratitudes = action.data.gratitudes
+      newState.posts = action.data.posts
       newState.ownedChannels = action.data.ownedChannels
       newState.userChannels = action.data.userChannels
       newState.broadcastsByChannel = action.data.broadcastsByChannel
@@ -168,7 +167,7 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       break;
     case "ADD_BROADCAST":{
       log.info(`adding BROADCAST, data is ${JSON.stringify(action.broadcast, null, 2)}`)
-      if(action.broadcast.gratitude.userId === newState.operatingUser.id){
+      if(action.broadcast.post.userId === newState.operatingUser.id){
         log.info(`observed broadcast event for message I own, so throwing it away `)
         return state;
         break;
@@ -182,20 +181,20 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       break;
     }
 
-    case "BROADCAST_GRATITUDE":{
-      const gratitude = newState.gratitudes.filter(gratitude=>gratitude.id===action.broadcast.gratitudeId)
+    case "BROADCAST_POST":{
+      const post = newState.posts.filter(post=>post.id===action.broadcast.postId)
       const broadcast= action.broadcast;
-      gratitude[0].broadcasts.items.push(broadcast)
-      newState.gratitudes = [...newState.gratitudes]
+      post[0].broadcasts.items.push(broadcast)
+      newState.posts = [...newState.posts]
 
       return newState
     }
 
-    case "DELETE_BROADCAST_GRATITUDE":{
-      const gratitude = newState.gratitudes.filter(gratitude=>gratitude.id===action.broadcast.gratitudeId)
-      const broadcasts= gratitude[0].broadcasts.items.filter(broadcast=>broadcast.id!==action.broadcast.id)
-      gratitude[0].broadcasts.items = broadcasts
-      newState.gratitudes = [...newState.gratitudes]
+    case "DELETE_BROADCAST_POST":{
+      const post = newState.posts.filter(post=>post.id===action.broadcast.postId)
+      const broadcasts= post[0].broadcasts.items.filter(broadcast=>broadcast.id!==action.broadcast.id)
+      post[0].broadcasts.items = broadcasts
+      newState.posts = [...newState.posts]
 
 
 
@@ -233,35 +232,35 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       
 /*
     case "DELETE_BROADCAST":
-        const gratitudes = newState.gratitudes.filter(gratitude=>gratitude.id != action.gratitude.id)
-        newState.gratitudes = gratitudes;
+        const posts = newState.posts.filter(post=>post.id != action.post.id)
+        newState.posts = posts;
         return newState;
     case "UPDATE_BROADCAST":
-        log.info(`updating BROADCAST is ${JSON.stringify(action.gratitude, null, 2)}`)
-        let updateGratitudes: Gratitude[] = [...newState.gratitudes];
-        updateGratitudes = newState.gratitudes.filter(gratitude=>gratitude.id != action.gratitude.id)
-        updateGratitudes.unshift(action.gratitude)
-        newState.gratitudes = updateGratitudes;
+        log.info(`updating BROADCAST is ${JSON.stringify(action.post, null, 2)}`)
+        let updatePosts: Post[] = [...newState.posts];
+        updatePosts = newState.posts.filter(post=>post.id != action.post.id)
+        updatePosts.unshift(action.post)
+        newState.posts = updatePosts;
         return newState;
 */
-    case "ADD_GRATITUDE":
-      log.info(`adding gratitude, data is ${JSON.stringify(action.gratitude, null, 2)}`)
-      const addGratList: Gratitude[] = [...newState.gratitudes];
+    case "ADD_POST":
+      log.info(`adding post, data is ${JSON.stringify(action.post, null, 2)}`)
+      const addGratList: Post[] = [...newState.posts];
   
-      addGratList.unshift(action.gratitude)
-      newState.gratitudes = addGratList;
+      addGratList.unshift(action.post)
+      newState.posts = addGratList;
       return newState;
 
-    case "DELETE_GRATITUDE":
-        const gratitudes = newState.gratitudes.filter(gratitude=>gratitude.id != action.gratitude.id)
-        newState.gratitudes = gratitudes;
+    case "DELETE_POST":
+        const posts = newState.posts.filter(post=>post.id != action.post.id)
+        newState.posts = posts;
         return newState;
-    case "UPDATE_GRATITUDE":
-        log.info(`updating gratitude is ${JSON.stringify(action.gratitude, null, 2)}`)
-        let updateGratitudes: Gratitude[] = [...newState.gratitudes];
-        updateGratitudes = newState.gratitudes.filter(gratitude=>gratitude.id != action.gratitude.id)
-        updateGratitudes.unshift(action.gratitude)
-        newState.gratitudes = updateGratitudes;
+    case "UPDATE_POST":
+        log.info(`updating post is ${JSON.stringify(action.post, null, 2)}`)
+        let updatePosts: Post[] = [...newState.posts];
+        updatePosts = newState.posts.filter(post=>post.id != action.post.id)
+        updatePosts.unshift(action.post)
+        newState.posts = updatePosts;
         return newState;
 
     case "HIDE_EDITOR":
@@ -333,8 +332,8 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
     case "SYNC_MEETINGS":
       return syncMeetings(newState, action.data)
 
-    case "SYNC_GRATITUDE":
-      return syncGratitudeWithDS(newState, action.data )
+    case "SYNC_POST":
+      return syncPostWithDS(newState, action.data )
 
 
     case "NETWORK_DATA":
@@ -370,25 +369,25 @@ async function resetDataStore(){
   
 }
 
-function syncGratitudeWithDS(state, gratitudes: Gratitude[]){
-  const list = new Array<Gratitude>();
-  /*gratitudes.forEach((gratitude)=>{
-    log.info(`syncing with DS, ${JSON.stringify(gratitude)} start by pulling out entries and comments`)
+function syncPostWithDS(state, posts: Post[]){
+  const list = new Array<Post>();
+  /*posts.forEach((post)=>{
+    log.info(`syncing with DS, ${JSON.stringify(post)} start by pulling out entries and comments`)
 
-    const entries = new Array<GratitudeEntry>()
+    const entries = new Array<PostEntry>()
 
 
-    const grat = <Gratitude> {
-      title: gratitude.title,
-      date: new Date(gratitude.time),
-      id: gratitude.id,
-      entries: gratitude.entries
+    const grat = <Post> {
+      title: post.title,
+      date: new Date(post.time),
+      id: post.id,
+      entries: post.entries
     }
     list.push(grat)
   }) */
-  state.gratitude = gratitudes
+  state.post = posts
 
- // log.info(`finished syncing gratitude, here are the results: ${JSON.stringify(gratitudes, null, 2)}`)
+ // log.info(`finished syncing post, here are the results: ${JSON.stringify(posts, null, 2)}`)
   return state;
 }
 
@@ -409,7 +408,6 @@ function syncMeetings(state, meetingList){
 
 function syncAuthWithDS(state, datastore){
   state.email = datastore.email;
-  state.password = datastore.password; 
   state.username = datastore.username;
   
  // log.info(`datastore auth synced `, {state})
@@ -426,15 +424,12 @@ async function saveAuth(state){
   if(original.length>0){
     auth = AuthDetail.copyOf(original[0], updated => {
       updated.email= state.email, 
-      updated.password= state.password
       updated.operatingUser = JSON.stringify(state.operatingUser)
     })
   }else{
     const input ={};
     if(state.email)
       input.email = state.email;
-    if(state.password)
-      input.password = state.password;
     if(state.operatingUser)
       input.operatingUser = JSON.stringify(state.operatingUser)
     auth = new AuthDetail(input)

@@ -18,13 +18,6 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "password": {
-                    "name": "password",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": false,
-                    "attributes": []
-                },
                 "username": {
                     "name": "username",
                     "isArray": false,

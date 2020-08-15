@@ -7,13 +7,12 @@ import { shallowEqual, useSelector } from "react-redux";
 import {
     User,
     UserChannel,
-    Gratitude,
-    Entry,
+    Post,
     Broadcast,
     NestedArray,
     Channel,
     ChannelDetails
-} from "../types/gratitude";
+} from "../types/circles";
 
 async function fetchAllUsers(): Promise<Array<User>> {
     log.info(`fetchAllUsers start`);
@@ -40,29 +39,29 @@ async function fetchAllUsers(): Promise<Array<User>> {
     log.info(`fetchAllUsers done`);
 }
 
-async function fetchAllGratitudes(): Promise<Array<Gratitude>> {
-    log.info(`fetchAllGratitudes start`);
+async function fetchAllPosts(): Promise<Array<Post>> {
+    log.info(`fetchAllPosts start`);
 
     try {
         log.info(`#### about to run the query against the api`);
-        type ListGratitudeResult = {
-            listGratitudes: NestedArray<Gratitude>
+        type ListPostResult = {
+            listPosts: NestedArray<Post>
         };
 
         const firstStageResult = (await API.graphql(
-            gql(queries.listShortGratitudes, {
+            gql(queries.listShortPosts, {
                 limit: 50,
             })
-        )) as { data: ListGratitudeResult };
+        )) as { data: ListPostResult };
 
 
-        return firstStageResult.data.listGratitudes.items || [];
+        return firstStageResult.data.listPosts.items || [];
     } catch (err) {
-        log.info(`fetchAllGratitudes error:  `, { err });
+        log.info(`fetchAllPosts error:  `, { err });
         return []
     }
 
-    log.info(`fetchAllGratitudes done`);
+    log.info(`fetchAllPosts done`);
 
 }
 
@@ -79,35 +78,25 @@ async function fetchAllChannels(): Promise<Array<Channel>> {
     return result.data.listChannels.items || [];
 }
 
-async function fetchAllEntries(): Promise<Array<Entry>> {
-    log.info(`fetchAllEntries start`);
-    type ListEntriesResult = {
-        listEntrys: NestedArray<Entry>;
-    };
-    const entryResults = (await API.graphql(gql(queries.listEntrys))) as {
-        data: ListEntriesResult;
-    };
-    log.info(`fetchAllEntries end`);
-    return entryResults.data.listEntrys.items;
-}
-
-async function handleGratitudeEvent(event) {
 
 
-    type GratitudeEvent = Gratitude & { delta: string }
+async function handlePostEvent(event) {
 
 
-    let gratitude: GratitudeEvent = event.value.data.subscribeToMyGratitudes;
+    type PostEvent = Post & { delta: string }
+
+
+    let post: PostEvent = event.value.data.subscribeToMyPosts;
     log.info(
-        `observed an event on GratitudeSubscription `, { gratitude }
+        `observed an event on PostSubscription `, { post }
     );
     //if it is   then fetch the whole thing
-    if (gratitude.delta === "CREATE") {
-        store.dispatch({ type: "ADD_GRATITUDE", gratitude })
-    } else if (gratitude.delta === "UPDATE") {
-        store.dispatch({ type: "UPDATE_GRATITUDE", gratitude })
+    if (post.delta === "CREATE") {
+        store.dispatch({ type: "ADD_POST", post })
+    } else if (post.delta === "UPDATE") {
+        store.dispatch({ type: "UPDATE_POST", post })
     } else {
-        store.dispatch({ type: "DELETE_GRATITUDE", gratitude })
+        store.dispatch({ type: "DELETE_POST", post })
     }
 
 }
@@ -120,7 +109,7 @@ async function handleBroadcastEvent(event) {
 
     let broadcast: BroadcastEvent = event.value.data.subscribeToBroadcastChannel;
     log.info(
-        `observed an event on GratitudeSubscription `, { broadcast }
+        `observed an event on PostSubscription `, { broadcast }
     );
 
     //if it is create then fetch the whole thing
@@ -134,19 +123,19 @@ async function handleBroadcastEvent(event) {
 
 }
 
-function subscribeToMyGratitudes(operatingUser: User) {
-    log.info(`subscribing to my gratitude for ${operatingUser?.id}`)
+function subscribeToMyPosts(operatingUser: User) {
+    log.info(`subscribing to my post for ${operatingUser?.id}`)
     if (operatingUser) {
-        let gratitudeSub: any = API.graphql(
-            gql(subscriptions.subscribeToMyGratitudes, { ownerId: operatingUser.id })
+        let postSub: any = API.graphql(
+            gql(subscriptions.subscribeToMyPosts, { ownerId: operatingUser.id })
         );
         log.info(`got subscription object for ${operatingUser?.id}`)
-        gratitudeSub = gratitudeSub.subscribe({ next: handleGratitudeEvent, complete: log.info, error: log.info });
+        postSub = postSub.subscribe({ next: handlePostEvent, complete: log.info, error: log.info });
         log.info(`completed subscription for ${operatingUser?.id}`)
         return () => {
-            log.info(`unsubscribing to gratitudes for user ${operatingUser?.id}`)
+            log.info(`unsubscribing to posts for user ${operatingUser?.id}`)
             try {
-                gratitudeSub.unsubscribe();
+                postSub.unsubscribe();
             } catch (err) {
                 log.info(`could not unsubscribe, probably becasue the connection was closed due to timeout. `)
             }
@@ -184,7 +173,7 @@ async function fetchOperatingUser(userId):
         user: User,
         channels: Channel[],
         userChannels: UserChannel[],
-        gratitudes: Gratitude[]
+        posts: Post[]
     } | undefined> {
 
     if (!userId) {
@@ -195,7 +184,7 @@ async function fetchOperatingUser(userId):
             getUser: Omit<User, 'meetingIds'> & { meetingIds: any };
             listChannelByOwner: NestedArray<Channel>;
             listChannelByUser: NestedArray<UserChannel>;
-            listGratitudeByOwner: NestedArray<Gratitude>;
+            listPostByOwner: NestedArray<Post>;
         };
 
         const firstStageResult = (await API.graphql(
@@ -219,16 +208,16 @@ async function fetchOperatingUser(userId):
             firstStageResult.data?.listChannelByOwner;
         const tempMyChannels: NestedArray<UserChannel> =
             firstStageResult.data?.listChannelByUser;
-        const tempMyGratitudes: NestedArray<Gratitude> =
-            firstStageResult.data?.listGratitudeByOwner;
+        const tempMyPosts: NestedArray<Post> =
+            firstStageResult.data?.listPostByOwner;
 
         try {
 
-            log.info(`fetchOperatingUser done:`, { userResult, tempMyChannels, tempMyGratitudes, tempMyOwnedChannels })
+            log.info(`fetchOperatingUser done:`, { userResult, tempMyChannels, tempMyPosts, tempMyOwnedChannels })
 
             return {
                 channels: tempMyOwnedChannels.items,
-                gratitudes: tempMyGratitudes.items,
+                posts: tempMyPosts.items,
                 userChannels: tempMyChannels.items,
                 user: userResult,
             }
@@ -268,40 +257,40 @@ async function fetchOwnedChannels(operatingUser: User): Promise<Array<Channel>> 
 
 }
 
-async function fetchGratitudes(operatingUser: User): Promise<Gratitude[]> {
-    log.info(`fetchMyGratitudes start for user: ${operatingUser.id}`);
+async function fetchPosts(operatingUser: User): Promise<Post[]> {
+    log.info(`fetchMyPosts start for user: ${operatingUser.id}`);
     if (!operatingUser) {
-        log.info(`fetchMyGratitudes setting to empty list `);
+        log.info(`fetchMyPosts setting to empty list `);
         return []
     }
 
     try {
-        type ListGratitudeResults = {
-            listGratitudeByOwner: NestedArray<Gratitude>;
+        type ListPostResults = {
+            listPostByOwner: NestedArray<Post>;
         };
-        const gratitudeResults = (await API.graphql(
-            gql(queries.listGratitudeByOwner, {
+        const postResults = (await API.graphql(
+            gql(queries.listPostByOwner, {
                 ownerId: operatingUser.id,
                 limit: 50
             })
-        )) as { data: ListGratitudeResults };
-        let results = gratitudeResults.data.listGratitudeByOwner.items;
+        )) as { data: ListPostResults };
+        let results = postResults.data.listPostByOwner.items;
 
 
-        log.info(`fetchMyGratitudes done: `, { results });
+        log.info(`fetchMyPosts done: `, { results });
 
         return (results);
     } catch (err) {
-        log.info(`fetchMyGratitudes error:  `, { err });
+        log.info(`fetchMyPosts error:  `, { err });
         return []
     }
 }
 
-async function fetchBroadcastGratitude(user: User, mySubChannels: UserChannel[]): Promise<Map<string, Broadcast[]>> {
+async function fetchBroadcastPost(user: User, mySubChannels: UserChannel[]): Promise<Map<string, Broadcast[]>> {
     try {
 
         if (mySubChannels.length === 0) {
-            log.info(`fetchMyBroadcastGratitude setting to empty list `);
+            log.info(`fetchMyBroadcastPost setting to empty list `);
             return (new Map<string, Broadcast[]>());
         }
 
@@ -349,21 +338,19 @@ async function fetchBroadcastGratitude(user: User, mySubChannels: UserChannel[])
     }
 }
 
-async function getAuthDetails(email: string): Promise<User> {
-    if (!email) {
-        log.info("could not fetch user with no email")
+async function getAuthDetails(id: string): Promise<User> {
+    if (!id) {
+        log.info("could not fetch user with no id ... system error")
         return;
     }
     type AuthDetailResult = {
-        listUserByEmail: NestedArray<User>
+        getUser: User
     }
     const authResult = (await API.graphql(
-        gql(queries.listUserByEmail, { email })
+        gql(queries.getUser, {id })
     )) as { data: AuthDetailResult }
-    if (authResult.data.listUserByEmail.items.length > 1) {
-        log.info('problem getting auth details, seems there are two users with same email, returning first')
-    }
-    return authResult.data.listUserByEmail.items[0]
+
+    return authResult.data.getUser
 }
 
 async function fetchMySubChannels(operatingUser: User): Promise<UserChannel[]> {
@@ -411,15 +398,14 @@ async function fetchChannelDetails(channelId: string): Promise<ChannelDetails> {
 export default {
     getAuthDetails,
     fetchMySubChannels,
-    fetchBroadcastGratitude,
-    fetchGratitudes,
+    fetchBroadcastPost,
+    fetchPosts,
     fetchAllUsers,
     fetchAllChannels,
-    fetchAllGratitudes,
-    fetchAllEntries,
+    fetchAllPosts,
     fetchOperatingUser,
     fetchOwnedChannels,
-    subscribeToMyGratitudes,
+    subscribeToMyPosts,
     subscribeToBroadcastChannel,
     fetchChannelDetails
 }

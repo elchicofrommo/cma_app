@@ -29,7 +29,7 @@ import {store} from '../components/store'
 import {
 
 } from "@expo/vector-icons";
-import {User, UserChannel, ChannelDetails, Channel} from '../types/gratitude'
+import {User, UserChannel, ChannelDetails, Channel} from '../types/circles'
 
 
 
@@ -294,8 +294,8 @@ const BackButton = connect(
       dispatchHideEditor: (data) => {
         dispatch({ type: "HIDE_EDITOR" });
       },
-      dispatchAddGratitude: (data) => {
-        dispatch({ type: "ADD_GRATITUDE", data });
+      dispatchAddPost: (data) => {
+        dispatch({ type: "ADD_POST", data });
       },
     };
   }

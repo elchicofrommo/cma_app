@@ -16,7 +16,7 @@ import { faCertificate } from '@fortawesome/free-solid-svg-icons';
 
 import {useColors} from '../hooks/useColors';
 import {useLayout} from "../hooks/useLayout"
-import {Meeting} from '../types/gratitude'
+import {Meeting} from '../types/circles'
 
 function DetailsScreen({ route, navigation, ...props }) {
     log.info(`rendering DetailsScreen route is ${route.params} `)
@@ -114,7 +114,7 @@ function DetailsScreen({ route, navigation, ...props }) {
     }
     const badge = meeting.paid && <FontAwesomeIcon icon={faCertificate} style={styles.badge}  size={20}/> 
     const meetingSignup = meeting.paid || <Text style={[styles.text, {paddingTop: 5* Layout.scale.width}]}>
-            Would you like this meeting to get access to additional features like group gratitude, 
+            Would you like this meeting to get access to additional features like group post, 
             online meeting documents, and your own speaker recordings? Bring it up at a business 
             meeting and see if your group would like to sign up. 
         </Text>

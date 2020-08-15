@@ -1,13 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
-import * as Font from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
+
 import * as React from 'react';
-import { DataStore, Predicates } from "@aws-amplify/datastore";
-import axios from 'axios';
-import { store } from '../components/store'
-import { DailyReaders, Preferences, AuthDetail } from "../models/index";
-import { signIn, SignInResult } from '../screens/SignIn'
-import { User, Meeting, UserChannel } from '../types/gratitude'
+
+import { User,  UserChannel } from '../types/circles'
 import fetchApi from '../api/fetch'
 import { shallowEqual, useSelector  } from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
@@ -31,11 +25,11 @@ export default function useSubscriptions() {
   // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {
 
-    function listenForGratitudes(user) {
+    function listenForPosts(user) {
         if(user && user.role!="guest"){
 
             const subs = [];
-            subs.push(fetchApi.subscribeToMyGratitudes(user))
+            subs.push(fetchApi.subscribeToMyPosts(user))
             userChannels.forEach(userChannel=>{
               subs.push(fetchApi.subscribeToBroadcastChannel(userChannel.channelId))
             })
@@ -48,7 +42,7 @@ export default function useSubscriptions() {
     //alert(`user changed: ${user.name}`)
     let cleanup = undefined;
     if(connected&&appState==="active")
-        cleanup = listenForGratitudes(user)
+        cleanup = listenForPosts(user)
     if(cleanup)
         return cleanup
   }, [user, connected, appState, userChannels])

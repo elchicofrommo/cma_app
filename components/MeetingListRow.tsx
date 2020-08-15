@@ -9,7 +9,7 @@ import { faCertificate } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment'
 import { useColors } from '../hooks/useColors';
 import { useLayout } from '../hooks/useLayout'
-import { Meeting } from '../types/gratitude'
+import { Meeting } from '../types/circles'
 import log from '../util/Logging'
 function shouldUpdateMainRow(prev, next) {
     return prev.meeting.id == next.meeting.id &&

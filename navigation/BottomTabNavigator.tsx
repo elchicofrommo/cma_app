@@ -1,12 +1,12 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import React, {useState, useEffect} from 'react';
-import { StyleSheet, View, Animated, Easing, Platform, Keyboard} from 'react-native';
+import React, {useState, useEffect, Fragment} from 'react';
+import { StyleSheet,Platform, Keyboard} from 'react-native';
 
 import {useColors} from '../hooks/useColors'
 
 import AudioScreen from '../screens/AudioScreen';
 import DocumentScreen from '../screens/DocumentScreen';
-import GratitudeScreen from '../screens/GratitudeScreen';
+import PostScreen from '../screens/PostScreen';
 import HomeScreen from '../screens/HomeScreen';
 
 import { connect } from 'react-redux';
@@ -15,6 +15,7 @@ import log from '../util/Logging'
 const BottomTab = createBottomTabNavigator();
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { faHeadphones, faHome, faBook, faChair} from '@fortawesome/free-solid-svg-icons'
 import { faPagelines} from '@fortawesome/free-brands-svg-icons'
 import HomeGroupsScreen from '../screens/HomeGroupsScreen';
@@ -56,10 +57,14 @@ function BottomTabNavigator({ navigation, route, ...props }) {
 
 
     log.info(`tab navigator visibility: ${visible}`)
-    const gratitude = props.authenticated ? 
-      <BottomTab.Screen name="Gratitude" component={GratitudeScreen}
+    const post = props.authenticated ? 
+      <BottomTab.Screen name="Circles" component={PostScreen}
         options={{
-          tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faPagelines} style={{color: color}}  size={25}/>,
+          tabBarIcon: ({ focused, color }) => 
+            <Fragment>
+                <MaterialCommunityIcons name="circle-outline" style={{color: color,marginLeft: 5, paddingTop: 3}}  size={25}/>
+                <MaterialCommunityIcons name="circle-outline" style={{color: color,marginLeft: -10, marginTop: -21}}  size={25}/>
+            </Fragment>,
         }}/> : undefined
     const display = Platform.OS==='android'? {display: visible? 'flex': 'none'}:{}
   return (
@@ -108,7 +113,7 @@ function BottomTabNavigator({ navigation, route, ...props }) {
           tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faHeadphones} style={{color: color}}  size={25}/>,
         }}
       />
-      {gratitude}
+      {post}
       <BottomTab.Screen
         name="Document"
         component={DocumentScreen}

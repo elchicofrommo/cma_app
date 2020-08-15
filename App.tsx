@@ -19,7 +19,7 @@ import DocumentBrowserScreen from './screens/DocumentBrowserScreen'
 import SettingsScreen from './screens/SettingsScreen'
 import {DetailsScreen} from './screens/MeetingDetailsScreen'
 import SplashScreen from './screens/SplashScreen'
-import EditorScreen from './screens/GratitudeEditorScreen'
+import EditorScreen from './screens/PostEditorScreen'
 import CircleAdminScreen from './screens/CircleAdminScreen'
 import MeetingSearchScreen from './screens/MeetingSearchScreen'
 import appLog from './util/Logging';

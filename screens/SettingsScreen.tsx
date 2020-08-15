@@ -44,7 +44,6 @@ function SettingsScreen({ operatingUser: opUser, ...props }: { operatingUser: Us
   const [isCancel, setIsCancel] = useState(false);
 
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState(opUser);
   const [name, setName] = useState(opUser.name)
   const [dos, setDos] = useState(moment(opUser.dos).format("MM/DD/YYYY"))
 
@@ -154,18 +153,7 @@ function SettingsScreen({ operatingUser: opUser, ...props }: { operatingUser: Us
           />
           <Text style={styles.inputLabel}>Email</Text>
         </View>
-        <View style={styles.textFieldContainer}>
-          <TextInput
-            placeholder="*******"
-            secureTextEntry={true}
-            autoCapitalize="none"
-            editable={false}
-            value={password}
-            style={[styles.textField, , styles.disabledText]}
 
-          />
-          <Text style={styles.inputLabel}>Password</Text>
-        </View>
 
         <View style={styles.textFieldContainer}>
           <TextInput

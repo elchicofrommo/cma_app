@@ -1,6 +1,6 @@
-import axios from 'axios';
+
 import log from '../util/Logging'
-import { Meeting, User } from '../types/gratitude'
+import { Meeting, User } from '../types/circles'
 import { API, Auth } from 'aws-amplify'
 
 const BASE = 'https://d5d92ay1m1.execute-api.us-west-1.amazonaws.com/dev-auth/cma'

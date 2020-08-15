@@ -15,16 +15,16 @@ import {
 import {
 
     UserChannel,
-    Gratitude,
-  } from "../types/gratitude";
+    Post,
+  } from "../types/circles";
   import {useColors} from "../hooks/useColors";
   import {useLayout} from "../hooks/useLayout";
 
-export function GratitudeShareModal({gratitudeId, isVisible, shareCallback, dismissCallback}: 
-        {gratitudeId: string, isVisible: boolean, shareCallback: Function, dismissCallback: Function}){
-    const gratitude = useSelector((state)=>{
-        const temp: Gratitude = state.general.gratitudes.find((gratitude:Gratitude)=>gratitude.id === gratitudeId)
-        log.info(`found gratitude for modal `, {gratitude: temp})
+export function PostShareModal({postId, isVisible, shareCallback, dismissCallback}: 
+        {postId: string, isVisible: boolean, shareCallback: Function, dismissCallback: Function}){
+    const post = useSelector((state)=>{
+        const temp: Post = state.general.posts.find((post:Post)=>post.id === postId)
+        log.info(`found post for modal `, {post: temp})
         return temp
     })
     const {colors: Colors} = useColors()
@@ -52,7 +52,7 @@ export function GratitudeShareModal({gratitudeId, isVisible, shareCallback, dism
             </View>
             <Text style={{ paddingHorizontal: 10, paddingTop: 10, fontFamily: 'opensans', color: Colors.primary1, fontSize: 21 * Layout.scale.width}}>Your Circles</Text>
             {userChannels.map((userChannel: UserChannel)=>{
-              const broadcast = gratitude?.broadcasts.items.filter(
+              const broadcast = post?.broadcasts.items.filter(
                 broadcast=>broadcast.channelId===userChannel.channelId
               )
               const isBroadcastAlready = broadcast?.length > 0

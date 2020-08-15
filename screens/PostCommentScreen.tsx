@@ -8,7 +8,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { connect } from 'react-redux';
 
 import log from "../util/Logging"
-import EditorMenu from '../navigation/GraditudeEditorMenu'
+import EditorMenu from '../navigation/PostEditorMenu'
 import { useFocusEffect } from '@react-navigation/native';
 import { HeaderStyleInterpolators, HeaderBackButton } from '@react-navigation/stack';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -22,7 +22,7 @@ import Modal from 'react-native-modal';
 import KeyboardStickyView from "rn-keyboard-sticky-view"
 import { FontAwesome5, Entypo, Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { DataStore, Predicates } from "@aws-amplify/datastore";
-import { Gratitude } from "../models/index";
+import { Post } from "../models/index";
 import { enableNetworkProviderAsync } from 'expo-location';
 
 const defaultEntry = {
@@ -31,7 +31,7 @@ const defaultEntry = {
     entries: []
 }
 
-function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props }) {
+function PostEditorScreen({ route, navigation, entry=defaultEntry, ...props }) {
 
     const [entryEdit, setEntryEdit] = useState(entry);
 
@@ -45,7 +45,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
     React.useLayoutEffect(() => {
         navigation.setOptions({
 
-          headerLeft: () => <GratitudeSaveButton navigation={navigation} entryEdit={entryEdit}/>,
+          headerLeft: () => <PostSaveButton navigation={navigation} entryEdit={entryEdit}/>,
         });
         
     }, [entryEdit]);
@@ -115,7 +115,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
         log.info(`#####use effect in editor screen, `,{newEntry})
         
         setEntryEdit(newEntry);
-        props.dispatchRegisterSubmenu({ submenu: <EditorMenu key={'gratitudeEditor'} callback={startEntry}/>, name: "gratitudeEditor" })
+        props.dispatchRegisterSubmenu({ submenu: <EditorMenu key={'postEditor'} callback={startEntry}/>, name: "postEditor" })
         const showHolder = Platform.OS==='ios' ? Keyboard.addListener('keyboardWillShow', showKeyboard):
             Keyboard.addListener('keyboardDidShow', showKeyboard);
         const hideHolder = Platform.OS==='ios' ?  Keyboard.addListener('keyboardWillHide', hideKeyboard):
@@ -230,7 +230,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
 
             </View>
 
-            <GratitudeList gratitudeData={entryEdit.entries}
+            <PostList postData={entryEdit.entries}
                 action={startEntry}/>
             <Modal 
    
@@ -267,7 +267,7 @@ function GratitudeEditorScreen({ route, navigation, entry=defaultEntry, ...props
     )
 }
 
-GratitudeEditorScreen = connect(
+PostEditorScreen = connect(
     function mapStateToProps(state, ownProps) {
         log.info(`DetailsScreen connect observed redux change, detail ${state.general.meetingDetail}`)
 
@@ -298,24 +298,24 @@ GratitudeEditorScreen = connect(
             },
 
             dispatchRegisterSubmenu: (data) => {
-                log.info("registering gratitudeEditor submenu")
+                log.info("registering postEditor submenu")
                 dispatch({ type: "REGISTER_SUBMENU", data })
             }
 
         }
     },
 
-)(GratitudeEditorScreen)
+)(PostEditorScreen)
 
 
-function GratitudeList({ gratitudeData, action, style = {} }) {
+function PostList({ postData, action, style = {} }) {
 
   
     const renderCallback = useCallback(({ item, index }, rowMap) => {
       //renderBackRow({data, rowMaps, props}),[])
       log.info(`item is :  index is: ${index} rowMap is ${rowMap} `)
       return (
-        <TouchableWithoutFeedback key={index} onPress={()=>action(index, item)} style={styles.gratitudeRow}> 
+        <TouchableWithoutFeedback key={index} onPress={()=>action(index, item)} style={styles.postRow}> 
             <Octicons name="primitive-dot" size={18} color={"black"} style={styles.bullet} />
             <Text style={[styles.keyboardEntry]}>{item}</Text>
         </TouchableWithoutFeedback>
@@ -329,7 +329,7 @@ function GratitudeList({ gratitudeData, action, style = {} }) {
 
     return (
         <FlatList
-            data={gratitudeData}
+            data={postData}
             renderItem={renderCallback}
             keyExtra
 
@@ -339,7 +339,7 @@ function GratitudeList({ gratitudeData, action, style = {} }) {
   
   }
   
-  const GratitudeSaveButton = connect(
+  const PostSaveButton = connect(
     function mapStateToProps(state, ownProps) {
         const {email,} = state.general;
   
@@ -353,11 +353,11 @@ function GratitudeList({ gratitudeData, action, style = {} }) {
             dispatchHideEditor: (data)=>{
                 dispatch({type: "HIDE_EDITOR"})
             },
-            dispatchAddGratitude: (data)=>{
-                dispatch({type: "ADD_GRATITUDE", data})
+            dispatchAddPost: (data)=>{
+                dispatch({type: "ADD_POST", data})
             }
         }
-    })(_GratitudeSaveButton)
+    })(_PostSaveButton)
 
 const styles = StyleSheet.create({
     
@@ -381,12 +381,12 @@ const styles = StyleSheet.create({
 
         
     },
-    gratitudeRow:{ 
+    postRow:{ 
         flexDirection: 'row',
         alignItems: 'center',
         paddingTop: 5*Layout.scale.width
     },
-    gratitudeList:{
+    postList:{
         paddingHorizontal: 10*Layout.scale.width,
     },
     addEntryButton:{
@@ -422,4 +422,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default GratitudeEditorScreen;
+export default PostEditorScreen;

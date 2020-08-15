@@ -5,12 +5,11 @@ import { shallowEqual, useSelector } from "react-redux";
 import shortid from "shortid";
 
 import {
-  Gratitude,
-  Entry,
+  Post,
   User,
   Comment,
 
-} from "../types/gratitude";
+} from "../types/circles";
 import React, { useEffect, useState } from "react";
 import { Entypo, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
@@ -30,22 +29,22 @@ import {
 import { KeyboardAwareFlatList } from 'react-native-keyboard-aware-scroll-view'
 
 
-export enum GratitudeRenderMode {
+export enum PostRenderMode {
   SHORT,
   EDIT,
   NEW
 }
 
-export function GratitudeComponent({
-  gratitude,
+export function PostComponent({
+  post,
   action,
-  mode = GratitudeRenderMode.SHORT,
+  mode = PostRenderMode.SHORT,
 }: {
-  gratitude: Gratitude;
+  post: Post;
   action?: Function;
   navigation?: any;
   channelId?: string
-  mode: GratitudeRenderMode
+  mode: PostRenderMode
 }) {
 
   const counts = {
@@ -54,16 +53,16 @@ export function GratitudeComponent({
   };
 
   const styles = useStyles()
-  const [workingGratitude, setWorkingGratitude] = useState(gratitude);
+  const [workingPost, setWorkingPost] = useState(post);
 
-  counts.comments += workingGratitude.comments.items.length;
-  counts.likes += workingGratitude.likes.items.length;
+  counts.comments += workingPost.comments.items.length;
+  counts.likes += workingPost.likes.items.length;
   const Layout = useLayout();
   const { colors: Colors } = useColors();
 
   let userName = "";
-  if (workingGratitude.likes.items.length > 0) {
-    userName = workingGratitude.likes.items[0].user.name;
+  if (workingPost.likes.items.length > 0) {
+    userName = workingPost.likes.items[0].user.name;
   }
 
   const user: User = useSelector(
@@ -73,42 +72,18 @@ export function GratitudeComponent({
 
 
 
-  function addSingleEntry() {
-    const id = shortid.generate();
-    workingGratitude.entries.items.push({
-      id: id,
-      content: id,
-      gratitudeId: workingGratitude.id,
-      index: workingGratitude.entries.items.length
-    })
-    setWorkingGratitude({ ...workingGratitude });
-  }
-
-  function add15Entries() {
-    for (let i = 0; i < 45; i++) {
-      const id = shortid.generate();
-      workingGratitude.entries.items.push({
-        id: id,
-        content: id,
-        gratitudeId: workingGratitude.id,
-        index: workingGratitude.entries.items.length
-      })
-    }
-
-    setWorkingGratitude({ ...workingGratitude });
-  }
 
 
   /*
   
   */
   useEffect(() => {
-    setWorkingGratitude(gratitude)
-  }, [gratitude])
+    setWorkingPost(post)
+  }, [post])
 
 
-  const renderEntryRow = ({ item, index }: ListRenderItemInfo<Entry>) => {
-    log.info(`rendering EntryRow for ${item.id} index ${index} `)
+  const renderEntryRow = ({ item, index }: ListRenderItemInfo<string>) => {
+    log.info(`rendering EntryRow for ${item} index ${index} `)
     return (
       <View
         style={{
@@ -116,21 +91,21 @@ export function GratitudeComponent({
           justifyContent: "flex-start",
           width: "100%",
         }}>
-        <TouchableWithoutFeedback onPress={() => action && action(index, item.content)}>
+        <TouchableWithoutFeedback onPress={() => action && action(index, item)}>
           <View
             style={{
               paddingVertical: 2 * Layout.scale.width,
               paddingHorizontal: 10 * Layout.scale.width,
               backgroundColor:
-                gratitude.ownerId === user.id
-                  ? Colors.myGratitudeEntry
-                  : Colors.gratitudeEntry,
+                post.ownerId === user.id
+                  ? Colors.myPostEntry
+                  : Colors.postEntry,
               marginBottom: 5,
               borderRadius: 17,
             }}>
 
             <Text style={[styles.entryText, { paddingRight: 2 }]}>
-              {item.content}
+              {item}
             </Text>
 
           </View>
@@ -138,25 +113,25 @@ export function GratitudeComponent({
       </View>
     );
   };
-  log.info(`rendering Gratitude Component`)
+  log.info(`rendering Post Component`)
   return (
     <View>
-      {/*mode === GratitudeRenderMode.NEW &&
+      {/*mode === PostRenderMode.NEW &&
         <View>
           <TouchableWithoutFeedback onPress={addSingleEntry}><Text>Add Single</Text></TouchableWithoutFeedback>
           <TouchableWithoutFeedback onPress={add15Entries}><Text>Add 15</Text></TouchableWithoutFeedback>
         </View>
       */ }
-      <View style={[mode == GratitudeRenderMode.NEW && { display: "none" }]}>
+      <View style={[mode == PostRenderMode.NEW && { display: "none" }]}>
         <Text
           style={[
             styles.keyboardEntry,
-            workingGratitude.ownerId === user.id && { display: "none" },
+            workingPost.ownerId === user.id && { display: "none" },
           ]}
         >
-          {workingGratitude.owner.name}
+          {workingPost.owner.name}
         </Text>
-        <Text style={[styles.keyboardEntry]}>{workingGratitude.title}</Text>
+
       </View>
       <View
         style={{
@@ -168,12 +143,12 @@ export function GratitudeComponent({
       >
 
         <  KeyboardAwareFlatList
-          data={workingGratitude.entries.items}
+          data={[workingPost.content]}
           renderItem={renderEntryRow}
           keyExtractor={keyExtractor}
           initialNumToRender={15}
           ListEmptyComponent={
-            mode === GratitudeRenderMode.NEW ? (
+            mode === PostRenderMode.NEW ? (
               <Text
                 style={[
                   styles.keyboardEntry,
@@ -184,7 +159,7 @@ export function GratitudeComponent({
               </Text>
             ) : (
                 <Text style={[styles.keyboardEntry, { paddingLeft: 0 }]}>
-                  No Gratitude Entries
+                  No Post Entries
                 </Text>
               )
           }
@@ -193,7 +168,7 @@ export function GratitudeComponent({
               <View
                 style={[
                   styles.statsRow,
-                  mode === GratitudeRenderMode.NEW && { display: "none" },
+                  mode === PostRenderMode.NEW && { display: "none" },
                   counts.likes == 0 && { display: "none" },
                 ]}
               >
@@ -215,12 +190,12 @@ export function GratitudeComponent({
                 <View>
                   <Text style={[styles.keyboardEntry, { paddingHorizontal: 0 }]}>Comments</Text>
                 </View>
-                <CommentsComponent comments={workingGratitude.comments.items} mode={mode}></CommentsComponent>
+                <CommentsComponent comments={workingPost.comments.items} mode={mode}></CommentsComponent>
               </View>
-              <View style={[styles.seperator, mode === GratitudeRenderMode.NEW && { display: "none" }]} />
+              <View style={[styles.seperator, mode === PostRenderMode.NEW && { display: "none" }]} />
             </View>
           }
-          style={styles.gratitudeEntryList}
+          style={styles.postEntryList}
         />
       </View>
 
@@ -237,7 +212,7 @@ export function CommentButton({ callback }: { callback: Function }) {
   >
     <View
       style={[
-        styles.gratitudeButtons,
+        styles.postButtons,
       ]}
     >
       <FontAwesome
@@ -246,7 +221,7 @@ export function CommentButton({ callback }: { callback: Function }) {
         size={18}
         color={"dimgray"}
       />
-      <Text style={styles.gratitudeButtonsText}>Comment</Text>
+      <Text style={styles.postButtonsText}>Comment</Text>
     </View>
   </TouchableWithoutFeedback>
 
@@ -258,14 +233,14 @@ export function DeleteButton({ callback }: { callback: Function }) {
   return <TouchableWithoutFeedback onPress={() => callback()}>
     <View
       style={[
-        styles.gratitudeButtons,
+        styles.postButtons,
       ]}
     >
       <MaterialCommunityIcons
         style={{ paddingLeft: 5, marginBottom: -3 }}
         name="delete-forever-outline" size={22} color="dimgray" />
 
-      <Text style={styles.gratitudeButtonsText}>Delete</Text>
+      <Text style={styles.postButtonsText}>Delete</Text>
     </View>
   </TouchableWithoutFeedback>
 }
@@ -275,7 +250,7 @@ export function ShareButton({ callback }: { callback: Function }) {
   return <TouchableWithoutFeedback onPress={() => callback()}>
     <View
       style={[
-        styles.gratitudeButtons,
+        styles.postButtons,
       ]}
     >
       <FontAwesome
@@ -284,21 +259,21 @@ export function ShareButton({ callback }: { callback: Function }) {
         size={18}
         color={"dimgray"}
       />
-      <Text style={styles.gratitudeButtonsText}>Share</Text>
+      <Text style={styles.postButtonsText}>Share</Text>
     </View>
   </TouchableWithoutFeedback>
 }
 
-export function LikeButton({ gratitude, user, iLiked }: { gratitude: Gratitude, user: User, iLiked: boolean }) {
+export function LikeButton({ post, user, iLiked }: { post: Post, user: User, iLiked: boolean }) {
   const styles = useStyles()
   return <TouchableWithoutFeedback
     onPress={() => {
-      mutateApi.likeGratitude({ gratitude, operatingUser: user });
+      mutateApi.likePost({ post, operatingUser: user });
     }}
   >
     <View
       style={[
-        styles.gratitudeButtons,
+        styles.postButtons,
       ]}
     >
       <Entypo
@@ -308,7 +283,7 @@ export function LikeButton({ gratitude, user, iLiked }: { gratitude: Gratitude, 
       />
       <Text
         style={[
-          styles.gratitudeButtonsText,
+          styles.postButtonsText,
           iLiked && { color: "green" },
         ]}
       >
@@ -332,7 +307,7 @@ function renderEntrySeprator(highlighted, leadingTiems) {
   );
 }
 
-function CommentsComponent({ comments, mode }: { comments: Comment[], mode: GratitudeRenderMode }) {
+function CommentsComponent({ comments, mode }: { comments: Comment[], mode: PostRenderMode }) {
   const Layout = useLayout();
   const styles = useStyles();
 
@@ -340,7 +315,7 @@ function CommentsComponent({ comments, mode }: { comments: Comment[], mode: Grat
     return <View></View>
   }
 
-  if (mode == GratitudeRenderMode.SHORT) {
+  if (mode == PostRenderMode.SHORT) {
     const comment = comments[comments.length - 1]
     const remaining = comments.length - 1;
     let dateTimeString = ""
@@ -506,12 +481,12 @@ function useStyles() {
       flex: 6,
       backgroundColor: "#dadde0",
     },
-    gratitudeButtons: {
+    postButtons: {
       flexDirection: "row",
       paddingVertical: 7,
       alignItems: "center",
     },
-    gratitudeButtonsText: {
+    postButtonsText: {
       flexDirection: "row",
       fontSize: 16 * Layout.scale.width,
       paddingLeft: 5 * Layout.scale.width,
@@ -532,7 +507,7 @@ function useStyles() {
       borderColor: "gray",
       alignSelf: "center",
     },
-    gratitudeFooter: {
+    postFooter: {
       flexDirection: "row",
       justifyContent: "space-around",
       flex: 1,
@@ -551,7 +526,7 @@ function useStyles() {
       paddingVertical: 5 * Layout.scale.width,
       color: "blue",
     },
-    gratitudeRowSeprator: {
+    postRowSeprator: {
       height: 5 * Layout.scale.width,
       backgroundColor: Colors.primary1L3,
       width: "100%",
@@ -582,12 +557,12 @@ function useStyles() {
       backgroundColor: "#FFF",
       paddingTop: 5 * Layout.scale.width,
     },
-    gratitudeList: {},
-    gratitudeEntryList: {
+    postList: {},
+    postEntryList: {
       paddingHorizontal: 10 * Layout.scale.width,
       width: "100%",
     },
-    gratitudeRow: {
+    postRow: {
       flexDirection: "column",
       alignItems: "center",
 

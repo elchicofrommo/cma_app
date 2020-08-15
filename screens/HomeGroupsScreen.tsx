@@ -120,7 +120,7 @@ function useStyles() {
     icon: {
       color: 'gray'
     },
-    gratitude: {
+    post: {
       height: '30%',
       borderColor: '#fff',
     },

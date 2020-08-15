@@ -1,20 +1,18 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Dimensions, Animated, Easing, Linking, Platform, Keyboard } from 'react-native';
-import { RectButton, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-import Colors from '../constants/Colors';
-import { connect } from 'react-redux';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faPlusCircle, faMinusCircle, faDirections } from '@fortawesome/free-solid-svg-icons';
+import React, { useState, useEffect} from 'react';
+import { StyleSheet,  Animated, Easing,  Platform, Keyboard } from 'react-native';
+import {  TouchableOpacity } from 'react-native-gesture-handler';
 
-import Layout from '../constants/Layout';
-import { useFocusEffect } from '@react-navigation/native';
+import { connect } from 'react-redux';
+import {useLayout} from "../hooks/useLayout"
+import {useColors} from "../hooks/useColors"
 import { AntDesign } from '@expo/vector-icons';
 import log from '../util/Logging'
-const GratitudeEditorMenu = (props) => {
+const PostEditorMenu = (props) => {
     log.info(`render DetailsMenu `)
     const [offset, setOffset] = useState(new Animated.Value(104))
-    
+    const Layout = useLayout();
+    const {colors: Colors} = useColors();
     const [visible, setVisible] = useState(true)
 
     function hideMenu(){
@@ -113,7 +111,7 @@ const styles = StyleSheet.create({
 
 export default connect(
     function mapStateToProps(state, ownProps) {
-        log.info(`GratitudeEditorMenu connect observed redux change, detail ${state.general.meetingDetail}`)
+        log.info(`PostEditorMenu connect observed redux change, detail ${state.general.meetingDetail}`)
 
         return {
             showEditor: state.general.showEditor,
@@ -122,7 +120,7 @@ export default connect(
     function mapDispatchToProps(dispatch) {
         return {
             dispatchAddMeeting: (data) => {
-                log.info("dispatching add gratitude entry " + data)
+                log.info("dispatching add post entry " + data)
                 dispatch({ type: "ADD_ENTRY", data })
             },
 
@@ -132,4 +130,4 @@ export default connect(
         }
     },
 
-)(GratitudeEditorMenu)
+)(PostEditorMenu)

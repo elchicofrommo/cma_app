@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback, memo, Fragment } from 'react';
 import {
   Image, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback,
   TextInput, View, Button, Dimensions, Keyboard, Linking, FlatList, Animated, Easing, Switch
@@ -22,7 +22,7 @@ import Modal from 'react-native-modal';
 import SliderToggle, { Toggle } from '../components/SliderToggle'
 import { useColors } from '../hooks/useColors';
 import { useLayout } from '../hooks/useLayout';
-import { Meeting } from '../types/gratitude'
+import { Meeting } from '../types/circles'
 import log from "../util/Logging"
 import apiGateway from '../api/apiGateway';
 import { isLoading } from 'expo-font';
@@ -122,7 +122,7 @@ function MeetingList({ meetingData, action, loading = false, style = {}, emptyCo
 
   const keyExtractorCallback = useCallback((data) => { return data.id })
   const Layout = useLayout();
-  const { colors } = useColors();
+
   const styles = useStyles()
   const renderCallback = useCallback(({ item, ...props }: { item: Meeting }) => {
     //renderBackRow({data, rowMaps, props}),[])
@@ -156,7 +156,7 @@ function MeetingList({ meetingData, action, loading = false, style = {}, emptyCo
         initialNumToRender={5}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[style]}
-        ItemSeparatorComponent={() => <View style={styles.seperatorComponent}></View>}
+        ItemSeparatorComponent={() => seperatorComponent}
         ListEmptyComponent={loading ? loadingComponent : emptyComponent ? emptyComponent : <View style={[styles.container, { paddingHorizontal: 10 * Layout.scale.width }]}>
           <Text style={styles.textField}>No Content</Text>
         </View>}
@@ -170,7 +170,7 @@ function MeetingList({ meetingData, action, loading = false, style = {}, emptyCo
     }
     for (let i = 0; i < limit && i < meetingData.length; i++) {
       toRender.push(renderCallback({ item: meetingData[i] }))
-      toRender.push(seperatorComponent)
+      toRender.push(<Fragment key={i}>{seperatorComponent}</Fragment>)
     }
     if (toRender.length > 0)
       toRender.pop()

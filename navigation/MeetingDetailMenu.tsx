@@ -1,13 +1,13 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Dimensions, Animated, Easing, Linking, Platform } from 'react-native';
-import { RectButton, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import React, { useState} from 'react';
+import { StyleSheet, Text, View, Animated, Easing, Linking, Platform } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import {useColors} from '../hooks/useColors';
 import {useLayout} from '../hooks/useLayout';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlusCircle, faMinusCircle, faDirections } from '@fortawesome/free-solid-svg-icons';
-import {User, Meeting} from '../types/gratitude'
+import {User, Meeting} from '../types/circles'
 import log from '../util/Logging'
 
 

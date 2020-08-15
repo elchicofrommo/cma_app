@@ -9,28 +9,27 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { Octicons } from '@expo/vector-icons';
 
-import moment from 'moment'
 
 import JournalScreen from './JournalScreen'
 
-import CircleScreen from './GratitudeCircleScreen'
+import CircleScreen from './PostCircleScreen'
 
 import log from "../util/Logging"
 import {useColors} from '../hooks/useColors'
 import {useLayout} from '../hooks/useLayout'
 
-const GratitudeStack = createStackNavigator();
+const PostStack = createStackNavigator();
 const JournalStack = createStackNavigator();
 
-export default function GratitudeScreenStack() {
-  log.info(`rendering GratitudeStack stack`)
+export default function PostScreenStack() {
+  log.info(`rendering PostStack stack`)
   const Layout = useLayout();
   const {colors: Colors} = useColors();
   return (
-    <GratitudeStack.Navigator >
-      <GratitudeStack.Screen
-        name="gratitude"
-        component={GratitudeScreen}
+    <PostStack.Navigator >
+      <PostStack.Screen
+        name="post"
+        component={PostScreen}
 
         options={({ navigation, route }) => ({
           title: "",
@@ -38,7 +37,7 @@ export default function GratitudeScreenStack() {
             backgroundColor: Colors.primary1,
           },
           headerLeft: () => {
-            return <Text style={{ color: 'white', fontFamily: 'opensans', fontSize: 21 * Layout.scale.width, paddingLeft: 10 * Layout.scale.width }}>Gratitude</Text>
+            return <Text style={{ color: 'white', fontFamily: 'opensans', fontSize: 21 * Layout.scale.width, paddingLeft: 10 * Layout.scale.width }}>Post</Text>
           },
 
 
@@ -54,7 +53,7 @@ export default function GratitudeScreenStack() {
         })}
       />
 
-    </GratitudeStack.Navigator>
+    </PostStack.Navigator>
   )
 }
 
@@ -113,12 +112,12 @@ function JournalScreenStack() {
 
 
 
-function GratitudeScreen({ navigation, ...props }) {
+function PostScreen({ navigation, ...props }) {
 
   const Layout = useLayout();
   const {colors: Colors} = useColors();
   const styles = useStyles();
-  log.info(`rendering gratitudescreen`)
+  log.info(`rendering postscreen`)
   const [offset, setOffset] = useState(new Animated.Value(Layout.window.width * .008))
   const [isJournal, setIsJournal] = useState(true)
 

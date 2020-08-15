@@ -2,25 +2,17 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const subscribeToMyGratitudes = /* GraphQL */ `
-  subscription SubscribeToMyGratitudes($ownerId: ID!) {
-    subscribeToMyGratitudes(ownerId: $ownerId) {
+export const subscribeToMyPosts = /* GraphQL */ `
+  subscription SubscribeToMyPosts($ownerId: ID!) {
+    subscribeToMyPosts(ownerId: $ownerId) {
       id
-      title
-      ownerId
+            ownerId
       owner {
         id
         shortId
         name
       }
-      entries {
-        items {
-          id
-          gratitudeId
-          content
-          index
-        }
-      }
+      content
       likes {
         items {
           id
@@ -29,7 +21,7 @@ export const subscribeToMyGratitudes = /* GraphQL */ `
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           createdAt
         }
@@ -43,7 +35,7 @@ export const subscribeToMyGratitudes = /* GraphQL */ `
             name
             id
           }
-          gratitudeId
+          postId
           entryId
           comment
           createdAt
@@ -53,7 +45,7 @@ export const subscribeToMyGratitudes = /* GraphQL */ `
       broadcasts{
         items{
           id
-          gratitudeId
+          postId
           ownerId
           channelId
         }
@@ -69,25 +61,17 @@ export const subscribeToBroadcastChannel = /* GraphQL */ `
   subscription SubscribeToBroadcastChannel($channelId: ID!) {
     subscribeToBroadcastChannel(channelId: $channelId) {
       id
-      gratitudeId
+      postId
       channelId
       ownerId
-      gratitude {
+      post {
         id
-        title
-        ownerId
+                ownerId
         owner {
           id
           name
         }
-        entries {
-          items {
-            id
-            gratitudeId
-            content
-            index
-          }
-        }
+        content
         likes {
           items {
             id
@@ -96,7 +80,7 @@ export const subscribeToBroadcastChannel = /* GraphQL */ `
               name
               id
             }
-            gratitudeId
+            postId
             entryId
             createdAt
           }
@@ -110,7 +94,7 @@ export const subscribeToBroadcastChannel = /* GraphQL */ `
               name
               id
             }
-            gratitudeId
+            postId
             entryId
             comment
             createdAt
@@ -120,7 +104,7 @@ export const subscribeToBroadcastChannel = /* GraphQL */ `
         broadcasts{
             items{
               id
-              gratitudeId
+              postId
               ownerId
               channelId
             }
@@ -135,12 +119,11 @@ export const subscribeToBroadcastChannel = /* GraphQL */ `
     }
   }
 `;
-export const onCreateGratitude = /* GraphQL */ `
-  subscription OnCreateGratitude {
-    onCreateGratitude {
+export const onCreatePost = /* GraphQL */ `
+  subscription OnCreatePost {
+    onCreatePost {
       id
-      title
-      ownerId
+            ownerId
       owner {
         id
         shortId
@@ -153,7 +136,7 @@ export const onCreateGratitude = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -163,23 +146,12 @@ export const onCreateGratitude = /* GraphQL */ `
         updatedAt
         delta
       }
-      entries {
-        items {
-          id
-          gratitudeId
-          content
-          index
-          delta
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
+      content
       likes {
         items {
           id
           userId
-          gratitudeId
+          postId
           userName
           entryId
           createdAt
@@ -192,7 +164,7 @@ export const onCreateGratitude = /* GraphQL */ `
         items {
           id
           userId
-          gratitudeId
+          postId
           entryId
           comment
           createdAt
@@ -204,7 +176,7 @@ export const onCreateGratitude = /* GraphQL */ `
       broadcasts {
         items {
           id
-          gratitudeId
+          postId
           ownerId
           channelId
           createdAt
@@ -219,12 +191,11 @@ export const onCreateGratitude = /* GraphQL */ `
     }
   }
 `;
-export const onUpdateGratitude = /* GraphQL */ `
-  subscription OnUpdateGratitude {
-    onUpdateGratitude {
+export const onUpdatePost = /* GraphQL */ `
+  subscription OnUpdatePost {
+    onUpdatePost {
       id
-      title
-      ownerId
+            ownerId
       owner {
         id
         shortId
@@ -237,7 +208,7 @@ export const onUpdateGratitude = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -247,23 +218,12 @@ export const onUpdateGratitude = /* GraphQL */ `
         updatedAt
         delta
       }
-      entries {
-        items {
-          id
-          gratitudeId
-          content
-          index
-          delta
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
+      content
       likes {
         items {
           id
           userId
-          gratitudeId
+          postId
           userName
           entryId
           createdAt
@@ -276,7 +236,7 @@ export const onUpdateGratitude = /* GraphQL */ `
         items {
           id
           userId
-          gratitudeId
+          postId
           entryId
           comment
           createdAt
@@ -288,7 +248,7 @@ export const onUpdateGratitude = /* GraphQL */ `
       broadcasts {
         items {
           id
-          gratitudeId
+          postId
           ownerId
           channelId
           createdAt
@@ -303,12 +263,11 @@ export const onUpdateGratitude = /* GraphQL */ `
     }
   }
 `;
-export const onDeleteGratitude = /* GraphQL */ `
-  subscription OnDeleteGratitude {
-    onDeleteGratitude {
+export const onDeletePost = /* GraphQL */ `
+  subscription OnDeletePost {
+    onDeletePost {
       id
-      title
-      ownerId
+            ownerId
       owner {
         id
         shortId
@@ -321,7 +280,7 @@ export const onDeleteGratitude = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -331,23 +290,12 @@ export const onDeleteGratitude = /* GraphQL */ `
         updatedAt
         delta
       }
-      entries {
-        items {
-          id
-          gratitudeId
-          content
-          index
-          delta
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
+      content
       likes {
         items {
           id
           userId
-          gratitudeId
+          postId
           userName
           entryId
           createdAt
@@ -360,7 +308,7 @@ export const onDeleteGratitude = /* GraphQL */ `
         items {
           id
           userId
-          gratitudeId
+          postId
           entryId
           comment
           createdAt
@@ -372,7 +320,7 @@ export const onDeleteGratitude = /* GraphQL */ `
       broadcasts {
         items {
           id
-          gratitudeId
+          postId
           ownerId
           channelId
           createdAt
@@ -404,7 +352,7 @@ export const onCreateLike = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -414,7 +362,7 @@ export const onCreateLike = /* GraphQL */ `
         updatedAt
         delta
       }
-      gratitudeId
+      postId
       userName
       entryId
       createdAt
@@ -440,7 +388,7 @@ export const onUpdateLike = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -450,7 +398,7 @@ export const onUpdateLike = /* GraphQL */ `
         updatedAt
         delta
       }
-      gratitudeId
+      postId
       userName
       entryId
       createdAt
@@ -476,7 +424,7 @@ export const onDeleteLike = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -486,7 +434,7 @@ export const onDeleteLike = /* GraphQL */ `
         updatedAt
         delta
       }
-      gratitudeId
+      postId
       userName
       entryId
       createdAt
@@ -512,7 +460,7 @@ export const onCreateComment = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -522,7 +470,7 @@ export const onCreateComment = /* GraphQL */ `
         updatedAt
         delta
       }
-      gratitudeId
+      postId
       entryId
       comment
       createdAt
@@ -548,7 +496,7 @@ export const onUpdateComment = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -558,7 +506,7 @@ export const onUpdateComment = /* GraphQL */ `
         updatedAt
         delta
       }
-      gratitudeId
+      postId
       entryId
       comment
       createdAt
@@ -584,7 +532,7 @@ export const onDeleteComment = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -594,7 +542,7 @@ export const onDeleteComment = /* GraphQL */ `
         updatedAt
         delta
       }
-      gratitudeId
+      postId
       entryId
       comment
       createdAt
@@ -607,7 +555,7 @@ export const onCreateEntry = /* GraphQL */ `
   subscription OnCreateEntry {
     onCreateEntry {
       id
-      gratitudeId
+      postId
       content
       index
       delta
@@ -620,7 +568,7 @@ export const onUpdateEntry = /* GraphQL */ `
   subscription OnUpdateEntry {
     onUpdateEntry {
       id
-      gratitudeId
+      postId
       content
       index
       delta
@@ -633,7 +581,7 @@ export const onDeleteEntry = /* GraphQL */ `
   subscription OnDeleteEntry {
     onDeleteEntry {
       id
-      gratitudeId
+      postId
       content
       index
       delta
@@ -664,11 +612,10 @@ export const onCreateUser = /* GraphQL */ `
         }
         nextToken
       }
-      gratitudes {
+      posts {
         items {
           id
-          title
-          ownerId
+                    ownerId
           createdAt
           updatedAt
           delta
@@ -715,11 +662,10 @@ export const onUpdateUser = /* GraphQL */ `
         }
         nextToken
       }
-      gratitudes {
+      posts {
         items {
           id
-          title
-          ownerId
+                    ownerId
           createdAt
           updatedAt
           delta
@@ -766,11 +712,10 @@ export const onDeleteUser = /* GraphQL */ `
         }
         nextToken
       }
-      gratitudes {
+      posts {
         items {
           id
-          title
-          ownerId
+                    ownerId
           createdAt
           updatedAt
           delta
@@ -814,7 +759,7 @@ export const onCreateChannel = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -827,7 +772,7 @@ export const onCreateChannel = /* GraphQL */ `
       broadcasts {
         items {
           id
-          gratitudeId
+          postId
           ownerId
           channelId
           createdAt
@@ -872,7 +817,7 @@ export const onUpdateChannel = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -885,7 +830,7 @@ export const onUpdateChannel = /* GraphQL */ `
       broadcasts {
         items {
           id
-          gratitudeId
+          postId
           ownerId
           channelId
           createdAt
@@ -930,7 +875,7 @@ export const onDeleteChannel = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -943,7 +888,7 @@ export const onDeleteChannel = /* GraphQL */ `
       broadcasts {
         items {
           id
-          gratitudeId
+          postId
           ownerId
           channelId
           createdAt
@@ -1015,7 +960,7 @@ export const onCreateUserChannel = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -1077,7 +1022,7 @@ export const onUpdateUserChannel = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -1139,7 +1084,7 @@ export const onDeleteUserChannel = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -1159,11 +1104,10 @@ export const onCreateBroadcast = /* GraphQL */ `
   subscription OnCreateBroadcast {
     onCreateBroadcast {
       id
-      gratitudeId
-      gratitude {
+      postId
+      post {
         id
-        title
-        ownerId
+                ownerId
         owner {
           id
           shortId
@@ -1177,9 +1121,7 @@ export const onCreateBroadcast = /* GraphQL */ `
           updatedAt
           delta
         }
-        entries {
-          nextToken
-        }
+        content
         likes {
           nextToken
         }
@@ -1206,7 +1148,7 @@ export const onCreateBroadcast = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -1255,11 +1197,10 @@ export const onUpdateBroadcast = /* GraphQL */ `
   subscription OnUpdateBroadcast {
     onUpdateBroadcast {
       id
-      gratitudeId
-      gratitude {
+      postId
+      post {
         id
-        title
-        ownerId
+                ownerId
         owner {
           id
           shortId
@@ -1273,9 +1214,7 @@ export const onUpdateBroadcast = /* GraphQL */ `
           updatedAt
           delta
         }
-        entries {
-          nextToken
-        }
+        content
         likes {
           nextToken
         }
@@ -1302,7 +1241,7 @@ export const onUpdateBroadcast = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -1351,11 +1290,10 @@ export const onDeleteBroadcast = /* GraphQL */ `
   subscription OnDeleteBroadcast {
     onDeleteBroadcast {
       id
-      gratitudeId
-      gratitude {
+      postId
+      post {
         id
-        title
-        ownerId
+                ownerId
         owner {
           id
           shortId
@@ -1369,9 +1307,7 @@ export const onDeleteBroadcast = /* GraphQL */ `
           updatedAt
           delta
         }
-        entries {
-          nextToken
-        }
+        content
         likes {
           nextToken
         }
@@ -1398,7 +1334,7 @@ export const onDeleteBroadcast = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {

@@ -18,10 +18,10 @@ import {
 } from "react-native";
 import log from "../util/Logging"
 import { connect } from "react-redux";
-import mutateApi, { CreateGratitudeInput} from "../api/mutate";
-import { Gratitude, Entry, Like, Comment, User, NestedArray, Broadcast } from "../types/gratitude";
+import mutateApi, { CreatePostInput} from "../api/mutate";
+import { Post, Entry, Like, Comment, User, NestedArray, Broadcast } from "../types/circles";
 
-import {GratitudeComponent, GratitudeRenderMode, LikeButton} from '../components/GratitudeComponent'
+import {PostComponent, PostRenderMode, LikeButton} from '../components/PostComponent'
 
 import { shallowEqual, useSelector } from "react-redux";
 import {
@@ -43,8 +43,8 @@ import {
 } from "@expo/vector-icons";
 
 
-function defaultGratitude(user: User) :Gratitude {
-  log.info(`creating new defaultGratitudeentry`)
+function defaultPost(user: User) :Post {
+  log.info(`creating new defaultPostentry`)
   
   return{
     id: "new",
@@ -65,11 +65,11 @@ function defaultGratitude(user: User) :Gratitude {
   
 };
 
-function GratitudeEditorScreen({
+function PostEditorScreen({
   route,
   navigation,
   user,
-  gratitude = route.params?.gratitude || defaultGratitude(user),
+  post = route.params?.post || defaultPost(user),
   channelId = route.params?.channelId || undefined,
   ...props}:  
   {
@@ -77,11 +77,11 @@ function GratitudeEditorScreen({
     user: User,
     navigation: any,
     channelId: string | undefined
-    gratitude: Gratitude
+    post: Post
   }) {
 
 
-  const [gratitudeEdit, setGratitudeEdit] = useState<Gratitude>({...gratitude});
+  const [postEdit, setPostEdit] = useState<Post>({...post});
   const [editCount, setEditCount] = useState(0);
   const defaultRowEntry = { index: -1, text: "" };
   const [rowEdit, setRowEdit] = useState(defaultRowEntry);
@@ -98,11 +98,11 @@ function GratitudeEditorScreen({
     setRowEdit({ index, text });
     textInput.current.focus();
   }
-  const gratitudeState: Gratitude = useSelector(
+  const postState: Post = useSelector(
     (state) => {
-      if (gratitudeEdit.id === "new")
+      if (postEdit.id === "new")
         return undefined
-      const toReturn = state.general.gratitudes.filter((temp: Gratitude) => temp.id === gratitude.id)
+      const toReturn = state.general.posts.filter((temp: Post) => temp.id === post.id)
       if (toReturn?.length > 0)
         return toReturn[0]
       else
@@ -112,11 +112,11 @@ function GratitudeEditorScreen({
 
   const broadcastState: Broadcast = useSelector(
     (state) => {
-      if (gratitudeEdit.id === "new")
+      if (postEdit.id === "new")
         return undefined
       if (channelId) {
         const toReturn = state.general.broadcastsByChannel.get(channelId).filter((temp: Broadcast) =>
-          temp.gratitudeId == gratitudeEdit.id)
+          temp.postId == postEdit.id)
         return toReturn
       }
       return undefined
@@ -124,20 +124,20 @@ function GratitudeEditorScreen({
   )
 
   useEffect(() => {
-    log.info(`observed change in gratitude component`, { gratitudeState })
-    if (gratitudeState && gratitudeState.comments && gratitudeState.likes) {
-      setGratitudeEdit(gratitudeState)
+    log.info(`observed change in post component`, { postState })
+    if (postState && postState.comments && postState.likes) {
+      setPostEdit(postState)
     }
 
 
-  }, [gratitudeState])
+  }, [postState])
 
   useEffect(() => {
     log.info(`observed change in broadcast component `, { broadcastState })
 
-    if (broadcastState && broadcastState[0] && broadcastState[0].gratitude) {
+    if (broadcastState && broadcastState[0] && broadcastState[0].post) {
 
-      setGratitudeEdit(broadcastState[0].gratitude)
+      setPostEdit(broadcastState[0].post)
     }
   }, [broadcastState])
 
@@ -200,30 +200,30 @@ function GratitudeEditorScreen({
     log.info("maing a new save button");
     navigation.setOptions({
       headerLeft: () => (
-        gratitude.id==="new"?<GratitudeCancelButton navigation={navigation}  />:
-        <GratitudeBackButton navigation={navigation}/>
+        post.id==="new"?<PostCancelButton navigation={navigation}  />:
+        <PostBackButton navigation={navigation}/>
       ),
     });
-    if(editCount > 0 && gratitude.id==="new"){
+    if(editCount > 0 && post.id==="new"){
       navigation.setOptions({
         headerRight: () => (
-          <GratitudeSaveButton navigation={navigation} gratitude={gratitudeEdit} />
+          <PostSaveButton navigation={navigation} post={postEdit} />
         ),
       });
-    }else if(gratitude.id!=="new" && user.id != gratitude.ownerId){
+    }else if(post.id!=="new" && user.id != post.ownerId){
       navigation.setOptions({
         headerRight:()=>
-            <View style={{paddingRight: 10*Layout.scale.width}}><LikeButton gratitude={gratitudeEdit} user={user} iLiked={gratitudeEdit.likes.items.filter(like=>like.userId===user.id).length>0}/></View>
+            <View style={{paddingRight: 10*Layout.scale.width}}><LikeButton post={postEdit} user={user} iLiked={postEdit.likes.items.filter(like=>like.userId===user.id).length>0}/></View>
       })
     }
-  }, [editCount, gratitudeEdit]);
+  }, [editCount, postEdit]);
 
   useEffect(() => {
 
-    let newEntry:Gratitude = {...gratitude};
+    let newEntry:Post = {...post};
 
 
-    setGratitudeEdit(newEntry);
+    setPostEdit(newEntry);
     setEditCount(0);
 
     const showHolder =
@@ -237,8 +237,8 @@ function GratitudeEditorScreen({
     StatusBar.setBarStyle("dark-content", true);
     props.dispatchShowEditor(route.params);
     
-    if(gratitudeEdit.id==="new")
-      startEntry(-2, gratitudeEdit.title)
+    if(postEdit.id==="new")
+      startEntry(-2, postEdit.title)
 
     return () => {
       showHolder.remove();
@@ -252,33 +252,33 @@ function GratitudeEditorScreen({
     log.info("committing text edit");
     setEditCount((editCount) => editCount + 1);
     setRowEdit({ index: -1, text: "" });
-    if(gratitude.id==="new"){
+    if(post.id==="new"){
       // if it is -2 then the title is being edited
       if (rowEdit.index == -2) {
-        setGratitudeEdit((gratitudeEdit) => {
-          gratitudeEdit.title = rowEdit.text;
-          return gratitudeEdit;
+        setPostEdit((postEdit) => {
+          postEdit.title = rowEdit.text;
+          return postEdit;
         });
         return;
       }
-      const  items = [...gratitudeEdit.entries.items];
+      const  items = [...postEdit.entries.items];
         if (rowEdit.index > -1) items[rowEdit.index].content = rowEdit.text;
-        else items.push({content:rowEdit.text, gratitudeId: 'none', likes: {items:[]}, comments: {items: []}} as Entry);
-        const newEntry : Gratitude = {...gratitudeEdit};
+        else items.push({content:rowEdit.text, postId: 'none', likes: {items:[]}, comments: {items: []}} as Entry);
+        const newEntry : Post = {...postEdit};
         newEntry.entries.items = items
 
-      setGratitudeEdit(newEntry);
+      setPostEdit(newEntry);
     }else{
       const comment: Comment = {
-        gratitudeId: gratitude.id,
+        postId: post.id,
         userId: user.id,
         user: user,
         comment: rowEdit.text
       }
-      const newEntry : Gratitude = {...gratitudeEdit};
+      const newEntry : Post = {...postEdit};
       newEntry.comments.items.push(comment)
-      mutateApi.commentOnGratitude({gratitude: gratitudeEdit, user: user, comment: rowEdit.text})
-     // setGratitudeEdit(newEntry)
+      mutateApi.commentOnPost({post: postEdit, user: user, comment: rowEdit.text})
+     // setPostEdit(newEntry)
     }
     
     textInput.current.clear();
@@ -287,11 +287,11 @@ function GratitudeEditorScreen({
   function deleteEntry() {
     setEditCount((editCount) => editCount + 1);
     setRowEdit({ index: -1, text: "" });
-    const items = [...gratitudeEdit.entries.items];
+    const items = [...postEdit.entries.items];
     items.splice(rowEdit.index, 1);
-    const newEntry : Gratitude = {...gratitudeEdit};
+    const newEntry : Post = {...postEdit};
     newEntry.entries.items = items
-    setGratitudeEdit(newEntry);
+    setPostEdit(newEntry);
     textInput.current.clear();
   }
 
@@ -313,7 +313,7 @@ function GratitudeEditorScreen({
           ref={textInput}
           value={rowEdit ? rowEdit.text : ""}
           keyboardType={"twitter"}
-          placeholder={gratitude.id==='new'?"Write something...":'Add Comment'}
+          placeholder={post.id==='new'?"Write something...":'Add Comment'}
           style={[styles.keyboardEntry, styles.entry]}
           multiline={true}
           onChangeText={(value) =>
@@ -386,19 +386,19 @@ function GratitudeEditorScreen({
     <View style={styles.container}>
       <TouchableWithoutFeedback
         
-        style={[styles.title, (gratitudeEdit.id!=="new")&& {display: 'none'}]}
-        onPress={() => startEntry(-2, gratitudeEdit.title)}
+        style={[styles.title, (postEdit.id!=="new")&& {display: 'none'}]}
+        onPress={() => startEntry(-2, postEdit.title)}
       >
-        <Text style={[styles.text]}>{gratitudeEdit.title} </Text>
+        <Text style={[styles.text]}>{postEdit.title} </Text>
       </TouchableWithoutFeedback>
 
       <Animated.View style={{flex: 1, alignItems: "flex-start", marginBottom}}>
-      <GratitudeComponent 
-        gratitude={gratitudeEdit}
+      <PostComponent 
+        post={postEdit}
         channelId={channelId}
         action = {startEntry}
         navigation={navigation}
-        mode={gratitudeEdit.id==="new"?GratitudeRenderMode.NEW: GratitudeRenderMode.EDIT}
+        mode={postEdit.id==="new"?PostRenderMode.NEW: PostRenderMode.EDIT}
       />
 
       </Animated.View>
@@ -408,7 +408,7 @@ function GratitudeEditorScreen({
   );
 }
 
-GratitudeEditorScreen = connect(
+PostEditorScreen = connect(
   function mapStateToProps(state, ownProps) {
     log.info(
       `DetailsScreen connect observed redux change, detail ${state.general.meetingDetail}`
@@ -437,7 +437,7 @@ GratitudeEditorScreen = connect(
 
     };
   }
-)(GratitudeEditorScreen);
+)(PostEditorScreen);
 
 function listCompare(prevProps, nextProps) {
   return prevProps.editCount == nextProps.editCount;
@@ -457,44 +457,44 @@ function renderSeperator(highlited, props) {
   );
 }
 
-function _GratitudeSaveButton({
+function _PostSaveButton({
   navigation,
-  gratitude,
+  post,
   operatingUser,
   dispatchBanner, 
   ...props
-}: {operatingUser: User, navigation: any, gratitude: Gratitude, dispatchBanner: Function}) {
+}: {operatingUser: User, navigation: any, post: Post, dispatchBanner: Function}) {
   const Layout = useLayout();
   const {colors: Colors} = useColors();
-  async function saveGratitude() {
-    log.info(`saving gratitude`)
-    if (gratitude.entries.items.length == 0) {
+  async function savePost() {
+    log.info(`saving post`)
+    if (post.entries.items.length == 0) {
       log.info("nothign saved cuz no changes");
       return;
     }
-    if(gratitude.id ==="new"){ 
+    if(post.id ==="new"){ 
       // need to empty this out
-      gratitude.id = undefined
+      post.id = undefined
     }
 
-    //log.info(`gratitudeEntry is:`, {gratitude});
+    //log.info(`postEntry is:`, {post});
     StatusBar.setBarStyle("light-content", true);
     //
 
     try {
         const entries = [];
-        gratitude.entries.items.forEach((item, index)=>{
+        post.entries.items.forEach((item, index)=>{
             entries.push(item.content);
         })
-        const gratitudeInput: CreateGratitudeInput = {
-            title: gratitude.title,
+        const postInput: CreatePostInput = {
+            title: post.title,
             entries: entries
         }
-        const gratResult = await mutateApi.createGratitude(operatingUser, gratitudeInput)
+        const gratResult = await mutateApi.createPost(operatingUser, postInput)
 
-       // log.info(`results of gratitude save are:`, {gratitudeResult} )
-        dispatchBanner({ message: "Gratitude Saved", status: "info" });
-    //  props.dispatchAddGratitude(result);
+       // log.info(`results of post save are:`, {postResult} )
+        dispatchBanner({ message: "Post Saved", status: "info" });
+    //  props.dispatchAddPost(result);
 
     } catch (err) {
       log.info(`error is  ${err}`);
@@ -513,14 +513,14 @@ function _GratitudeSaveButton({
     onPress={(event) => {
 
       navigation.goBack();
-      saveGratitude();
+      savePost();
     }}
   />
   </View>
   );
 }
 
-function GratitudeCancelButton({
+function PostCancelButton({
   navigation,
   ...props
 }: {navigation: any}) {
@@ -537,7 +537,7 @@ function GratitudeCancelButton({
   );
 }
 
-function GratitudeBackButton({
+function PostBackButton({
   navigation,
   ...props
 }: {navigation: any}) {
@@ -554,7 +554,7 @@ function GratitudeBackButton({
   );
 }
 
-const GratitudeSaveButton = connect(
+const PostSaveButton = connect(
   function mapStateToProps(state, ownProps) {
     const { operatingUser } = state.general;
 
@@ -568,12 +568,12 @@ const GratitudeSaveButton = connect(
       dispatchHideEditor: (data) => {
         dispatch({ type: "HIDE_EDITOR" });
       },
-      dispatchAddGratitude: (data) => {
-        dispatch({ type: "ADD_GRATITUDE", data });
+      dispatchAddPost: (data) => {
+        dispatch({ type: "ADD_POST", data });
       },
     };
   }
-)(_GratitudeSaveButton);
+)(_PostSaveButton);
 
 function useStyles(){
 
@@ -641,4 +641,4 @@ function useStyles(){
 }
 
 
-export default GratitudeEditorScreen;
+export default PostEditorScreen;

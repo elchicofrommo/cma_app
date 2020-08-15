@@ -51,7 +51,7 @@ import { Auth, } from "aws-amplify";
 import apiGateway from '../api/apiGateway'
 import mutateApi, { CreateUserInput, UpdateUserInput } from '../api/mutate'
 import queryApi from '../api/fetch'
-import { User, Channel, UserChannel, Gratitude, Broadcast, Meeting } from '../types/gratitude'
+import { User, Channel, UserChannel, Post, Broadcast, Meeting } from '../types/circles'
 
 
 
@@ -64,7 +64,7 @@ export type SignInResult = {
   operatingUser?: User,
   ownedChannels?: Channel[],
   userChannels?: UserChannel[],
-  gratitudes?: Gratitude[],
+  posts?: Post[],
   broadcastMap?: Map<string, Broadcast[]>,
   meetings?: string[]
   error?: string,
@@ -76,7 +76,6 @@ export type AuthorizeTokens = {
   jwtToken?: string,
   refreshToken?: string,
   email: string,
-  password: string,
   error?: string
 }
 
@@ -88,11 +87,13 @@ export async function signOut(){
 }
 export async function authorize(){
     // if we are here then successful, get user data from cloud
-
-    const currentCredentials = await Auth.currentUserCredentials();
     const currentUser = await Auth.currentAuthenticatedUser();
+    const currentCredentials = await Auth.currentCredentials();
+    
     const currentUserPoolUser = await Auth.currentUserPoolUser();
     log.verbose(`current credentials`, {currentCredentials})
+    
+    return {authenticated: currentCredentials.authenticated, userId: currentUser.userName}
 }
 async function signIn(email: string, password: string): Promise<AuthorizeTokens>{
 
@@ -108,7 +109,7 @@ async function signIn(email: string, password: string): Promise<AuthorizeTokens>
   let pattern = new RegExp(/\S+?@\S+?\.\S+/);
   if (!pattern.exec(email)) {
 
-    return { email, password, error: "Email address is not valid format" };
+    return { email, error: "Email address is not valid format" };
   }
 
   try {
@@ -118,27 +119,27 @@ async function signIn(email: string, password: string): Promise<AuthorizeTokens>
     const userName = result.username;
     const jwtToken = result.signInUserSession.idToken.jwtToken;
     const refreshToken = result.signInUserSession.refreshToken.token;
-    store.dispatch({type: "SET_AUTH_TOKENS", tokens: {email, password, jwtToken, refreshToken}})
-    return {userName, email, password, jwtToken, refreshToken}
+    store.dispatch({type: "SET_AUTH_TOKENS", tokens: {email, jwtToken, refreshToken}})
+    return {userName, email, jwtToken, refreshToken}
   }catch(err){
     log.verbose("error in authentication", {error: err})
-    return {jwtToken: undefined, refreshToken: undefined, email, password}
+    return {jwtToken: undefined, refreshToken: undefined, email,  error: err.message || err}
   }
 }
 
-export async function getUserDetails(email: string): Promise<SignInResult> {
+export async function getUserDetails(id: string): Promise<SignInResult> {
 
   try{
-    const authResults = await queryApi.getAuthDetails(email)
+    const authResults = await queryApi.getAuthDetails(id)
       log.verbose(`authResults are`, {authResults} )
     const opResults = await queryApi.fetchOperatingUser(authResults.id)
     log.info(`successful retrevial of operating user `);
 
-    const broadcastsByChannel = await queryApi.fetchBroadcastGratitude(opResults.user, opResults.userChannels);
+    const broadcastsByChannel = await queryApi.fetchBroadcastPost(opResults.user, opResults.userChannels);
     log.info(`broadcastByChannel`, { broadcastsByChannel })
     const signInResult = {
       operatingUser: opResults.user,
-      gratitudes: opResults.gratitudes, ownedChannels: opResults.channels, 
+      posts: opResults.posts, ownedChannels: opResults.channels, 
       userChannels: opResults.userChannels, broadcastsByChannel,
 
     }
@@ -150,7 +151,7 @@ export async function getUserDetails(email: string): Promise<SignInResult> {
 
     return signInResult
   } catch (err) {
-    log.info(`caught error signing in`, { err })
+    log.verbose(`caught error signing in`, { err })
     return {  error: err.message }
 
   }
@@ -188,6 +189,7 @@ function SignInScreen({ operatingUser: opUser, ...props }: { operatingUser: User
       log.verbose(`sign up response `, {signup});
 
       const userInput: CreateUserInput = {
+        id: signup.userSub,
         email: email,
         name: name
       }
@@ -195,7 +197,7 @@ function SignInScreen({ operatingUser: opUser, ...props }: { operatingUser: User
         try{
           const result = await signIn(email, password)
           await mutateApi.createUser(userInput)
-          const userDetails = await getUserDetails(email)
+          const userDetails = await getUserDetails(userInput.id)
       
           if (result.error) {
             setSigninError({ display: "flex", message: result.error });
@@ -226,13 +228,16 @@ function SignInScreen({ operatingUser: opUser, ...props }: { operatingUser: User
     }
   }
 
+
   async function signInAction() {
     const result = await signIn(email, password)
-    const userDetails = await getUserDetails(email)
 
     if (result.error) {
       setSigninError({ display: "flex", message: result.error });
     }else{
+
+      const userDetails = await getUserDetails(result.userName)
+
       props.navigation.navigate('home')
     }
   }

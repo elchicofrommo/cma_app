@@ -110,8 +110,8 @@ export var currentTheme = Themes.BlueOrange
  const colors = {
   appRed: "#f36468",
   appBlue: "#0273b1",
-  gratitudeEntry: "#3371ce",
-  myGratitudeEntry: "#61b333",
+  postEntry: "#3371ce",
+  myPostEntry: "#61b333",
   tintColor,
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,

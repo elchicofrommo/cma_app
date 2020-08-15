@@ -1,7 +1,7 @@
 import { searchForMeeting } from '../screens/MeetingSearchScreen';
 import React, {useState, useEffect} from 'react'
 import log from '../util/Logging'
-import { Meeting } from '../types/gratitude';
+import { Meeting } from '../types/circles';
 
 export default function useCloseMeetings(): {meetings: Meeting[], loading: boolean, error: string}{
     const [state, setState] = useState({meetings: [], loading: false, error: undefined});
@@ -17,7 +17,7 @@ export default function useCloseMeetings(): {meetings: Meeting[], loading: boole
         const result = await searchForMeeting();
 
         setState((state)=>{
-            log.verbose('got data from meeting serach: ', {result})
+            log.info('got data from meeting serach: ', {result})
             state.loading = false;
 
             state.meetings = result.meetings || []

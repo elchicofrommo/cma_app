@@ -1,7 +1,7 @@
 import {  BottomTabBar } from '@react-navigation/bottom-tabs';
-import React, {useState, useEffect,} from 'react';
-import { StyleSheet, View, Animated, Easing, TouchableOpacity, Text} from 'react-native';
-import Colors from '../constants/Colors';
+import React, {useState,} from 'react';
+import {  Animated, Easing} from 'react-native';
+
 import { connect } from 'react-redux';
 import log from '../util/Logging'
 
@@ -10,7 +10,7 @@ let TabBar  = function ({ state, descriptors, navigation, style, ...props }) {
   log.info('rendering TabBar')
   log.info(`showMenu is ${props.showMenu}`)
   const [offset, setOffset] = useState(new Animated.Value(80))
-  const [isVisible, setIsVisible] = useState(true)
+
 
   
   function show(){
@@ -34,15 +34,7 @@ let TabBar  = function ({ state, descriptors, navigation, style, ...props }) {
 
   }
 
-/*
-    if(props.showMenu){
-      show()
-    }else{
-      hide()
-    }
 
-*/
-  
 
   const transform = {
     height: offset

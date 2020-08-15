@@ -1,6 +1,6 @@
-import { Gratitude, Entry, User  } from "../types/gratitude";
+import { Post,  User  } from "../types/circles";
 import React, { useCallback,  useState } from "react";
-import { GratitudeComponent, GratitudeRenderMode, ShareButton, CommentButton, LikeButton, DeleteButton } from "../components/GratitudeComponent"
+import { PostComponent, PostRenderMode, ShareButton, CommentButton, LikeButton, DeleteButton } from "./PostComponent"
 import Modal from "react-native-modal";
 import mutateApi from '../api/mutate'
 import {
@@ -14,41 +14,41 @@ import {
 
 } from "react-native";
 
-import Button from "../components/Button"
+import Button from "./Button"
 
 import log from "../util/Logging";
 import {useLayout} from '../hooks/useLayout'
 import {useColors} from "../hooks/useColors";
 import { shallowEqual, useSelector } from "react-redux";
-import {store} from "../components/store"
+import {store} from "./store"
 
 
-export default function GratitudeList({
-  gratitudeData,
+export default function PostList({
+  postData,
   channelId, 
   action,
   navigation,
 }: {
-  gratitudeData: Gratitude[];
+  postData: Post[];
   channelId?: string;
   action: Function;
   navigation: any
 }) {
-  log.info(`rendering gratitude list `);
+  log.info(`rendering post list `);
 
   const styles = useStyles()
   const user: User = useSelector(
     (state) => state.general.operatingUser,
     shallowEqual
   );
-  const [deleteState, setDeleteState] = useState({show: false, gratitude: undefined}) 
+  const [deleteState, setDeleteState] = useState({show: false, post: undefined}) 
 
-  function confirmDelete(gratitude: Gratitude){
-    setDeleteState({show: true, gratitude})
+  function confirmDelete(post: Post){
+    setDeleteState({show: true, post})
   }
 
-  function deleteGratitude(){
-    const result = mutateApi.deleteGratitude(deleteState.gratitude)
+  function deletePost(){
+    const result = mutateApi.deletePost(deleteState.post)
     // should check status of delete
     log.info(`results from delete`, {deleteResult: result})
     store.dispatch({type: 'SET_BANNER', 
@@ -60,29 +60,29 @@ export default function GratitudeList({
   }
 
 
-  function renderGratitudeRow({ item: gratitude, index }: ListRenderItemInfo<Gratitude>) {
+  function renderPostRow({ item: post, index }: ListRenderItemInfo<Post>) {
     const iLiked =
-      gratitude.likes.items.filter((like) => like.user.id == user.id)
+      post.likes.items.filter((like) => like.user.id == user.id)
         .length > 0;
-    const isMine = gratitude.ownerId == user.id
-    const commentCallback = () => navigation.navigate("editor", { gratitude, channelId })
+    const isMine = post.ownerId == user.id
+    const commentCallback = () => navigation.navigate("editor", { post, channelId })
 
     return (
       <View>
         <TouchableWithoutFeedback onPress={()=>alert('hi')}>
-          <GratitudeComponent gratitude={gratitude} action={action} mode={GratitudeRenderMode.SHORT} navigation={navigation} />
+          <PostComponent post={post} action={action} mode={PostRenderMode.SHORT} navigation={navigation} />
         </TouchableWithoutFeedback>
-        <View style={[styles.gratitudeFooter, ]}>
-          { !isMine && <LikeButton gratitude={gratitude} user={user} iLiked={iLiked}></LikeButton>}
-          { false && isMine && <DeleteButton callback={() => confirmDelete(gratitude)}></DeleteButton>}
-          { isMine && <ShareButton callback={() => action(gratitude)}></ShareButton>}
+        <View style={[styles.postFooter, ]}>
+          { !isMine && <LikeButton post={post} user={user} iLiked={iLiked}></LikeButton>}
+          { false && isMine && <DeleteButton callback={() => confirmDelete(post)}></DeleteButton>}
+          { isMine && <ShareButton callback={() => action(post)}></ShareButton>}
           <CommentButton callback={commentCallback} ></CommentButton>
         </View>
       </View>
     )
   }
-  function gratitudeRowSeprator(highlighted, next) {
-    return <View style={styles.gratitudeRowSeprator} />;
+  function postRowSeprator(highlighted, next) {
+    return <View style={styles.postRowSeprator} />;
   }
   const keyExtractor = useCallback((item, index): string => {
     return index + "";
@@ -91,18 +91,18 @@ export default function GratitudeList({
   return (
     <View>
     <FlatList
-      data={gratitudeData}
-      renderItem={renderGratitudeRow}
-      ItemSeparatorComponent={gratitudeRowSeprator}
+      data={postData}
+      renderItem={renderPostRow}
+      ItemSeparatorComponent={postRowSeprator}
 
       keyExtractor={keyExtractor}
       initialNumToRender={5}
       ListEmptyComponent={
         <Text style={styles.keyboardEntry} key={"empty"}>
-          Start writing your first gratitude
+          Start writing your first post
         </Text>
       }
-      contentContainerStyle={styles.gratitudeList}
+      contentContainerStyle={styles.postList}
 
     />
       <Modal
@@ -118,9 +118,9 @@ export default function GratitudeList({
 
       >
         <View style={{ backgroundColor: 'white', borderRadius: 12, paddingHorizontal: 15, paddingVertical: 25, ...shadow}}>
-    <Text style={{fontSize: 17, fontFamily: "opensans",textAlign: 'center'}}>Delete '{deleteState.gratitude?.title}' permanantly?</Text>
+    <Text style={{fontSize: 17, fontFamily: "opensans",textAlign: 'center'}}>Delete permanantly?</Text>
           <View style={{flexDirection: 'row' , justifyContent: 'space-around', paddingTop: 15}}>
-            <Button label={"Confirm"} style={styles.deleteButtonContainer} onPress={()=>deleteGratitude()} ></Button>
+            <Button label={"Confirm"} style={styles.deleteButtonContainer} onPress={()=>deletePost()} ></Button>
             <Button label={"Cancel"} style={styles.cancelButtonContainer} onPress={()=>setDeleteState(deleteState=>{deleteState.show=false; return {...deleteState}})} ></Button>
           </View>
         </View>
@@ -145,7 +145,7 @@ function useStyles(){
 
   const styles = StyleSheet.create({
 
-    gratitudeButtons: {
+    postButtons: {
       flexDirection: "row",
       paddingVertical: 7,
       alignItems: "center",
@@ -173,14 +173,14 @@ function useStyles(){
       borderColor: 'lightgray'
     },
 
-    gratitudeFooter: {
+    postFooter: {
       flexDirection: "row",
       justifyContent: "space-around",
       flex: 1,
       width: "100%",
     },
 
-    gratitudeRowSeprator: {
+    postRowSeprator: {
       height: 5 * Layout.scale.width,
       backgroundColor: Colors.primary1L3,
       width: "100%",
@@ -197,7 +197,7 @@ function useStyles(){
   
 
 
-    gratitudeRow: {
+    postRow: {
       flexDirection: "column",
       alignItems: "center",
   

@@ -1,11 +1,10 @@
-import {User, Gratitude, Channel, UserChannel, Broadcast, Meeting} from '../types/gratitude'
+import {User, Post, Channel, UserChannel, Broadcast, Meeting} from '../types/circles'
 
 export type AppState = {
     email?: string,
-    password?: string,
     currentTheme: number,
     operatingUser: User,
-    gratitudes: Gratitude[],
+    posts: Post[],
     broadcastsByChannel: Map<string, Broadcast[]>,
     ownedChannels: Channel[],
     userChannels: UserChannel[],

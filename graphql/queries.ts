@@ -6,21 +6,12 @@ enum ModelSortDirection {
   DESC = "DESC",
 }
 
-export const getGratitude = /* GraphQL */ `
-  query GetGratitude($id: ID!) {
-    getGratitude(id: $id) {
+export const getPost = /* GraphQL */ `
+  query GetPost($id: ID!) {
+    getPost(id: $id) {
       id
-      title
-      ownerId
-      entries {
-        items {
-          id
-          gratitudeId
-          content
-          index
-        }
-        nextToken
-      }
+            ownerId
+      conent
       likes {
         items {
           id
@@ -48,7 +39,7 @@ export const getGratitude = /* GraphQL */ `
       broadcasts{
         items{
           id
-          gratitudeId
+          postId
           ownerId
           channelId
         }
@@ -59,31 +50,23 @@ export const getGratitude = /* GraphQL */ `
     }
   }
 `;
-export const listGratitudes = /* GraphQL */ `
-  query ListGratitudes(
-    $filter: ModelGratitudeFilterInput
+export const listPosts = /* GraphQL */ `
+  query ListPosts(
+    $filter: ModelPostFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listGratitudes(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listPosts(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        title
-        ownerId
+                ownerId
         owner {
           id
           shortId
           name
           email
         }
-        entries {
-            items{
-              id
-              gratitudeId
-              content
-              index
-            }
-          }
+        content
           likes {
             items{
               userId
@@ -118,17 +101,16 @@ export const listGratitudes = /* GraphQL */ `
     }
   }
 `;
-export const listShortGratitudes = /* GraphQL */ `
-  query ListGratitudes(
-    $filter: ModelGratitudeFilterInput
+export const listShortPosts = /* GraphQL */ `
+  query ListPosts(
+    $filter: ModelPostFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listGratitudes(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listPosts(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        title
-        ownerId
+                ownerId
         owner {
           id
           name
@@ -167,29 +149,21 @@ export const getOperatingUser = /* GraphQL */ `
         }
       }
     }
-    listGratitudeByOwner(
+    listPostByOwner(
       ownerId: $id,
       sortDirection: DESC,
       limit: 50
     ){
       items {
           id
-          title
-          ownerId
+                    ownerId
           owner {
             id
             name
             email
           }
           createdAt
-          entries {
-            items{
-              id
-              gratitudeId
-              content
-              index
-            }
-          }
+          content
           likes {
             items{
               id
@@ -215,7 +189,7 @@ export const getOperatingUser = /* GraphQL */ `
           broadcasts{
             items{
               id
-              gratitudeId
+              postId
               ownerId
               channelId
             }
@@ -256,11 +230,10 @@ export const getUser = /* GraphQL */ `
         }
         nextToken
       }
-      gratitudes {
+      posts {
         items {
           id
-          title
-          ownerId
+                    ownerId
           createdAt
           updatedAt
         }
@@ -443,11 +416,10 @@ export const getBroadcast = /* GraphQL */ `
   query GetBroadcast($id: ID!) {
     getBroadcast(id: $id) {
       id
-      gratitudeId
-      gratitude {
+      postId
+      post {
         id
-        title
-        ownerId
+                ownerId
         owner {
           id
           shortId
@@ -461,9 +433,7 @@ export const getBroadcast = /* GraphQL */ `
           updatedAt
           delta
         }
-        entries {
-          nextToken
-        }
+        content
         likes {
           nextToken
         }
@@ -490,7 +460,7 @@ export const getBroadcast = /* GraphQL */ `
         channels {
           nextToken
         }
-        gratitudes {
+        posts {
           nextToken
         }
         ownedChannels {
@@ -544,11 +514,10 @@ export const listBroadcasts = /* GraphQL */ `
     listBroadcasts(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        gratitudeId
-        gratitude {
+        postId
+        post {
           id
-          title
-          ownerId
+                    ownerId
           createdAt
           updatedAt
           delta
@@ -585,16 +554,16 @@ export const listBroadcasts = /* GraphQL */ `
     }
   }
 `;
-export const listGratitudeByOwner = /* GraphQL */ `
-  query ListGratitudeByOwner(
+export const listPostByOwner = /* GraphQL */ `
+  query ListPostByOwner(
     $ownerId: ID
     $createdAt: ModelIntKeyConditionInput
     $sortDirection: ModelSortDirection
-    $filter: ModelGratitudeFilterInput
+    $filter: ModelPostFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listGratitudeByOwner(
+    listPostByOwner(
       ownerId: $ownerId
       createdAt: $createdAt
       sortDirection: $sortDirection
@@ -604,8 +573,7 @@ export const listGratitudeByOwner = /* GraphQL */ `
     ) {
       items {
         id
-        title
-        ownerId
+                ownerId
         owner {
           id
           shortId
@@ -614,14 +582,7 @@ export const listGratitudeByOwner = /* GraphQL */ `
           createdAt
           updatedAt
         }
-        entries {
-          items{
-              id
-              content
-              index
-              gratitudeId
-          }
-        }
+        content
 
         likes {
           items{
@@ -640,7 +601,7 @@ export const listGratitudeByOwner = /* GraphQL */ `
           broadcasts{
             items{
               id
-              gratitudeId
+              postId
               ownerId
               channelId
             }
@@ -651,220 +612,7 @@ export const listGratitudeByOwner = /* GraphQL */ `
     }
   }
 `;
-export const listLikesByGratitude = /* GraphQL */ `
-  query ListLikesByGratitude(
-    $gratitudeId: ID
-    $createdAt: ModelIntKeyConditionInput
-    $sortDirection: ModelSortDirection
-    $filter: ModelLikeFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listLikesByGratitude(
-      gratitudeId: $gratitudeId
-      createdAt: $createdAt
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        userId
-        gratitudeId
-        userName
-        entryId
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
-export const listLikesByEntry = /* GraphQL */ `
-  query ListLikesByEntry(
-    $entryId: ID
-    $createdAt: ModelIntKeyConditionInput
-    $sortDirection: ModelSortDirection
-    $filter: ModelLikeFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listLikesByEntry(
-      entryId: $entryId
-      createdAt: $createdAt
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        userId
-        gratitudeId
-        userName
-        entryId
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
-export const listLikesByUser = /* GraphQL */ `
-  query ListLikesByUser(
-    $userId: ID
-    $createdAt: ModelIntKeyConditionInput
-    $sortDirection: ModelSortDirection
-    $filter: ModelLikeFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listLikesByUser(
-      userId: $userId
-      createdAt: $createdAt
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        userId
-        gratitudeId
-        userName
-        entryId
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
-export const listCommentsByGratitude = /* GraphQL */ `
-  query ListCommentsByGratitude(
-    $gratitudeId: ID
-    $createdAt: ModelIntKeyConditionInput
-    $sortDirection: ModelSortDirection
-    $filter: ModelCommentFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listCommentsByGratitude(
-      gratitudeId: $gratitudeId
-      createdAt: $createdAt
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        userId
-        gratitudeId
-        entryId
-        comment
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
-export const listCommentsByEntry = /* GraphQL */ `
-  query ListCommentsByEntry(
-    $entryId: ID
-    $createdAt: ModelIntKeyConditionInput
-    $sortDirection: ModelSortDirection
-    $filter: ModelCommentFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listCommentsByEntry(
-      entryId: $entryId
-      createdAt: $createdAt
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        userId
-        gratitudeId
-        entryId
-        comment
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
-export const listCommentsByUser = /* GraphQL */ `
-  query ListCommentsByUser(
-    $userId: ID
-    $createdAt: ModelIntKeyConditionInput
-    $sortDirection: ModelSortDirection
-    $filter: ModelCommentFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listCommentsByUser(
-      userId: $userId
-      createdAt: $createdAt
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        userId
-        gratitudeId
-        entryId
-        comment
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
-export const listEntryByGratitude = /* GraphQL */ `
-  query ListEntryByGratitude(
-    $gratitudeId: ID
-    $createdAt: ModelIntKeyConditionInput
-    $sortDirection: ModelSortDirection
-    $filter: ModelEntryFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listEntryByGratitude(
-      gratitudeId: $gratitudeId
-      createdAt: $createdAt
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        gratitudeId
-        content
-        likes {
-          nextToken
-        }
-        comments {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
+
 export const listUserByEmail = /* GraphQL */ `
   query ListUserByEmail(
     $email: String
@@ -1061,17 +809,17 @@ export const listChannelByUser = /* GraphQL */ `
     }
   }
 `;
-export const listBrodcastByGratitude = /* GraphQL */ `
-  query ListBrodcastByGratitude(
-    $gratitudeId: ID
+export const listBrodcastByPost = /* GraphQL */ `
+  query ListBrodcastByPost(
+    $postId: ID
     $createdAt: ModelIntKeyConditionInput
     $sortDirection: ModelSortDirection
     $filter: ModelBroadcastFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listBrodcastByGratitude(
-      gratitudeId: $gratitudeId
+    listBrodcastByPost(
+      postId: $postId
       createdAt: $createdAt
       sortDirection: $sortDirection
       filter: $filter
@@ -1080,11 +828,10 @@ export const listBrodcastByGratitude = /* GraphQL */ `
     ) {
       items {
         id
-        gratitudeId
-        gratitude {
+        postId
+        post {
           id
-          title
-          ownerId
+                    ownerId
           createdAt
           updatedAt
         }
@@ -1115,25 +862,17 @@ export const listBroadcastByChannel = /* GraphQL */ `
     ) {
       items {
         id
-        gratitudeId
+        postId
         channelId
 
-        gratitude{
+        post{
           id
           ownerId
           owner{
             name
             id
           }
-          title
-          entries{
-            items{
-              content
-              id
-              index
-            }
-
-          }
+                    content
           likes{
             items{
               id

@@ -12,38 +12,38 @@ import { shallowEqual, useSelector } from "react-redux";
 import { store } from "../components/store";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import log from "../util/Logging"
-import { GratitudeShareModal} from "../components/GratitudeShareModal"
+import { PostShareModal} from "../components/PostShareModal"
 import {
   User,
   UserChannel,
-  Gratitude,
+  Post,
   Broadcast,
-} from "../types/gratitude";
+} from "../types/circles";
 import {useColors} from '../hooks/useColors'
 import {useLayout} from '../hooks/useLayout'
 import mutateApi from "../api/mutate";
-import GratitudeList from "../components/GratitudeList";
+import PostList from "../components/PostList";
 import { getInputRangeFromIndexes } from "react-native-snap-carousel";
 import { LinearGradient } from "expo-linear-gradient";
 import {  MaterialCommunityIcons } from "@expo/vector-icons";
 
-function GratitudeCircleScreen({ route, navigation, ...props }) {
+function PostCircleScreen({ route, navigation, ...props }) {
   const user: User = useSelector(
     (state) => state.general.operatingUser,
     shallowEqual
   );
-  const personalGratitudes: Gratitude[] = useSelector(
-    (state)=> state.general.gratitudes, shallowEqual
+  const personalPosts: Post[] = useSelector(
+    (state)=> state.general.posts, shallowEqual
   )
   const broadcasts: Map<string, Broadcast[]> = useSelector(
     (state)=> state.general.broadcastsByChannel
   )
 
   const [refreshing, setRefreshing] = useState(false);
-  const [gratitudeToShare, setGratitudeToShare] = useState<Gratitude>(undefined)
+  const [postToShare, setPostToShare] = useState<Post>(undefined)
   const [showModal, setShowModal] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [currentGratitudes, setCurrentGratitudes] = useState <Gratitude[]>([])
+  const [currentPosts, setCurrentPosts] = useState <Post[]>([])
   const styles = useStyles();
   const {colors: Colors} = useColors()
   const Layout = useLayout();
@@ -70,20 +70,20 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
   //const [modalHeight, setModalHeight] = useState(0)
 
 
-  async function shareGratitude(userChannel: UserChannel, broadcastId: string){
+  async function sharePost(userChannel: UserChannel, broadcastId: string){
 
-    log.info(`placeholder for share gratitude, broacast id is ${broadcastId}`)
+    log.info(`placeholder for share post, broacast id is ${broadcastId}`)
     let results;
     if(!broadcastId){
-      results = await mutateApi.createBroadcast(gratitudeToShare.id, userChannel.channelId, user.id)
+      results = await mutateApi.createBroadcast(postToShare.id, userChannel.channelId, user.id)
       results = results.data.createBroadcast
-   //   store.dispatch({type: "BROADCAST_GRATITUDE", broadcast:results })
-      store.dispatch({type: "SET_BANNER", banner: {message: `Gratitude shared`, status: "info"}})
+   //   store.dispatch({type: "BROADCAST_POST", broadcast:results })
+      store.dispatch({type: "SET_BANNER", banner: {message: `Post shared`, status: "info"}})
     }else{
-      results = await mutateApi.deleteBroadcast(broadcastId, gratitudeToShare.id)
+      results = await mutateApi.deleteBroadcast(broadcastId, postToShare.id)
       results = results.data.deleteBroadcast
-   //   store.dispatch({type: "DELETE_BROADCAST_GRATITUDE", broadcast:results })
-      store.dispatch({type: "SET_BANNER", banner: {message: `Gratitude unshared`, status: "info"}})
+   //   store.dispatch({type: "DELETE_BROADCAST_POST", broadcast:results })
+      store.dispatch({type: "SET_BANNER", banner: {message: `Post unshared`, status: "info"}})
     }
     log.info(`results from broadcast`, {results})
    
@@ -93,14 +93,14 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
 
     if(currentIndex ==0){
 
-      setCurrentGratitudes(personalGratitudes)
+      setCurrentPosts(personalPosts)
     }else{
-      log.info(`setting gratitude list for`, { userChannel: userChannels[currentIndex].channel.name})
-      const gratitudes: Gratitude[] = broadcasts.get(userChannels[currentIndex].channelId)
-      .map((broadcast) => broadcast.gratitude)
-      setCurrentGratitudes(gratitudes)
+      log.info(`setting post list for`, { userChannel: userChannels[currentIndex].channel.name})
+      const posts: Post[] = broadcasts.get(userChannels[currentIndex].channelId)
+      .map((broadcast) => broadcast.post)
+      setCurrentPosts(posts)
     }
-  },[broadcasts, currentIndex, personalGratitudes])
+  },[broadcasts, currentIndex, personalPosts])
 
   function renderUserChannel({
     item,
@@ -244,14 +244,14 @@ function GratitudeCircleScreen({ route, navigation, ...props }) {
       </TouchableOpacity>
 
   </View>
-      <GratitudeList
-        gratitudeData={currentGratitudes}
+      <PostList
+        postData={currentPosts}
         channelId={currentIndex!=0 ? userChannels[currentIndex].channelId: undefined }
-        action={(input)=>{setShowModal(true); setGratitudeToShare(input)}}
+        action={(input)=>{setShowModal(true); setPostToShare(input)}}
         navigation={navigation}
       />
-      <GratitudeShareModal isVisible={showModal} dismissCallback={()=>setShowModal(false)}
-        gratitudeId={gratitudeToShare?.id} shareCallback={shareGratitude} />
+      <PostShareModal isVisible={showModal} dismissCallback={()=>setShowModal(false)}
+        postId={postToShare?.id} shareCallback={sharePost} />
  
     </View>
   );
@@ -277,4 +277,4 @@ function useStyles(){
 }
 
 
-export default GratitudeCircleScreen;
+export default PostCircleScreen;

@@ -1,13 +1,12 @@
 export type NestedArray<T> = {
   items: T[]
 }
-export type Gratitude = {
+export type Post = {
   id?: string,
-  title: string,
   ownerId: string,
   owner?: User,
   createdAt?: number,
-  entries?: NestedArray<Entry>,
+  content: string,
   likes?: NestedArray<Like>,
   comments?: NestedArray<Comment>,
   broadcasts?: NestedArray<Broadcast>,
@@ -24,7 +23,7 @@ export type User = {
   shareDos?: boolean,
   createdAt?: number,
   channels?: NestedArray<UserChannel>,
-  gratitudes?: NestedArray<Gratitude>,
+  posts?: NestedArray<Post>,
   ownedChannels?: NestedArray<Channel>,
   lastUpdatedAt?: number,
   meetingIds?: string[]
@@ -34,8 +33,7 @@ export type Like = {
   id?: string,
   userId: string,
   user?: User,
-  gratitudeId?: string,
-  entryId?: string,
+  postId?: string,
   createdAt?: number,
   updatedAt?: number,
 }
@@ -58,8 +56,7 @@ export type Comment = {
   id?: string,
   userId: string,
   user?: User,
-  gratitudeId?: string,
-  entryId?: string,
+  postId?: string,
   comment: string,
   createdAt?: number,
   updatedAt?: number,
@@ -79,21 +76,14 @@ export type Channel = {
 
 export type Broadcast = {
   id?: string,
-  gratitudeId: string,
-  gratitude?: Gratitude,
+  postId: string,
+  post?: Post,
   ownerId: string,
   owner?: User,
   channelId: string,
   channel?: Channel,
   createdAt?: number,
   updatedAt?: number,
-}
-
-export type Entry = {
-  id?: string,
-  gratitudeId: string,
-  index: number,
-  content: string,
 }
 
 export type Meeting ={
