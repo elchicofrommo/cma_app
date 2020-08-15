@@ -91,7 +91,7 @@ function AppStackStack({initialRoute}){
     <DocumentBrowserScreen  documents={'readings'}/>
   );
   return (
-    <AppStack.Navigator  >
+    <AppStack.Navigator initialRouteName={initialRoute} >
       <AppStack.Screen 
         name="splash" 
         component={SplashScreen} 

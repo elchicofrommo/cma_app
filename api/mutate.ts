@@ -80,7 +80,7 @@ async function updateUser(input: UpdateUserInput): Promise<User> {
         log.info(`done updating, results are`, {result} )
         return result.data.updateUser
     } catch (err) {
-        log.info(`could not save user update`, {err})
+        log.verbose(`could not save user update`, {err})
     }
 }
 
@@ -113,7 +113,7 @@ async function createUser(input: CreateUserInput) {
         const results = userResult;
         log.info(`createUser done: `, {results})
     } catch (err) {
-        alert(`could not create user for this reason: `, {err});
+        log.verbose(`could not create user for this reason: `, {err});
     }
 }
 /**

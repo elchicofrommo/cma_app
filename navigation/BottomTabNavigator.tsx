@@ -125,7 +125,7 @@ export default connect(
   function mapStateToProps(state, ownProps){
     log.info(`toggletab ${state.general.tabExpanded}`)
       return {tabExpanded: state.general.tabExpanded,
-        authenticated: state.general.operatingUser.role != 'guest'
+        authenticated: state.general.operatingUser?.role != 'guest'
       };
     }, 
     function mapDispatchToProps(dispatch){

@@ -25,7 +25,7 @@ const NEW_USER = {
 }
 
 const INITIAL_STATE: AppState = {
-  operatingUser: undefined, 
+  operatingUser: {...GUEST_USER}, 
   currentTheme: 6,
   gratitudes: [],
   broadcastsByChannel: new Map<string, Broadcast[]>(),
@@ -46,6 +46,8 @@ const INITIAL_STATE: AppState = {
   banner: undefined,
   soberietyFormat: 0,
   submenus: {},
+  closeMeetings: [],
+  closeMeetingsLoading: false,
 
 };
 

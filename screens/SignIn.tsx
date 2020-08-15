@@ -86,13 +86,14 @@ export async function signOut(){
   log.verbose(`current credentials`, {currentCredentials})
   store.dispatch({ type: "SIGN_OUT"});
 }
-export async function authorize(){
+export async function authorize() : Promise<AuthorizeTokens>{
     // if we are here then successful, get user data from cloud
 
     const currentCredentials = await Auth.currentUserCredentials();
     const currentUser = await Auth.currentAuthenticatedUser();
     const currentUserPoolUser = await Auth.currentUserPoolUser();
     log.verbose(`current credentials`, {currentCredentials})
+    return undefined
 }
 async function signIn(email: string, password: string): Promise<AuthorizeTokens>{
 
@@ -122,7 +123,7 @@ async function signIn(email: string, password: string): Promise<AuthorizeTokens>
     return {userName, email, password, jwtToken, refreshToken}
   }catch(err){
     log.verbose("error in authentication", {error: err})
-    return {jwtToken: undefined, refreshToken: undefined, email, password}
+    return {email, password, error: err.message? err.message: err}
   }
 }
 
@@ -194,6 +195,15 @@ function SignInScreen({ operatingUser: opUser, ...props }: { operatingUser: User
       if(signup.userConfirmed){
         try{
           const result = await signIn(email, password)
+          if(result.error){
+            log.error(`error signing in after cognito account created, somethign is seriously wrong`, {error: result.error})
+            setSigninError({
+              display: "flex",
+              message: "A system problem occured while creating your account. Contact admin for help.",
+            });
+            return;
+          }
+          userInput.id = result.userName;
           await mutateApi.createUser(userInput)
           const userDetails = await getUserDetails(email)
       
