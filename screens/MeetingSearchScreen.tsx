@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useCallback, memo, Fragment } from 'react';
+import HeaderComponent from "../components/HeaderComponent"
+import { LinearGradient } from "expo-linear-gradient"
+import { useSafeArea } from 'react-native-safe-area-context';
 import {
   Image, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback,
   TextInput, View, Button, Dimensions, Keyboard, Linking, FlatList, Animated, Easing, Switch
@@ -22,7 +25,7 @@ import Modal from 'react-native-modal';
 import SliderToggle, { Toggle } from '../components/SliderToggle'
 import { useColors } from '../hooks/useColors';
 import { useLayout } from '../hooks/useLayout';
-import { Meeting } from '../types/circles'
+import { Meeting } from '../types/circles.'
 import log from "../util/Logging"
 import apiGateway from '../api/apiGateway';
 import { isLoading } from 'expo-font';
@@ -37,8 +40,38 @@ const daysOfWeek = {
   Saturday: 6
 }
 
-
 const MeetingStack = createStackNavigator();
+
+export default function MeetingSearchScreenStack() {
+  const { colors: Colors } = useColors();
+  const layout = useLayout();
+  const styles = useStyles()
+  log.info(`rendering meetingstack`)
+  return (
+    <MeetingStack.Navigator >
+      <MeetingStack.Screen
+        name="meetingSearch"
+        component={MeetingSearchScreen}
+
+        options={({ navigation, route }) => ({
+
+          
+          headerTransparent: true,
+          header: ({ scene, previous, navigation }) => {
+            return (
+              <HeaderComponent scene={scene} previous={previous} navigation={navigation}
+                title={"Meetings"}  />)
+          }
+
+        })}
+
+      />
+
+
+
+    </MeetingStack.Navigator>
+  )
+}
 export { MeetingList, sortMeetings }
 
 function LocationScreen({ navigation, ...props }) {
@@ -122,7 +155,7 @@ function MeetingList({ meetingData, action, loading = false, style = {}, emptyCo
 
   const keyExtractorCallback = useCallback((data) => { return data.id })
   const Layout = useLayout();
-
+  const ITEM_HEIGHT = 65 * Layout.scale.height + StyleSheet.hairlineWidth 
   const styles = useStyles()
   const renderCallback = useCallback(({ item, ...props }: { item: Meeting }) => {
     //renderBackRow({data, rowMaps, props}),[])
@@ -155,10 +188,12 @@ function MeetingList({ meetingData, action, loading = false, style = {}, emptyCo
         keyExtractor={keyExtractorCallback}
         initialNumToRender={5}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[style]}
-        ItemSeparatorComponent={() => seperatorComponent}
-        ListEmptyComponent={loading ? loadingComponent : emptyComponent ? emptyComponent : <View style={[styles.container, { paddingHorizontal: 10 * Layout.scale.width }]}>
-          <Text style={styles.textField}>No Content</Text>
+        ItemSeparatorComponent={()=>seperatorComponent}
+        style={[styles.meetingListContainer, ]}
+
+
+        ListEmptyComponent={loading ? loadingComponent : emptyComponent ? emptyComponent : <View style={[{ height: ITEM_HEIGHT, flexDirection: "row", justifyContent: "flex-start", paddingLeft: 10, alignItems: "center", backgroundColor: 'white', borderRadius: 10  }]}>
+          <Text style={styles.textField}>No meetings found.</Text>
         </View>}
 
       />
@@ -181,7 +216,7 @@ function MeetingList({ meetingData, action, loading = false, style = {}, emptyCo
     )
   }
 }
-export default function MeetingSearchScreen({ navigation, ...props }) {
+export  function MeetingSearchScreen({ navigation, ...props }) {
   const Layout = useLayout();
 
   log.info(`rendering MeetingSearchScreen`)
@@ -194,12 +229,12 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
   const [message, setMessage] = useState(null)
   const [loading, setLoading] = useState(false);
   const [meetingComponents, setMeetingComponents] = useState(emptyView)
-  const [expanded, setExpanded] = useState(false)
-  const [offset, setOffset] = useState(new Animated.Value(Layout.window.width * .008))
+  const [meetingListHeight, setMeetingListHeight] = useState(0)
+  const [maxListHeight, setMaxListHeight] = useState(0);
   const [isVirtual, setIsVirtual] = useState(false);
   const { colors: Colors } = useColors();
   const styles = useStyles()
-  const layout = useLayout();
+
 
   React.useLayoutEffect(() => {
     log.info("maing a new save button");
@@ -316,44 +351,12 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
 
 
 
-  function searchTraditional() {
-    setIsVirtual(false)
-    const Layout = useLayout();
-
-    Animated.timing(offset, {
-      toValue: (Layout.window.width * .008),
-      useNativeDriver: true,
-      duration: 200,
-      easing: Easing.inOut(Easing.ease)
-    }).start();
-  }
-
-  function searchVirtual() {
-    setIsVirtual(true)
-    const Layout = useLayout();
-    ;
-    Animated.timing(offset, {
-      toValue: Layout.window.width * .47,
-      useNativeDriver: true,
-      duration: 200,
-      easing: Easing.inOut(Easing.ease)
-    }).start();
-  }
-
   let finalMessage = message;
   if (filteredMeetingData) {
 
     if (meetingData.length != filteredMeetingData.length)
       finalMessage = `${filteredMeetingData.length} meetings of ${meetingData.length} (filtered)`
   }
-  const transform = {
-    transform: [{ translateX: offset }]
-  }
-  const shadow = Platform.OS === 'ios' ? {
-    shadowColor: 'black',
-    shadowOffset: { width: 1, height: 1 },
-    shadowOpacity: .3,
-  } : { elevation: 3 }
 
 
   // component for meeting search
@@ -368,16 +371,32 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
       label: "Virtual"
     }
   ]
+  useEffect(()=>{
+    const ITEM_HEIGHT = 65 * Layout.scale.height + StyleSheet.hairlineWidth 
+    if(!filteredMeetingData || filteredMeetingData.length==0){
+      setMeetingListHeight(ITEM_HEIGHT)
+    }
+    else if(filteredMeetingData?.length * ITEM_HEIGHT < maxListHeight)
+      setMeetingListHeight(filteredMeetingData.length * ITEM_HEIGHT)
+    else 
+      setMeetingListHeight(maxListHeight)
+  }, [maxListHeight, filteredMeetingData])
   return (
+    <LinearGradient style={[styles.container,]}
+      colors={[Colors.primary1, Colors.primary2]}
+      start={[0, 0]}
+      end={[1.5, 1.5]}
+      locations={[0, .5]}
+    >      
+    
+    <View style={[styles.sectionContainer, { marginTop: Layout.belowHeader, marginBottom: 10 * Layout.scale.height }]}>
 
-    <View style={[styles.container, { paddingBottom: layout.safeBottom, paddingHorizontal: 10*Layout.scale.width }]}>
-
-        <SliderToggle containerWidth={Layout.window.width - 20 * Layout.scale.width}
+        <SliderToggle containerWidth={Layout.window.width - 18 * Layout.scale.width}
           selectedIndex={isVirtual ? 1 : 0} toggles={toggles}
-          activeColor="white" inactiveColor="#d1d7dd"></SliderToggle>
+          ></SliderToggle>
 
-        <View style={{ backgroundColor: '#fff',  paddingVertical: 10 * Layout.scale.width }}>
-          <View style={{ flexDirection: 'row', paddingVertical: 0, height: 34 * Layout.scale.height, justifyContent: 'space-between', alignItems: 'center', borderColor: Colors.primary1, borderWidth: 2, borderRadius: 17 * Layout.scale.height, }}>
+        <View style={{  paddingTop: 10 * Layout.scale.height, paddingBottom: 5* Layout.scale.height}}>
+          <View style={{ flexDirection: 'row', backgroundColor: Colors.primaryContrast, paddingVertical: 0, height: 34 * Layout.scale.height, justifyContent: 'space-between', alignItems: 'center', borderColor: Colors.primaryContrast, borderWidth: 2, borderRadius: 17 * Layout.scale.height, }}>
             <TextInput
               placeholder="Current Location"
               autoCapitalize="none"
@@ -394,23 +413,30 @@ export default function MeetingSearchScreen({ navigation, ...props }) {
 
         </View>
 
-        <View style={{}}>
+        <View style={{paddingBottom: 5 * Layout.scale.height}}>
         <MeetingFilter show={meetingData && meetingData.length > 0} callback={filterMeetingsCallback} 
         types={meetingTypes} message={finalMessage} distance={distance} />
         </View>
-        
+        <View />
 
-        
+        <View onLayout={(event)=>{
+          
+          const y = event.nativeEvent.layout.y;
+
+          const calculatedHeight = Layout.window.height - y - (135 * Layout.scale.height) - Layout.safeBottom
+          log.verbose(`layout data is `, {nativeEvent: event.nativeEvent})
+
+          setMaxListHeight(calculatedHeight)
+        }}  style={{borderRadius: 10, overflow: 'hidden', backgroundColor: Colors.primaryContrast, marginBottom: 10, height: meetingListHeight}}>
         <MeetingList meetingData={filteredMeetingData} loading={loading}
           action={(row) => {
             // props.dispatchHideMenu(); 
             navigation.navigate('Details', row)
           }} />
+          </View>
 
-
-      
-    </View>
-
+</View>
+    </LinearGradient>
 
   );
 
@@ -453,7 +479,10 @@ MeetingSearchScreen = connect(
 type MeetingSearchResult = {
   meetings?: Meeting[]
   types?: string[];
-  error?: string;
+  error?: {
+    message: string,
+    type: string,
+  };
 }
 
 export async function searchForMeeting(address = undefined, distance = 5): Promise<MeetingSearchResult> {
@@ -463,8 +492,11 @@ export async function searchForMeeting(address = undefined, distance = 5): Promi
   let long;
   if (status !== 'granted') {
     return {
-      error: "You must enable location in Settings to use current location. \
-    Otherwise you may enter an address"}
+      error: {
+        message: "Location permissions are not granted to this app.",
+        type: "NoLocationPermission"
+      }
+    }
   }
   log.info("have location permission ");
   try {
@@ -710,7 +742,7 @@ function MeetingFilter({ show, types, callback, message, distance }) {
       </Modal>
     </View>
     :
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: show ? 1 : 0, paddingBottom: 5 * Layout.scale.width }}>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
       <Text style={[styles.message,]}>{message}</Text>
       <View style={[styles.filter, { display: show ? "flex" : "none" }]}>
         <TouchableOpacity onPress={showDialog}
@@ -727,6 +759,7 @@ function MeetingFilter({ show, types, callback, message, distance }) {
 function useStyles() {
   const Layout = useLayout();
   const { colors: Colors } = useColors();
+  const ITEM_HEIGHT = 65 * Layout.scale.height + StyleSheet.hairlineWidth 
   const styles = StyleSheet.create({
 
     icon: {
@@ -760,6 +793,10 @@ function useStyles() {
       backgroundColor: '#5fbfec',
     },
 
+    meetingListContainer:{
+      borderRadius: 10,
+    },
+
     filterDialog: {
 
       backgroundColor: 'white',
@@ -776,15 +813,16 @@ function useStyles() {
       justifyContent: 'flex-end',
 
     },
-
-    loadingRow: { height: 80 * Layout.scale.height, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", backgroundColor: 'white' },
-    loadingBoxOne: { height: 65 * Layout.scale.height, width: 65 * Layout.scale.height, marginLeft: 10 * Layout.scale.width, borderRadius: 10, backgroundColor: 'lightgray' },
-    loadingBoxTwo: { height: 65 * Layout.scale.height, flex: 1, marginHorizontal: 10 * Layout.scale.width, borderRadius: 10, backgroundColor: 'lightgray' },
+    
+    loadingRow: { height: ITEM_HEIGHT , flexDirection: "row", justifyContent: "flex-start", alignItems: "center", backgroundColor: 'white', borderRadius: 10 },
+    loadingBoxOne: { height: ITEM_HEIGHT-15, width: 65 * Layout.scale.height, marginLeft: 10 * Layout.scale.width, borderRadius: 10, backgroundColor: 'lightgray' },
+    loadingBoxTwo: { height: ITEM_HEIGHT-15, flex: 1, marginHorizontal: 10 * Layout.scale.width, borderRadius: 10, backgroundColor: 'lightgray' },
 
 
     message: {
       fontSize: 14 * Layout.scale.width,
       paddingTop: 10 * Layout.scale.width,
+      color: Colors.primaryContrast
     },
 
     button: {
@@ -798,11 +836,8 @@ function useStyles() {
 
     seperatorComponent: {
       width: '100%',
-      height: 3,
-      flexShrink: 0,
-      borderTopWidth: .3,
-      borderColor: Colors.primary1,
-      backgroundColor: Colors.primaryContrast,
+      height: StyleSheet.hairlineWidth*2.5,
+      backgroundColor: Colors.primary1,
       alignSelf: 'center',
     },
     container: {

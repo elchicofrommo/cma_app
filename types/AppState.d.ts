@@ -1,4 +1,4 @@
-import {User, Post, Channel, UserChannel, Broadcast, Meeting} from '../types/circles'
+import {User, Post, Channel, UserChannel, Broadcast, Meeting} from './circles.'
 
 export type AppState = {
     email?: string,

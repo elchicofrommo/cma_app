@@ -4,8 +4,8 @@ import { combineReducers, Action } from 'redux';
 import { DataStore, } from "@aws-amplify/datastore";
 import {  AuthDetail } from "../models/index";
 
-import {AppState} from "../constants/AppState";
-import {User, Post, Broadcast,} from '../types/circles'
+import {AppState} from "../types/AppState";
+import {User, Post, Broadcast,} from '../types/circles.'
 import log from '../util/Logging'
 
 const GUEST_USER = {

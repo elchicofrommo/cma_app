@@ -5,7 +5,7 @@ import { Platform, StatusBar, StyleSheet, View, Text } from 'react-native';
 import useCachedResources, {APP_STATE} from './hooks/useCachedResources';
 import useSubscriptions from './hooks/useSubscriptions';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
-import LinkingConfiguration from './navigation/LinkingConfiguration';
+import links from './navigation/LinkingConfiguration';
 import { store } from './components/store'
 import {useColors} from './hooks/useColors';
 import {useLayout} from './hooks/useLayout';
@@ -21,7 +21,6 @@ import {DetailsScreen} from './screens/MeetingDetailsScreen'
 import SplashScreen from './screens/SplashScreen'
 import EditorScreen from './screens/PostEditorScreen'
 import CircleAdminScreen from './screens/CircleAdminScreen'
-import MeetingSearchScreen from './screens/MeetingSearchScreen'
 import appLog from './util/Logging';
 
 import {InteractionManager} from 'react-native';
@@ -80,18 +79,8 @@ function AppStackStack({initialRoute}){
   const styles = useStyles()
   const {colors: Colors} = useColors()
 
-  const FormatWrapper = ({ navigation, route }) => (
-    <DocumentBrowserScreen documents={'format'} />
-  );
-  const PamphletWrapper = ({ navigation, route }) => (
-    <DocumentBrowserScreen  documents={'pamphlet'}/>
-
-  );
-  const ReadingsWrapper = ({ navigation, route }) => (
-    <DocumentBrowserScreen  documents={'readings'}/>
-  );
   return (
-    <AppStack.Navigator  >
+    <AppStack.Navigator initialRouteName={initialRoute} >
       <AppStack.Screen 
         name="splash" 
         component={SplashScreen} 
@@ -134,7 +123,7 @@ function AppStackStack({initialRoute}){
           headerShown: false,
         })}/>
 
-<AppStack.Screen
+      <AppStack.Screen
         name="SignInExperiments"
         component={SigninScreenExperiments} 
         title=""
@@ -186,20 +175,9 @@ function AppStackStack({initialRoute}){
 
         })} />  
 
-      <AppStack.Screen
-        name="meetingSearch"
-        component={MeetingSearchScreen}
-
-        options={({ navigation, route }) => ({
-
-          headerStyle: styles.headerStyle,
-          title: 'Meeting Search',
-          headerTintColor: Colors.primary1,
-          headerTitleStyle: styles.headerTitle
-        })} />  
-<AppStack.Screen  
-        name="Formats"
-        component={FormatWrapper} 
+      <AppStack.Screen  
+        name="documentBrowser"
+        component={DocumentBrowserScreen} 
         options={({navigation, route})=>({
 
           title: 'Formats',
@@ -207,27 +185,7 @@ function AppStackStack({initialRoute}){
           headerTintColor: Colors.primary1,
           headerTitleStyle: styles.headerTitle,    
         })}/>
-      <AppStack.Screen 
-        name="Pamphlets"
-        component={PamphletWrapper} 
-        options={({navigation, route})=>({
-
-          title: 'Pamphlets',
-          headerStyle: styles.headerStyle,
-          headerTintColor: Colors.primary1,
-          headerTitleStyle: styles.headerTitle, 
-        })}/>      
-      <AppStack.Screen 
-        name="Readings"
-        component={ReadingsWrapper} 
-        options={({navigation, route})=>({
-
-
-          title: 'Readings',
-          headerStyle: styles.headerStyle,
-          headerTintColor: Colors.primary1,
-          headerTitleStyle: styles.headerTitle,
-        })}/>      
+         
     </AppStack.Navigator>
   )
 }
@@ -265,7 +223,7 @@ function AppStackStack({initialRoute}){
               {Platform.OS === 'ios' && <StatusBar barStyle="dark-content" />}
               <StatusBar barStyle={"light-content"} />
               <AppBanner />
-              <NavigationContainer >
+              <NavigationContainer linking={links}>
 
                 <AppStackStack initialRoute={'Signin'} />
               </NavigationContainer>
@@ -281,7 +239,7 @@ function AppStackStack({initialRoute}){
           {Platform.OS === 'ios' && <StatusBar barStyle="dark-content" />}
           <StatusBar barStyle={"light-content"} />
           <AppBanner />
-          <NavigationContainer >
+          <NavigationContainer linking={links}>
 
             <AppStackStack initialRoute={'splash'} />
           </NavigationContainer>

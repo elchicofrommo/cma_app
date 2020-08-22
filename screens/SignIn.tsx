@@ -1,162 +1,35 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Picker,
+
   Text,
   StyleSheet,
   View,
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
-  findNodeHandle,
-  LayoutAnimation,
 } from "react-native";
 import Svg, {
   Circle,
-  Ellipse,
-  G,
-
-  TSpan,
-  TextPath,
   Path,
-  Polygon,
-  Polyline,
-  Line,
-  Rect,
-  Use,
-
-  Symbol,
+  G,
   Defs,
   LinearGradient,
   RadialGradient,
   Stop,
-  ClipPath,
-  Pattern,
-  Mask,
+
 } from 'react-native-svg';
 
 
-import Modal from "react-native-modal";
-
-
-import { Ionicons } from "@expo/vector-icons";
-import { Themes, useColors } from "../hooks/useColors";
+import { useColors } from "../hooks/useColors";
 import { connect, } from "react-redux";
 
 import { store } from '../components/store'
 import log from "../util/Logging"
-import Amplify from "@aws-amplify/core";
-import config from "../aws-exports";
-import { Auth, } from "aws-amplify";
+import { signUp, signIn, getUserDetails } from '../util/auth'
 
-import apiGateway from '../api/apiGateway'
-import mutateApi, { CreateUserInput, UpdateUserInput } from '../api/mutate'
-import queryApi from '../api/fetch'
-import { User, Channel, UserChannel, Post, Broadcast, Meeting } from '../types/circles'
-
-
-
-
+import { User, } from '../types/circles.'
 
 import { useLayout } from '../hooks/useLayout'
-
-export type SignInResult = {
-
-  operatingUser?: User,
-  ownedChannels?: Channel[],
-  userChannels?: UserChannel[],
-  posts?: Post[],
-  broadcastMap?: Map<string, Broadcast[]>,
-  meetings?: string[]
-  error?: string,
-
-}
-
-export type AuthorizeTokens = {
-  userName?: string, 
-  jwtToken?: string,
-  refreshToken?: string,
-  email: string,
-  error?: string
-}
-
-export async function signOut(){
-  const result = Auth.signOut();
-  const currentCredentials = await Auth.currentCredentials();
-  log.verbose(`current credentials`, {currentCredentials})
-  store.dispatch({ type: "SIGN_OUT"});
-}
-export async function authorize(){
-    // if we are here then successful, get user data from cloud
-    const currentUser = await Auth.currentAuthenticatedUser();
-    const currentCredentials = await Auth.currentCredentials();
-    
-    const currentUserPoolUser = await Auth.currentUserPoolUser();
-    log.verbose(`current credentials`, {currentCredentials})
-    
-    return {authenticated: currentCredentials.authenticated, userId: currentUser.userName}
-}
-async function signIn(email: string, password: string): Promise<AuthorizeTokens>{
-
-
-  log.info(
-    `signing in with email: ${email} password: ${password}`
-  ); 
-
-  if (!email || !password) {
-
-    return { email, password, error: "Fields not complete" };
-  }
-  let pattern = new RegExp(/\S+?@\S+?\.\S+/);
-  if (!pattern.exec(email)) {
-
-    return { email, error: "Email address is not valid format" };
-  }
-
-  try {
-    const result = await Auth.signIn(email.trim(), password, );
-    log.verbose(`auth done`, {authResults: result})
-    // now pull out jwtToken and refresh token
-    const userName = result.username;
-    const jwtToken = result.signInUserSession.idToken.jwtToken;
-    const refreshToken = result.signInUserSession.refreshToken.token;
-    store.dispatch({type: "SET_AUTH_TOKENS", tokens: {email, jwtToken, refreshToken}})
-    return {userName, email, jwtToken, refreshToken}
-  }catch(err){
-    log.verbose("error in authentication", {error: err})
-    return {jwtToken: undefined, refreshToken: undefined, email,  error: err.message || err}
-  }
-}
-
-export async function getUserDetails(id: string): Promise<SignInResult> {
-
-  try{
-    const authResults = await queryApi.getAuthDetails(id)
-      log.verbose(`authResults are`, {authResults} )
-    const opResults = await queryApi.fetchOperatingUser(authResults.id)
-    log.info(`successful retrevial of operating user `);
-
-    const broadcastsByChannel = await queryApi.fetchBroadcastPost(opResults.user, opResults.userChannels);
-    log.info(`broadcastByChannel`, { broadcastsByChannel })
-    const signInResult = {
-      operatingUser: opResults.user,
-      posts: opResults.posts, ownedChannels: opResults.channels, 
-      userChannels: opResults.userChannels, broadcastsByChannel,
-
-    }
-
-    store.dispatch({ type: "SAVE_AUTH", data: signInResult });
-
-    const meetingDetails = await apiGateway.getMeetingDetails(opResults.user)
-    store.dispatch({ type: 'SYNC_MEETINGS', data: meetingDetails })
-
-    return signInResult
-  } catch (err) {
-    log.verbose(`caught error signing in`, { err })
-    return {  error: err.message }
-
-  }
-}
-
 function SignInScreen({ operatingUser: opUser, ...props }: { operatingUser: User, props: any }) {
   log.info(`rendering SettingsScreen`);
 
@@ -182,62 +55,23 @@ function SignInScreen({ operatingUser: opUser, ...props }: { operatingUser: User
   const emailInput = useRef(null)
 
 
-  async function signUp() {
-    try {
-
-      const signup = await Auth.signUp(email, password);
-      log.verbose(`sign up response `, {signup});
-
-      const userInput: CreateUserInput = {
-        id: signup.userSub,
-        email: email,
-        name: name
-      }
-      if(signup.userConfirmed){
-        try{
-          const result = await signIn(email, password)
-          await mutateApi.createUser(userInput)
-          const userDetails = await getUserDetails(userInput.id)
-      
-          if (result.error) {
-            setSigninError({ display: "flex", message: result.error });
-          }else{
-            props.navigation.navigate('home')
-          }
-          
-        }catch(createUserError){
-          log.error(`problem creating user, probably just duplicate`, {createUserError})
-        }
-
-      }
-      
-
-      
-    } catch (err2) {
-      log.verbose(`sign up error `, {signUpErr: err2});
-      if (err2.code == "UsernameExistsException")
-        setSigninError({
-          display: "flex",
-          message: "A Similar account exists already. If you have forgotten your password contact administrator to reset.",
-        });
-      else
-        setSigninError({
-          display: "flex",
-          message: JSON.stringify(err2),
-        });
+  async function signUpAction() {
+    const result = await signUp(email, password, name)
+    if (result?.error) {
+      setSigninError({ display: "flex", message: result.error });
+    } else {
+      props.navigation.navigate('home')
     }
   }
 
-
   async function signInAction() {
     const result = await signIn(email, password)
+    log.info("here I am")
+    const userDetails = await getUserDetails(result.userName)
 
     if (result.error) {
       setSigninError({ display: "flex", message: result.error });
-    }else{
-
-      const userDetails = await getUserDetails(result.userName)
-
+    } else {
       props.navigation.navigate('home')
     }
   }
@@ -271,83 +105,83 @@ function SignInScreen({ operatingUser: opUser, ...props }: { operatingUser: User
         229.49,19.81 262.30,24.54 283.00,30.98 Z`
   const layout = useLayout()
   return (
-    <View style={{flex: 1, backgroundColor: Colors.primaryContrast }}  >
-    <KeyboardAvoidingView behavior={"position"} keyboardVerticalOffset={(10) *layout.scale.height}>
-      <Svg height={(layout.headerHeight + layout.safeTop) + (layout.scale.width * 125) + 1} width={layout.window.width}
-      >
-        <Defs>
-          <LinearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0" stopColor={Colors.header1} stopOpacity="1" />
-            <Stop offset="1" stopColor={Colors.header2} stopOpacity="1" />
-          </LinearGradient>
-          <RadialGradient
-            id="shadow"
-            cx={layout.window.width / 2}
-            cy={layout.headerHeight + layout.safeBottom + 1}
-            rx={layout.window.width / 1.8}
-            ry={layout.scale.height * 20}
-            fx={layout.window.width / 2}
-            fy={layout.headerHeight + layout.safeBottom + 1}
-            gradientUnits="userSpaceOnUse"
-          >
-            <Stop offset="90%" stopColor="black" stopOpacity=".2" />
-            <Stop offset="100%" stopColor="black" stopOpacity=".08" />
-          </RadialGradient>
-        </Defs>
-        <Circle x={-10 * layout.scale.width} y={50 * layout.scale.height} r={125 * layout.scale.width} fill={Colors.primary1} fillOpacity={.8}></Circle>
-        <Circle x={110 * layout.scale.width} y={50 * layout.scale.height} r={100 * layout.scale.width} fill={Colors.primary1} fillOpacity={1}></Circle>
-        <Circle x={10 * layout.scale.width} y={20 * layout.scale.height} r={70 * layout.scale.width} fill={Colors.header1} fillOpacity={1}></Circle>
+    <View style={{ flex: 1, backgroundColor: Colors.primaryContrast }}  >
+      <KeyboardAvoidingView behavior={"position"} keyboardVerticalOffset={(10) * layout.scale.height}>
+        <Svg height={(layout.headerHeight + layout.safeTop) + (layout.scale.width * 125) + 1} width={layout.window.width}
+        >
+          <Defs>
+            <LinearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+              <Stop offset="0" stopColor={Colors.header1} stopOpacity="1" />
+              <Stop offset="1" stopColor={Colors.header2} stopOpacity="1" />
+            </LinearGradient>
+            <RadialGradient
+              id="shadow"
+              cx={layout.window.width / 2}
+              cy={layout.headerHeight + layout.safeBottom + 1}
+              rx={layout.window.width / 1.8}
+              ry={layout.scale.height * 20}
+              fx={layout.window.width / 2}
+              fy={layout.headerHeight + layout.safeBottom + 1}
+              gradientUnits="userSpaceOnUse"
+            >
+              <Stop offset="90%" stopColor="black" stopOpacity=".2" />
+              <Stop offset="100%" stopColor="black" stopOpacity=".08" />
+            </RadialGradient>
+          </Defs>
+          <Circle x={-10 * layout.scale.width} y={50 * layout.scale.height} r={125 * layout.scale.width} fill={Colors.primary1} fillOpacity={.8}></Circle>
+          <Circle x={110 * layout.scale.width} y={50 * layout.scale.height} r={100 * layout.scale.width} fill={Colors.primary1} fillOpacity={1}></Circle>
+          <Circle x={10 * layout.scale.width} y={20 * layout.scale.height} r={70 * layout.scale.width} fill={Colors.header1} fillOpacity={1}></Circle>
 
 
-        <G stroke={Colors.primaryContrast} fill="none" strokeWidth={6}
-          transform={{
-            scale: [.28 * layout.scale.width, .28 * layout.scale.width],
-            translate: [90 * layout.scale.width, 60 * layout.scale.height]
-          }}>
-          <Path
+          <G stroke={Colors.primaryContrast} fill="none" strokeWidth={6}
+            transform={{
+              scale: [.28 * layout.scale.width, .28 * layout.scale.width],
+              translate: [90 * layout.scale.width, 60 * layout.scale.height]
+            }}>
+            <Path
 
-            strokeWidth={5}
-            stroke={"white"}
-            fill={Colors.primary1}
-            d={circleD}
+              strokeWidth={5}
+              stroke={"white"}
+              fill={Colors.primary1}
+              d={circleD}
 
-            strokeLinecap={"square"}
-            strokeLinejoin={"bevel"}
-          />
-          <Path
+              strokeLinecap={"square"}
+              strokeLinejoin={"bevel"}
+            />
+            <Path
 
-            strokeWidth={5}
-            stroke={"white"}
-            strokeLinecap={"round"}
-            strokeLinejoin={"bevel"}
-            d={`M 282.50,146.00
+              strokeWidth={5}
+              stroke={"white"}
+              strokeLinecap={"round"}
+              strokeLinejoin={"bevel"}
+              d={`M 282.50,146.00
 C 241.27,145.51 216.33,145.33 164.76,145.95
   193.00,95.33 196.71,84.62 222.00,45.00
   233.38,63.95 223.00,46.00 247.46,84.68M -173.00,-3.00`}
 
-          />
+            />
 
-          <Path
+            <Path
 
-            strokeWidth={5}
-            stroke={"white"}
-            d={`M 348.62,267.75
+              strokeWidth={5}
+              stroke={"white"}
+              d={`M 348.62,267.75
 C 330.00,236.00 312.50,204.50 285.50,156.00
   260.00,181.00 247.00,194.50 222.00,221.00
   201.50,200.00 183.25,181.25 159.87,157.50
   142.00,188.00 129.00,211.00 96.37,267.00M 222.00,45.50`}
 
-            strokeLinecap={"round"}
+              strokeLinecap={"round"}
 
 
-          />
-          <Path
+            />
+            <Path
 
-            strokeWidth={5}
-            strokeLinecap={"round"}
+              strokeWidth={5}
+              strokeLinecap={"round"}
 
-            stroke={"white"}
-            d={`M 379.50,325.50
+              stroke={"white"}
+              d={`M 379.50,325.50
 C 379.50,325.50 287.03,267.78 287.03,267.78
   287.03,267.78 237.49,238.08 222.00,229.00
   210.06,235.93 156.75,267.89 156.75,267.89
@@ -355,10 +189,10 @@ C 379.50,325.50 287.03,267.78 287.03,267.78
   84.03,311.73 65.75,322.75 65.75,322.75M 287.00,268.00
 C 287.00,268.00 157.00,268.00 157.00,268.00`}
 
-          />
+            />
 
-        </G>
-      </Svg>
+          </G>
+        </Svg>
 
         <View style={styles.modalContainer}>
           <View style={styles.modalTextContainer}>
@@ -377,7 +211,7 @@ C 287.00,268.00 157.00,268.00 157.00,268.00`}
               <TextInput
                 placeholder="bill@cma.com"
                 value={email}
-                autoCapitalize="none"
+                autoCapitalize="none"  
                 ref={emailInput}
                 style={[styles.textField]}
                 onChangeText={(value) => {
@@ -449,7 +283,7 @@ C 287.00,268.00 157.00,268.00 157.00,268.00`}
             </View>
             <TouchableOpacity
               style={[styles.button, styles.modalButton]}
-              onPress={() => { isSignUp ? signUp() : signInAction() }}
+              onPress={() => { isSignUp ? signUpAction() : signInAction() }}
             >
               <Text style={[styles.buttonText]}>{isSignUp ? "Sign Up" : "Sign In"}</Text>
             </TouchableOpacity>
@@ -461,18 +295,19 @@ C 287.00,268.00 157.00,268.00 157.00,268.00`}
                 new Promise((resolve) => {
                   store.dispatch({ type: "SET_GUEST_USER" })
                   resolve();
-              }).then(()=>{
-                log.info('dispatched guest user, now should be going home')
-                props.navigation.navigate('home')
-              })}}
-          >
-            <Text style={[styles.guestText]}>Continue as Guest</Text>
-          </TouchableOpacity>
-        </View>
+                }).then(() => {
+                  log.info('dispatched guest user, now should be going home')
+                  props.navigation.navigate('home')
+                })
+              }}
+            >
+              <Text style={[styles.guestText]}>Continue as Guest</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
       </KeyboardAvoidingView >
-      </View>
+    </View>
   );
 }
 

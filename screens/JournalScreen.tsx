@@ -23,7 +23,7 @@ import {
   Post,
   User,
   UserChannel,
-} from "../types/circles";
+} from "../types/circles.";
 import { SafeAreaView } from "react-native-safe-area-context";
 function JournalScreen({
   route,

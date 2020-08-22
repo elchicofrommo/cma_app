@@ -11,6 +11,7 @@ import moment from 'moment'
 import log from '../util/Logging'
 import useCloseMeetings from '../hooks/useCloseMeetings';
 import HeaderComponent from '../components/HeaderComponent'
+import {Role} from '../util/auth'
 
 import { MeetingList, sortMeetings } from './MeetingSearchScreen'
 import { useSafeArea } from 'react-native-safe-area-context';
@@ -112,7 +113,7 @@ function HomeScreen({ navigation, meetingsLoading, ...props }) {
         <MeetingList meetingData={meetings} limit={4} loading={meetingsLoading}
           action={row => navigation.navigate('Details', row)} />
       </View>
-  } else {
+  } /*else {
     let signin = ""
     if (!props.authenticated)
       signin = "Start by signing in or creating an account. ";
@@ -122,7 +123,7 @@ function HomeScreen({ navigation, meetingsLoading, ...props }) {
           <Text style={styles.emtpyMeetingSectionText}>You have no saved seats. {signin} Search for your favorite meeting and save a seat.
     </Text>
       </View>
-  }
+  }*/
   return (
     <View style={styles.container}>
 
@@ -148,22 +149,29 @@ function HomeScreen({ navigation, meetingsLoading, ...props }) {
             <Text style={styles.sectionHeadingText}>Closest Upcoming Meetings</Text>
           </View>
           <View style={{ marginHorizontal: 8 * layout.scale.width, borderRadius: 8 * layout.scale.width, overflow: 'hidden', backgroundColor: colors.primaryContrast }}>
-          {closeMeetingsError?
+          {closeMeetingsError ? 
               <Text style={{padding: 10, fontSize: 15 * layout.scale.width, fontFamily: 'opensans-light'}}>
-                Turn on Geolocation to see the closest meetings.
-              </Text> :
-            <MeetingList  meetingData={closeMeetings} loading={closeMeetingsLoading} limit={4} action={row => navigation.navigate('Details', row)} />
+                {(closeMeetingsError.type == "NoLocationPermission") ?
+                  "Cannot load closest meetings without location permissions. You must enable them in your device's Settings."
+                : closeMeetingsError.messge
+                }
+              </Text> 
+
+            : <MeetingList  meetingData={closeMeetings} loading={closeMeetingsLoading} limit={4} action={row => navigation.navigate('Details', row)} />
           }
           </View>
         </View>
-        <View style={styles.meetingSection}>
-          <View style={styles.sectionHeading}>
+        {
+          meetingSection && 
+          <View style={styles.meetingSection}>
+            <View style={styles.sectionHeading}>
 
-            <Text style={styles.sectionHeadingText}>Upcoming Home Group Meetings</Text>
+              <Text style={styles.sectionHeadingText}>Upcoming Home Group Meetings</Text>
+            </View>
+            { meetingSection}
+
           </View>
-          { meetingSection}
-
-        </View>
+        } 
         <View style={styles.footer}>
         </View>
       </ScrollViewWithBackground>

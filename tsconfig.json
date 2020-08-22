@@ -5,10 +5,11 @@
         "lib": ["dom", "esnext"],
         "moduleResolution": "node",
         "noEmit": true,
-        "skipLibCheck": true,
+        "skipLibCheck": false,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "alwaysStrict": true,
       },
     "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js"]
   }

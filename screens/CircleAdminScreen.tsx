@@ -29,7 +29,7 @@ import {store} from '../components/store'
 import {
 
 } from "@expo/vector-icons";
-import {User, UserChannel, ChannelDetails, Channel} from '../types/circles'
+import {User, UserChannel, ChannelDetails, Channel} from '../types/circles.'
 
 
 

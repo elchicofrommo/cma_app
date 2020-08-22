@@ -1,4 +1,4 @@
-import { Post,  User  } from "../types/circles";
+import { Post,  User  } from "../types/circles.";
 import React, { useCallback,  useState } from "react";
 import { PostComponent, PostRenderMode, ShareButton, CommentButton, LikeButton, DeleteButton } from "./PostComponent"
 import Modal from "react-native-modal";

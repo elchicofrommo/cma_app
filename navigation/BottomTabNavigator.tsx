@@ -18,7 +18,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { faHeadphones, faHome, faBook, faChair} from '@fortawesome/free-solid-svg-icons'
 import { faPagelines} from '@fortawesome/free-brands-svg-icons'
-import HomeGroupsScreen from '../screens/HomeGroupsScreen';
+import MeetingSearchScreen from '../screens/MeetingSearchScreen';
 
 
 
@@ -100,7 +100,7 @@ function BottomTabNavigator({ navigation, route, ...props }) {
       />
       <BottomTab.Screen
         name="Meetings"
-        component={HomeGroupsScreen}
+        component={MeetingSearchScreen}
         options={{
           tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faChair} style={{color: color}}  size={25}/>,
 

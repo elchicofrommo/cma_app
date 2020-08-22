@@ -12,7 +12,7 @@ import {
     Broadcast,
     NestedArray,
     Channel,
-} from "../types/circles";
+} from "../types/circles.";
 
 async function commentOnPost({post, user, comment}: {post: Post, user: User, comment: string}){
     const commentResult = await API.graphql(gql(mutate.commentOnPost, 

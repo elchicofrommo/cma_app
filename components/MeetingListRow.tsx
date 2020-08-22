@@ -9,7 +9,7 @@ import { faCertificate } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment'
 import { useColors } from '../hooks/useColors';
 import { useLayout } from '../hooks/useLayout'
-import { Meeting } from '../types/circles'
+import { Meeting } from '../types/circles.'
 import log from '../util/Logging'
 function shouldUpdateMainRow(prev, next) {
     return prev.meeting.id == next.meeting.id &&
@@ -81,8 +81,8 @@ function useStyles() {
             backgroundColor: colors.primaryContrast,
             paddingLeft: 10 * Layout.scale.width,
             paddingVertical: 15 * Layout.scale.width,
-            flexShrink: 1,
-            height: 55 * Layout.scale.height,
+   
+            height: 65 * Layout.scale.height,
             justifyContent: "space-between",
             flexDirection: "row",
 
@@ -98,7 +98,6 @@ function useStyles() {
         },
         day: {
             fontSize: 12 * Layout.scale.width,
-            marginBottom: -2 * Layout.scale.width,
         },
         badge: {
             color: '#f4b813',

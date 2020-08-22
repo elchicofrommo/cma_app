@@ -5,20 +5,17 @@ import { StyleSheet, Text, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
-import {createStackNavigator} from '@react-navigation/stack';
-
 import {useColors} from '../hooks/useColors';
 import log from "../util/Logging"
-import { shallowEqual, useSelector } from "react-redux";
-const DocumentStack = createStackNavigator();
 
-export default function DocumentBrowserScreen({documents, ...props}){
-  const docs = useSelector((state)=>{
-    return state.general.paths[documents]
-  }, shallowEqual)
+
+export default function DocumentBrowserScreen({navigation, route}){
+  const { links } = route.params;
+
+
   log.info(`rendering DocumentBrowserScreen`)
   const buttons = [];
-  docs.forEach(entry=>{
+  links.forEach(entry=>{
     const URI = encodeURI(`${entry.link}`)
     buttons.push(
         <OptionButton

@@ -19,7 +19,7 @@ import {
 import log from "../util/Logging"
 import { connect } from "react-redux";
 import mutateApi, { CreatePostInput} from "../api/mutate";
-import { Post, Entry, Like, Comment, User, NestedArray, Broadcast } from "../types/circles";
+import { Post, Entry, Like, Comment, User, NestedArray, Broadcast } from "../types/circles.";
 
 import {PostComponent, PostRenderMode, LikeButton} from '../components/PostComponent'
 

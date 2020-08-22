@@ -51,7 +51,7 @@ import { Auth, } from "aws-amplify";
 
 import mutateApi, { CreateUserInput, UpdateUserInput } from '../api/mutate'
 import queryApi from '../api/fetch'
-import { User, Channel, UserChannel, Post, Broadcast, Meeting } from '../types/circles'
+import { User, Channel, UserChannel, Post, Broadcast, Meeting } from '../types/circles.'
 
 
 import { useLayout } from '../hooks/useLayout'

@@ -6,12 +6,13 @@ import { DataStore, Predicates } from "@aws-amplify/datastore";
 import axios from 'axios';
 import { store } from '../components/store'
 import { DailyReaders, AuthDetail } from "../models/index";
-import { authorize, getUserDetails } from '../screens/SignIn'
-import { User, Meeting } from '../types/circles'
+import { authorize, getUserDetails, Role } from '../util/auth'
+import { User } from '../types/circles.'
 
 import { shallowEqual, useSelector } from 'react-redux';
 import appLog from '../util/Logging'
 import apiGateway from "../api/apiGateway"
+import { Auth } from 'aws-amplify';
 
 
 export enum APP_STATE {
@@ -146,43 +147,46 @@ export default function useCachedResources() {
     }
 
     async function startUpAuth() {
-      try{
-        const authResult = await authorize()
-        if(authResult.authenticated){
-          const signInResult = await getUserDetails(authResult.userId)
-        }
-        setLoadingState(APP_STATE.AUTH_READY)
-      }catch(networkError){
-        const result = await DataStore.query(AuthDetail, Predicates.ALL)
-        appLog.verbose(`data from store`, {result: result})
-        // if there is nothing in data store this is first vistit
-        // return wihtout setting operatting user so we know to show the log in screen first
-        if (result.length == 0) {
-          appLog.info(`there is no auth detail, so setting loading state to 1`)
-          setLoadingState(APP_STATE.NEW_USER)
-          return;
-        }
-        
-        else if (result.length > 0) { // if there are auth details to retrieve
-          let user = undefined;
-          if (result[0].operatingUser) {
-            user =  JSON.parse(result[0].operatingUser)
-            store.dispatch({ type: "UPDATE_OPERATING_USER", isLoadingMeetings: true, data: user  },)
-            appLog.info(`found operating user out of datastore, setting to that for now ... ${result[0].operatingUser}`);
-          }
-          
-          if (user.role != 'guest') {
-            // try to sign in
-            const email = result[0].email;
-            
-  
-  
-          }
-  
-        }
-      }
 
+      const result = await DataStore.query(AuthDetail, Predicates.ALL)
+      appLog.verbose(`data from store`, {result: result})
+      // if there is nothing in data store this is first vistit
+      // return wihtout setting operatting user so we know to show the log in screen first
+      if (result.length == 0) {
+        appLog.info(`there is no auth detail, so setting loading state to 1`)
+        setLoadingState(APP_STATE.NEW_USER)
+        return;
+      }
       
+      else if (result.length > 0) { // if there are auth details to retrieve
+        let user = undefined;
+        if (result[0].operatingUser) {
+          user =  JSON.parse(result[0].operatingUser)
+          store.dispatch({ type: "UPDATE_OPERATING_USER", isLoadingMeetings: true, data: user  },)
+          appLog.info(`found operating user out of datastore, setting to that for now ... ${result[0].operatingUser}`);
+        }
+        const authResult = await authorize()
+        appLog.verbose(`auth result` , {authResult})
+
+        if (authResult.role != Role.GUEST) {
+
+          const signInResult = await getUserDetails(authResult.userName)
+          if (signInResult.error) {
+            store.dispatch({
+              type: "SET_BANNER", banner: {
+                message:
+                  "You must log back in"
+              }
+            })
+            store.dispatch({ type: "SIGN_OUT" })
+          }
+        }else if(result[0].operatingUser){
+          store.dispatch({type: "SIGN_OUT"})
+        }
+
+        setLoadingState(APP_STATE.AUTH_READY)
+
+      }
     }
     loadResourcesAndDataAsync();
   }, []);

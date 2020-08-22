@@ -12,7 +12,7 @@ import {
     NestedArray,
     Channel,
     ChannelDetails
-} from "../types/circles";
+} from "../types/circles.";
 
 async function fetchAllUsers(): Promise<Array<User>> {
     log.info(`fetchAllUsers start`);

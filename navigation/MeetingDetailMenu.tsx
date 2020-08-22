@@ -7,7 +7,7 @@ import {useLayout} from '../hooks/useLayout';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlusCircle, faMinusCircle, faDirections } from '@fortawesome/free-solid-svg-icons';
-import {User, Meeting} from '../types/circles'
+import {User, Meeting} from '../types/circles.'
 import log from '../util/Logging'
 
 

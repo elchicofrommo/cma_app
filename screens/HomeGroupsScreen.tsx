@@ -13,7 +13,7 @@ import { useSafeArea } from 'react-native-safe-area-context';
 
 import AppBanner from '../components/AppBanner';
 const MeetingStack = createStackNavigator();
-
+import MeetingSearchSreen from './MeetingSearchScreen'
 export default function MeetingSearchScreenStack() {
   const { colors: Colors } = useColors();
   const layout = useLayout();
@@ -74,8 +74,7 @@ function HomeGroupsScreen({ navigation, route, ...props }) {
     >
 
       <View style={[styles.sectionContainer, { marginTop: layout.belowHeader, marginBottom: 10 * layout.scale.height }]}>
-      <MeetingList meetingData={meetings} style={{}} emptyComponent={emptyComponent}
-        action={row => navigation.navigate('Details', row)} />
+      <MeetingSearchSreen navigation={navigation} route={route} props={props}/>
 </View>
 
     </LinearGradient>

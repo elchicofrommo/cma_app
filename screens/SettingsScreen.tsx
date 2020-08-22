@@ -19,7 +19,7 @@ import { connect, } from "react-redux";
 
 
 import log from "../util/Logging"
-import {signOut} from "./SignIn"
+import {signOut} from "../util/auth"
 
 import { HeaderBackButton } from "@react-navigation/stack";
 

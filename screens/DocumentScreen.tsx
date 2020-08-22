@@ -3,8 +3,9 @@ import { Ionicons } from '@expo/vector-icons';
 import * as React from 'react';
 import { StyleSheet, Text, View,  } from 'react-native';
 import { RectButton,  } from 'react-native-gesture-handler';
+import { shallowEqual, useSelector } from "react-redux";
 
-import { connect } from 'react-redux';
+
 
 import {useColors} from '../hooks/useColors';
 import log from "../util/Logging"
@@ -15,7 +16,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 const DocumentStack = createStackNavigator();
 
-function DocumentScreenStack(props){
+export default function DocumentScreenStack(props){
   log.info(`rendering docuemnt screenstack,`)
 
 
@@ -24,7 +25,7 @@ function DocumentScreenStack(props){
       <DocumentStack.Screen 
         name="documents"
         component={DocumentScreen} 
-        options={({navigation, route})=>({
+        options={({navigation, routes})=>({
           title:"",
 
           
@@ -40,24 +41,13 @@ function DocumentScreenStack(props){
     </DocumentStack.Navigator>
   )
 }
-export default connect(
-  function mapStateToProps(state, ownProps){
-    const documents = state.general.paths
-      return {documents};
-    }, 
-    function mapDispatchToProps(dispatch){
-      return {
-        testFunction: (testInput) => {
-          log.info("dispatching test function with input " + testInput)
-        }
-      }
-    }
-)(DocumentScreenStack)
 
 
 function DocumentScreen({navigation, ...props}) {
   log.info(`rendering documentscreen`)
-
+  const documents : {} = useSelector((state)=>{
+    return state.general.paths
+  }, shallowEqual)
   const Layout = useLayout();
   const {colors: Colors} = useColors();
   const styles = useStyles()
@@ -68,24 +58,19 @@ function DocumentScreen({navigation, ...props}) {
     end={[1.5, 1.5]}
     locations={[0, .5]}>   
       <View style={{paddingTop: (Layout.belowHeader) * Layout.scale.height}}></View>
-      <OptionButton
-        icon="md-school"
-        label="Meeting Formats"
-        onPress={() => navigation.navigate('Formats')}
-      />
+      {
+        Object.entries(documents).map((value, index)=>{
+          return (    
+        <OptionButton
+          icon="md-school"
+          label={value[0]}
+          onPress={()=>navigation.navigate("documentBrowser", {links: value[1]})}
+        />
+          )
+        })
+      }
 
-      <OptionButton
-        icon="md-compass"
-        label="Readings"
-        onPress={() => navigation.navigate('Readings')}
-      />
-
-      <OptionButton
-        icon="md-school"
-        label="Pamphlets"
-        onPress={() =>navigation.navigate('Pamphlets')}
-        isLastOption
-      />
+  
 
     </LinearGradient>
     
@@ -93,7 +78,7 @@ function DocumentScreen({navigation, ...props}) {
 }
 
 
-function OptionButton({ icon, label, onPress, isLastOption }) {
+function OptionButton({ icon, label, onPress=undefined, isLastOption=false }) {
   const styles = useStyles()
   return (
     <RectButton onPress={onPress}>

@@ -1,9 +1,9 @@
 import { searchForMeeting } from '../screens/MeetingSearchScreen';
 import React, {useState, useEffect} from 'react'
 import log from '../util/Logging'
-import { Meeting } from '../types/circles';
+import { Meeting } from '../types/circles.';
 
-export default function useCloseMeetings(): {meetings: Meeting[], loading: boolean, error: string}{
+export default function useCloseMeetings(): {meetings: Meeting[], loading: boolean, error: {messge: string, type: string}}{
     const [state, setState] = useState({meetings: [], loading: false, error: undefined});
 
 

@@ -9,7 +9,7 @@ import {
   User,
   Comment,
 
-} from "../types/circles";
+} from "../types/circles.";
 import React, { useEffect, useState } from "react";
 import { Entypo, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";

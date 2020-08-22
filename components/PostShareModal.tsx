@@ -16,7 +16,7 @@ import {
 
     UserChannel,
     Post,
-  } from "../types/circles";
+  } from "../types/circles.";
   import {useColors} from "../hooks/useColors";
   import {useLayout} from "../hooks/useLayout";
 

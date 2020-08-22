@@ -16,7 +16,7 @@ import { faCertificate } from '@fortawesome/free-solid-svg-icons';
 
 import {useColors} from '../hooks/useColors';
 import {useLayout} from "../hooks/useLayout"
-import {Meeting} from '../types/circles'
+import {Meeting} from '../types/circles.'
 
 function DetailsScreen({ route, navigation, ...props }) {
     log.info(`rendering DetailsScreen route is ${route.params} `)

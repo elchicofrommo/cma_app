@@ -18,7 +18,7 @@ import {
   UserChannel,
   Post,
   Broadcast,
-} from "../types/circles";
+} from "../types/circles.";
 import {useColors} from '../hooks/useColors'
 import {useLayout} from '../hooks/useLayout'
 import mutateApi from "../api/mutate";
