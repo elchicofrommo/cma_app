@@ -20,7 +20,7 @@ import log from "../util/Logging";
 import {useLayout} from '../hooks/useLayout'
 import {useColors} from "../hooks/useColors";
 import { shallowEqual, useSelector } from "react-redux";
-import {store} from "./store"
+import {store} from "../redux/store"
 
 
 export default function PostList({

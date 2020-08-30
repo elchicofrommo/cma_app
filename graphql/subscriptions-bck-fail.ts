@@ -6,7 +6,7 @@ export const subscribeToMyPosts = /* GraphQL */ `
   subscription SubscribeToMyPosts($ownerId: ID!) {
     subscribeToMyPosts(ownerId: $ownerId) {
       id
-            ownerId
+      ownerId
       owner {
         id
         shortId
@@ -15,28 +15,26 @@ export const subscribeToMyPosts = /* GraphQL */ `
       content
       likes {
         items {
-          id
+          postId
           userId
           user{
             name
             id
           }
-          postId
-          entryId
           createdAt
         }
 
       }
       comments {
         items {
-          id
+          postId
           userId
           user{
             name
             id
           }
-          postId
-          entryId
+          
+          
           comment
           createdAt
         }
@@ -81,7 +79,7 @@ export const subscribeToBroadcastChannel = /* GraphQL */ `
               id
             }
             postId
-            entryId
+            
             createdAt
           }
 
@@ -95,7 +93,7 @@ export const subscribeToBroadcastChannel = /* GraphQL */ `
               id
             }
             postId
-            entryId
+            
             comment
             createdAt
           }
@@ -153,7 +151,7 @@ export const onCreatePost = /* GraphQL */ `
           userId
           postId
           userName
-          entryId
+          
           createdAt
           updatedAt
           delta
@@ -165,7 +163,7 @@ export const onCreatePost = /* GraphQL */ `
           id
           userId
           postId
-          entryId
+          
           comment
           createdAt
           updatedAt
@@ -225,7 +223,7 @@ export const onUpdatePost = /* GraphQL */ `
           userId
           postId
           userName
-          entryId
+          
           createdAt
           updatedAt
           delta
@@ -237,7 +235,7 @@ export const onUpdatePost = /* GraphQL */ `
           id
           userId
           postId
-          entryId
+          
           comment
           createdAt
           updatedAt
@@ -297,7 +295,7 @@ export const onDeletePost = /* GraphQL */ `
           userId
           postId
           userName
-          entryId
+          
           createdAt
           updatedAt
           delta
@@ -309,7 +307,7 @@ export const onDeletePost = /* GraphQL */ `
           id
           userId
           postId
-          entryId
+          
           comment
           createdAt
           updatedAt
@@ -364,7 +362,7 @@ export const onCreateLike = /* GraphQL */ `
       }
       postId
       userName
-      entryId
+      
       createdAt
       updatedAt
       delta
@@ -400,7 +398,7 @@ export const onUpdateLike = /* GraphQL */ `
       }
       postId
       userName
-      entryId
+      
       createdAt
       updatedAt
       delta
@@ -436,7 +434,7 @@ export const onDeleteLike = /* GraphQL */ `
       }
       postId
       userName
-      entryId
+      
       createdAt
       updatedAt
       delta
@@ -471,7 +469,7 @@ export const onCreateComment = /* GraphQL */ `
         delta
       }
       postId
-      entryId
+      
       comment
       createdAt
       updatedAt
@@ -507,7 +505,7 @@ export const onUpdateComment = /* GraphQL */ `
         delta
       }
       postId
-      entryId
+      
       comment
       createdAt
       updatedAt
@@ -543,7 +541,7 @@ export const onDeleteComment = /* GraphQL */ `
         delta
       }
       postId
-      entryId
+      
       comment
       createdAt
       updatedAt

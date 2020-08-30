@@ -1,96 +1,108 @@
+const { NativeModules } = require( "react-native");
+
 const chalk = require('chalk');
-const ctx = new chalk.Instance({level: 3});
+const ctx = new chalk.Instance({ level: 3 });
 const moment = require('moment')
 
-
- 
-//let fmt_class = ctx.rgb(244,184,19)
-let fmt_class = ctx.blueBright
-let fmt_info = ctx.cyan
-let fmt_error = ctx.red
-let fmt_warning = ctx.yellow
-let fmt_verbose = ctx.magenta
-
-let isVerbose = true
-let fullObject = false
+ class Logger {
+    static fmt_class = ctx.blueBright;
+    static fmt_info = ctx.cyan
+    static fmt_error = ctx.red
+    static fmt_warning = ctx.yellow
+    static fmt_verbose = ctx.magenta
+    static silent = false;
+    static isVerbose = true
+    static fullObject = false
 
 
-function _stringify(toStringify: object, expand ){
+    static _stringify(toStringify: object, expand) {
 
     let strings = []
-    if(expand){
-        for( const key in toStringify){
+    if (expand) {
+        for (const key in toStringify) {
             strings.push(`${key}: ${JSON.stringify(toStringify[key], null, 2)}`)
         }
     }
 
-    else{
-        for( const key in toStringify){
+    else {
+        for (const key in toStringify) {
             strings.push(`${key}: ${toStringify[key]}`)
         }
     }
     let string = strings.join(`\n`).trim()
-    if(string.length > 0)
-        string = '\n' + string 
-    return fmt_class(string)
+    if (string.length > 0)
+        string = '\n' + string
+    return Logger.fmt_class(string)
 }
-function _log( output, toStringify, color, expand=fullObject){
-    if(isVerbose)
-        output = `${output} ${getCallSource()}`
+static _log(output, toStringify, color, expand = Logger.fullObject) {
+    if(Logger.silent)
+        return;
+
+    if (Logger.isVerbose)
+        output = `${output} ${Logger.getCallSource()}`
 
     var time = moment().format("ddd MM/YY: HH:mm:ss:SSS")
     output = `[${time}] ${output}`;
 
-    console.log( color(output + _stringify(toStringify, expand)))
+    console.log(color(output + Logger._stringify(toStringify, expand)))
 }
 
-function info(output, toStringify:object = {}){
-	_log(output, toStringify, fmt_info)
+static setSilent(silent){
+    Logger.silent = silent;
+}
+
+static info(output, toStringify: object = {}) {
+    Logger._log(output, toStringify, Logger.fmt_info)
 
 }
 
-function error(output, toStringify:object = {}){
-	_log(output, toStringify, fmt_error, true)
+static error(output, toStringify: object = {}) {
+    Logger._log(output, toStringify, Logger.fmt_error, true)
 }
 
-function warn(output, toStringify ={}){
-	_log(output, toStringify, fmt_warning)
+static warn(output, toStringify = {}) {
+    Logger._log(output, toStringify, Logger.fmt_warning)
 }
-function verbose(output, toStringify = {}){
-	_log(output, toStringify, fmt_verbose, true)
+static verbose(output, toStringify = {}) {
+    Logger._log(output, toStringify, Logger.fmt_verbose, true)
 }
 
-function logAsync(output){
-	 var p = new Promise(function(resolve, reject) {
-    	// Do async job
+static logAsync(output) {
+    var p = new Promise(function (resolve, reject) {
+        // Do async job
         console.log(output)
         resolve("logged")
-	})
+    })
 
-	
+
 }
 
-	
-function getCallSource() {
-  // this does not work on all javascript engines. Its very hacky and
-  // should never be done on a productoin level ... something like this 
-  // might work but would need more tightening like tightening the app locaiton
-  var orig = new Error().stack;
-  var stack = orig.split('\n');
-  var debugString = stack[4].trim();
-  var prodString = stack[3].trim();
-  var fileLocation = !global.nativeCallSyncHook? debugString.substring(debugString.indexOf(' '), debugString.indexOf('(')) :
-    prodString.substring(0, prodString.indexOf('@')) 
-    
-  
-  return fmt_verbose( `[Location: ${fileLocation.trim() } ]`) 
+
+static getCallSource() {
+    // this does not work on all javascript engines. Its very hacky and
+    // should never be done on a productoin level ... something like this 
+    // might work but would need more tightening like tightening the app locaiton
+    var orig = new Error().stack;
+    var stack = orig.split('\n');
+    var debugString = stack[4].trim();
+    var prodString = stack[3].trim();
+    var fileLocation = !global.nativeCallSyncHook ? debugString.substring(debugString.indexOf(' '), debugString.indexOf('(')) :
+        prodString.substring(0, prodString.indexOf('@'))
+
+
+    return Logger.fmt_verbose(`[Location: ${fileLocation.trim()} ]`)
 
 }	
+}
 
-info("ready to export Logger");
 
-export default {
-    info, warn, error, verbose
+
+export default   {
+    info: Logger.info, 
+    warn: Logger.warn, 
+    error:Logger.error, 
+    verbose: Logger.verbose, 
+    setSilent: Logger.setSilent
 }
 
 

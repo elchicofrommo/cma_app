@@ -1,52 +1,160 @@
 /* tslint:disable */
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
-enum ModelSortDirection {
-  ASC = "ASC",
-  DESC = "DESC",
-}
 
 export const getPost = /* GraphQL */ `
   query GetPost($id: ID!) {
     getPost(id: $id) {
       id
+      ownerId
+      owner {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
             ownerId
-      conent
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
+      content
       likes {
         items {
-          id
+          postId
           userId
-          user{
+          user {
             id
+            shortId
             name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
           }
+          userName
+          createdAt
+          updatedAt
+          delta
         }
         nextToken
       }
       comments {
         items {
-          id
+          postId
           userId
-          user{
+          user {
             id
+            shortId
             name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
           }
           comment
           createdAt
+          updatedAt
+          delta
         }
         nextToken
       }
-      broadcasts{
-        items{
+      broadcasts {
+        items {
           id
           postId
+          post {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
           ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
           channelId
+          channel {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          createdAt
+          updatedAt
+          updatedBy
+          delta
         }
+        nextToken
       }
-
       createdAt
       updatedAt
+      updatedBy
+      delta
     }
   }
 `;
@@ -59,154 +167,296 @@ export const listPosts = /* GraphQL */ `
     listPosts(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-                ownerId
+        ownerId
         owner {
           id
           shortId
           name
           email
-        }
-        content
-          likes {
-            items{
-              userId
-              id
-                  user{
-                    name
-                    id
-                  }
-            }
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
           }
-          comments {
-            items{
-              userId
-              id
-                  user{
-                    name
-                    id
-                  }
-              comment
-              createdAt
-            }
+          posts {
+            nextToken
           }
-          broadcasts{
-          items{
-              channelId
-            }
-          }
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
-export const listShortPosts = /* GraphQL */ `
-  query ListPosts(
-    $filter: ModelPostFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listPosts(filter: $filter, limit: $limit, nextToken: $nextToken) {
-      items {
-        id
-                ownerId
-        owner {
-          id
-          name
-        }
-        createdAt
-
-        updatedAt
-      }
-      nextToken
-      
-    }
-  }
-`;
-
-export const getOperatingUser = /* GraphQL */ `
-
-  query GetOperationalUser($id: ID!) {
-    listChannelByOwner(
-      ownerId: $id
-      limit: 50
-    ){
-      items{
-        id
-        name
-      }
-    }
-    listChannelByUser(
-      userId: $id
-      limit: 50
-    ){
-      items{
-        id
-        channelId
-        channel{
-          name
-        }
-      }
-    }
-    listPostByOwner(
-      ownerId: $id,
-      sortDirection: DESC,
-      limit: 50
-    ){
-      items {
-          id
-                    ownerId
-          owner {
-            id
-            name
-            email
+          ownedChannels {
+            nextToken
           }
           createdAt
-          content
-          likes {
-            items{
-              id
-              userId
-              user{
-                id
-                name
-              }
-            }
-          }
-          comments {
-            items{
-              id
-              userId
-              user{
-                id
-                name
-              }
-              comment
-              createdAt
-            }
-          }
-          broadcasts{
-            items{
-              id
-              postId
-              ownerId
-              channelId
-            }
-          }
+          updatedBy
+          updatedAt
+          delta
         }
+        content
+        likes {
+          items {
+            postId
+            userId
+            userName
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        comments {
+          items {
+            postId
+            userId
+            comment
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        broadcasts {
+          id
+          items {
+            postId
+            ownerId
+            channelId
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedAt
+        updatedBy
+        delta
+      }
+      nextToken
     }
-    getUser(id: $id) {
-      id
-      shortId
-      name
-      email
-      dos
-      role
-      meetingIds
-      shareDos
+  }
+`;
+export const getLike = /* GraphQL */ `
+  query GetLike($postId: ID!, $userId: ID!) {
+    getLike(postId: $postId, userId: $userId) {
+      postId
+      userId
+      user {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
+      userName
       createdAt
       updatedAt
+      delta
+    }
+  }
+`;
+export const listLikes = /* GraphQL */ `
+  query ListLikes(
+    $userId: ID
+    $postId: ModelIDKeyConditionInput
+    $filter: ModelLikeFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listLikes(
+      userId: $userId
+      postId: $postId
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        postId
+        userId
+        user {
+          id
+          shortId
+          name
+          email
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
+          createdAt
+          updatedBy
+          updatedAt
+          delta
+        }
+        userName
+        createdAt
+        updatedAt
+        delta
+      }
+      nextToken
+    }
+  }
+`;
+export const getComment = /* GraphQL */ `
+  query GetComment($postId: ID!, $userId: ID!, $createdAt: String!) {
+    getComment(postId: $postId, userId: $userId, createdAt: $createdAt) {
+      postId
+      userId
+      user {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
+      comment
+      createdAt
+      updatedAt
+      delta
+    }
+  }
+`;
+export const listComments = /* GraphQL */ `
+  query ListComments(
+    $postId: ID
+    $createdAt: ModelStringKeyConditionInput
+    $filter: ModelCommentFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listComments(
+      postId: $postId
+      createdAt: $createdAt
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        postId
+        userId
+        user {
+          id
+          shortId
+          name
+          email
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
+          createdAt
+          updatedBy
+          updatedAt
+          delta
+        }
+        comment
+        createdAt
+        updatedAt
+        delta
+      }
+      nextToken
     }
   }
 `;
@@ -220,22 +470,58 @@ export const getUser = /* GraphQL */ `
       dos
       role
       shareDos
+      meetingIds
       channels {
         items {
-          id
           channelId
+          channel {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
           userId
           createdAt
           updatedAt
+          delta
         }
         nextToken
       }
       posts {
         items {
           id
-                    ownerId
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          content
+          likes {
+            nextToken
+          }
+          comments {
+            nextToken
+          }
+          broadcasts {
+            nextToken
+          }
           createdAt
           updatedAt
+          updatedBy
+          delta
         }
         nextToken
       }
@@ -245,13 +531,30 @@ export const getUser = /* GraphQL */ `
           shortId
           name
           ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
           createdAt
           updatedAt
+          delta
         }
         nextToken
       }
       createdAt
+      updatedBy
       updatedAt
+      delta
     }
   }
 `;
@@ -270,33 +573,47 @@ export const listUsers = /* GraphQL */ `
         dos
         role
         shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
         createdAt
+        updatedBy
         updatedAt
+        delta
       }
       nextToken
-    }
-  }
-`;
-export const listUsersShort = /* GraphQL */ `
-  query ListUsers(
-    $filter: ModelUserFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listUsers(filter: $filter, limit: $limit, nextToken: $nextToken) {
-      items {
-        id
-        shortId
-        name
-        email
-        dos
-        role
-        shareDos
-        createdAt
-        updatedAt
-      }
-      nextToken
-      
     }
   }
 `;
@@ -311,37 +628,53 @@ export const getChannel = /* GraphQL */ `
         id
         shortId
         name
-        updatedAt
-      }
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-export const getChannelDetails = /* GraphQL */ `
-  query GetChannelDetails($id: ID!) {
-    getChannel(id: $id) {
-      id
-      shortId
-      name
-      ownerId
-      owner {
-        id
-        shortId
-        name
-        updatedAt
-      }
-      createdAt
-      updatedAt
-    }
-    listUserByChannel(channelId: $id){
-      items{
-        user{
-          id
-          name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
         }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
       }
+      createdAt
+      updatedAt
+      delta
     }
   }
 `;
@@ -365,61 +698,38 @@ export const listChannels = /* GraphQL */ `
           dos
           role
           shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
           createdAt
+          updatedBy
           updatedAt
+          delta
         }
         createdAt
         updatedAt
+        delta
       }
       nextToken
     }
   }
 `;
 export const getUserChannel = /* GraphQL */ `
-  query GetUserChannel($id: ID!) {
-    getUserChannel(id: $id) {
-      id
+  query GetUserChannel($userId: ID!, $channelId: ID!) {
+    getUserChannel(userId: $userId, channelId: $channelId) {
       channelId
-      userId
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const listUserChannels = /* GraphQL */ `
-  query ListUserChannels(
-    $filter: ModelUserChannelFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listUserChannels(filter: $filter, limit: $limit, nextToken: $nextToken) {
-      items {
+      channel {
         id
-        channelId
-        channel {
-          id
-          shortId
-          name
-          ownerId
-          createdAt
-          updatedAt
-        }
-        userId
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
-export const getBroadcast = /* GraphQL */ `
-  query GetBroadcast($id: ID!) {
-    getBroadcast(id: $id) {
-      id
-      postId
-      post {
-        id
-                ownerId
+        shortId
+        name
+        ownerId
         owner {
           id
           shortId
@@ -429,22 +739,152 @@ export const getBroadcast = /* GraphQL */ `
           role
           shareDos
           meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
           createdAt
+          updatedBy
+          updatedAt
+          delta
+        }
+        createdAt
+        updatedAt
+        delta
+      }
+      userId
+      createdAt
+      updatedAt
+      delta
+    }
+  }
+`;
+export const listUserChannels = /* GraphQL */ `
+  query ListUserChannels(
+    $userId: ID
+    $channelId: ModelIDKeyConditionInput
+    $filter: ModelUserChannelFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listUserChannels(
+      userId: $userId
+      channelId: $channelId
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        channelId
+        channel {
+          id
+          shortId
+          name
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          createdAt
+          updatedAt
+          delta
+        }
+        userId
+        createdAt
+        updatedAt
+        delta
+      }
+      nextToken
+    }
+  }
+`;
+export const getBroadcast = /* GraphQL */ `
+  query GetBroadcast($channelId: ID!, $postId: ID!) {
+    getBroadcast(channelId: $channelId, postId: $postId) {
+      id
+      postId
+      post {
+        id
+        ownerId
+        owner {
+          id
+          shortId
+          name
+          email
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
+          createdAt
+          updatedBy
           updatedAt
           delta
         }
         content
         likes {
+          items {
+            postId
+            userId
+            userName
+            createdAt
+            updatedAt
+            delta
+          }
           nextToken
         }
         comments {
+          items {
+            postId
+            userId
+            comment
+            createdAt
+            updatedAt
+            delta
+          }
           nextToken
         }
         broadcasts {
+          items {
+            id
+            postId
+            ownerId
+            channelId
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
           nextToken
         }
         createdAt
         updatedAt
+        updatedBy
         delta
       }
       ownerId
@@ -458,15 +898,41 @@ export const getBroadcast = /* GraphQL */ `
         shareDos
         meetingIds
         channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
           nextToken
         }
         posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
           nextToken
         }
         ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
           nextToken
         }
         createdAt
+        updatedBy
         updatedAt
         delta
       }
@@ -485,15 +951,19 @@ export const getBroadcast = /* GraphQL */ `
           role
           shareDos
           meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
           createdAt
+          updatedBy
           updatedAt
           delta
-        }
-        broadcasts {
-          nextToken
-        }
-        subscriptions {
-          nextToken
         }
         createdAt
         updatedAt
@@ -501,25 +971,61 @@ export const getBroadcast = /* GraphQL */ `
       }
       createdAt
       updatedAt
+      updatedBy
       delta
     }
   }
 `;
 export const listBroadcasts = /* GraphQL */ `
   query ListBroadcasts(
+    $channelId: ID
+    $postId: ModelIDKeyConditionInput
     $filter: ModelBroadcastFilterInput
     $limit: Int
     $nextToken: String
+    $sortDirection: ModelSortDirection
   ) {
-    listBroadcasts(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listBroadcasts(
+      channelId: $channelId
+      postId: $postId
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
       items {
         id
         postId
         post {
           id
-                    ownerId
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          content
+          likes {
+            nextToken
+          }
+          comments {
+            nextToken
+          }
+          broadcasts {
+            nextToken
+          }
           createdAt
           updatedAt
+          updatedBy
           delta
         }
         ownerId
@@ -532,7 +1038,17 @@ export const listBroadcasts = /* GraphQL */ `
           role
           shareDos
           meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
           createdAt
+          updatedBy
           updatedAt
           delta
         }
@@ -542,12 +1058,27 @@ export const listBroadcasts = /* GraphQL */ `
           shortId
           name
           ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
           createdAt
           updatedAt
           delta
         }
         createdAt
         updatedAt
+        updatedBy
         delta
       }
       nextToken
@@ -557,7 +1088,7 @@ export const listBroadcasts = /* GraphQL */ `
 export const listPostByOwner = /* GraphQL */ `
   query ListPostByOwner(
     $ownerId: ID
-    $createdAt: ModelIntKeyConditionInput
+    $createdAt: ModelStringKeyConditionInput
     $sortDirection: ModelSortDirection
     $filter: ModelPostFilterInput
     $limit: Int
@@ -573,101 +1104,174 @@ export const listPostByOwner = /* GraphQL */ `
     ) {
       items {
         id
-                ownerId
+        ownerId
         owner {
           id
           shortId
           name
           email
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
           createdAt
+          updatedBy
           updatedAt
+          delta
         }
         content
-
         likes {
-          items{
-              userId
-
-            }
+          items {
+            postId
+            userId
+            userName
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
         }
         comments {
-            items{
-              userId
-
-              comment
-              createdAt
-            }
+          items {
+            postId
+            userId
+            comment
+            createdAt
+            updatedAt
+            delta
           }
-          broadcasts{
-            items{
-              id
-              postId
-              ownerId
-              channelId
-            }
-          }
+          nextToken
         }
-      }
-    }
-    }
-  }
-`;
-
-export const listUserByEmail = /* GraphQL */ `
-  query ListUserByEmail(
-    $email: String
-    $sortDirection: ModelSortDirection
-    $filter: ModelUserFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listUserByEmail(
-      email: $email
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        shortId
-        name
-        email
-        dos
-        role
-        shareDos
+        broadcasts {
+          items {
+            id
+            postId
+            ownerId
+            channelId
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
         createdAt
         updatedAt
+        updatedBy
+        delta
       }
       nextToken
     }
   }
 `;
-export const listUserByShortId = /* GraphQL */ `
-  query ListUserByShortId(
-    $shortId: String
+export const listLikesByPost = /* GraphQL */ `
+  query ListLikesByPost(
+    $postId: ID
+    $createdAt: ModelStringKeyConditionInput
     $sortDirection: ModelSortDirection
-    $filter: ModelUserFilterInput
+    $filter: ModelLikeFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listUserByShortId(
-      shortId: $shortId
+    listLikesByPost(
+      postId: $postId
+      createdAt: $createdAt
       sortDirection: $sortDirection
       filter: $filter
       limit: $limit
       nextToken: $nextToken
     ) {
       items {
-        id
-        shortId
-        name
-        email
-        dos
-        role
-        shareDos
+        postId
+        userId
+        user {
+          id
+          shortId
+          name
+          email
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
+          createdAt
+          updatedBy
+          updatedAt
+          delta
+        }
+        userName
         createdAt
         updatedAt
+        delta
+      }
+      nextToken
+    }
+  }
+`;
+export const listCommentsByPost = /* GraphQL */ `
+  query ListCommentsByPost(
+    $postId: ID
+    $createdAt: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelCommentFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listCommentsByPost(
+      postId: $postId
+      createdAt: $createdAt
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        postId
+        userId
+        user {
+          id
+          shortId
+          name
+          email
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
+          createdAt
+          updatedBy
+          updatedAt
+          delta
+        }
+        comment
+        createdAt
+        updatedAt
+        delta
       }
       nextToken
     }
@@ -701,45 +1305,24 @@ export const listChannelByOwner = /* GraphQL */ `
           dos
           role
           shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
           createdAt
+          updatedBy
           updatedAt
-        }
-        
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
-export const listChannelByShortId = /* GraphQL */ `
-  query ListChannelByShortId(
-    $shortId: String
-    $sortDirection: ModelSortDirection
-    $filter: ModelChannelFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listChannelByShortId(
-      shortId: $shortId
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        shortId
-        name
-        ownerId
-        owner {
-          id
-          shortId
-          name
-          
+          delta
         }
         createdAt
         updatedAt
+        delta
       }
       nextToken
     }
@@ -763,11 +1346,34 @@ export const listUserByChannel = /* GraphQL */ `
       nextToken: $nextToken
     ) {
       items {
-        id
         channelId
+        channel {
+          id
+          shortId
+          name
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          createdAt
+          updatedAt
+          delta
+        }
         userId
         createdAt
         updatedAt
+        delta
       }
       nextToken
     }
@@ -791,19 +1397,34 @@ export const listChannelByUser = /* GraphQL */ `
       nextToken: $nextToken
     ) {
       items {
-        id
         channelId
         channel {
           id
           shortId
           name
           ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
           createdAt
           updatedAt
+          delta
         }
         userId
         createdAt
         updatedAt
+        delta
       }
       nextToken
     }
@@ -812,7 +1433,7 @@ export const listChannelByUser = /* GraphQL */ `
 export const listBrodcastByPost = /* GraphQL */ `
   query ListBrodcastByPost(
     $postId: ID
-    $createdAt: ModelIntKeyConditionInput
+    $createdAt: ModelStringKeyConditionInput
     $sortDirection: ModelSortDirection
     $filter: ModelBroadcastFilterInput
     $limit: Int
@@ -831,13 +1452,88 @@ export const listBrodcastByPost = /* GraphQL */ `
         postId
         post {
           id
-                    ownerId
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          content
+          likes {
+            nextToken
+          }
+          comments {
+            nextToken
+          }
+          broadcasts {
+            nextToken
+          }
           createdAt
           updatedAt
+          updatedBy
+          delta
+        }
+        ownerId
+        owner {
+          id
+          shortId
+          name
+          email
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
+          createdAt
+          updatedBy
+          updatedAt
+          delta
         }
         channelId
+        channel {
+          id
+          shortId
+          name
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          createdAt
+          updatedAt
+          delta
+        }
         createdAt
         updatedAt
+        updatedBy
+        delta
       }
       nextToken
     }
@@ -846,7 +1542,7 @@ export const listBrodcastByPost = /* GraphQL */ `
 export const listBroadcastByChannel = /* GraphQL */ `
   query ListBroadcastByChannel(
     $channelId: ID
-    $createdAt: ModelIntKeyConditionInput
+    $createdAt: ModelStringKeyConditionInput
     $sortDirection: ModelSortDirection
     $filter: ModelBroadcastFilterInput
     $limit: Int
@@ -863,48 +1559,256 @@ export const listBroadcastByChannel = /* GraphQL */ `
       items {
         id
         postId
-        channelId
-
-        post{
+        post {
           id
           ownerId
-          owner{
-            name
+          owner {
             id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
           }
-                    content
-          likes{
-            items{
-              id
-              userId
-              user{
-                id
-                name
-              }
-            }
+          content
+          likes {
+            nextToken
           }
-          comments{
-            items{
-              id
-              userId
-              comment
-              createdAt
-              user{
-                id
-                name
-              }
-            }
+          comments {
+            nextToken
+          }
+          broadcasts {
+            nextToken
           }
           createdAt
           updatedAt
-
+          updatedBy
+          delta
         }
+        ownerId
+        owner {
+          id
+          shortId
+          name
+          email
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
+          createdAt
+          updatedBy
+          updatedAt
+          delta
+        }
+        channelId
+        channel {
+          id
+          shortId
+          name
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          createdAt
+          updatedAt
+          delta
+        }
+        createdAt
+        updatedAt
+        updatedBy
+        delta
+      }
+      nextToken
+    }
+  }
+`;
 
+
+
+
+
+export const listShortPosts = /* GraphQL */ `
+  query ListPosts(
+    $filter: ModelPostFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listPosts(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        ownerId
+        owner {
+          id
+          name
+        }
         createdAt
         updatedAt
       }
       nextToken
       
+    }
+  }
+`;
+
+export const getOperatingUser = /* GraphQL */ `
+
+  query GetOperationalUser($id: ID!) {
+    listChannelByOwner(
+      ownerId: $id
+      limit: 50
+    ){
+      items{
+        id
+        name
+      }
+    }
+    listChannelByUser(
+      userId: $id
+      limit: 50
+    ){
+      items{
+        channelId
+        channel{
+          name
+        }
+        userId
+        createdAt
+        updatedAt
+      }
+    }
+    listPostByOwner(
+      ownerId: $id,
+      sortDirection: DESC,
+      limit: 50
+    ){
+      items {
+          id
+           ownerId
+          owner {
+            id
+            name
+            email
+          }
+          createdAt
+          content
+          likes {
+            items{
+              postId
+              userId
+              user{
+                id
+                name
+              }
+            }
+          }
+          comments {
+            items{
+              postId
+              userId
+              user{
+                id
+                name
+              }
+              comment
+              createdAt
+            }
+          }
+          broadcasts{
+            items{
+              id
+              postId
+              ownerId
+              channelId
+            }
+          }
+        }
+    }
+    getUser(id: $id) {
+      id
+      shortId
+      name
+      email
+      dos
+      role
+      meetingIds
+      shareDos
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listUsersShort = /* GraphQL */ `
+  query ListUsers(
+    $filter: ModelUserFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listUsers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        createdAt
+        updatedAt
+      }
+      nextToken
+      
+    }
+  }
+`;
+export const getChannelDetails = /* GraphQL */ `
+  query GetChannelDetails($id: ID!) {
+    getChannel(id: $id) {
+      id
+      shortId
+      name
+      ownerId
+      owner {
+        id
+        shortId
+        name
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+    listUserByChannel(channelId: $id){
+      items{
+        user{
+          id
+          name
+        }
+      }
     }
   }
 `;

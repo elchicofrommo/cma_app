@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import moment from "moment";
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Colors from '../constants/Colors';
-import log from '../util/Logging'
+import log from './Logging'
 function SoberietyTime(props) {
 
   const [pressOffset, setPressOffset] = useState(new Animated.Value(0))

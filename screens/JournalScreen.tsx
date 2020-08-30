@@ -15,7 +15,7 @@ import PostList from '../components/PostList'
 import Modal from "react-native-modal";
 
 import log from "../util/Logging"
-import {store} from '../components/store'
+import {store} from '../redux/store'
 
 
 import mutateApi from "../api/mutate";

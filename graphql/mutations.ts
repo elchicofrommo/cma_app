@@ -2,346 +2,164 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const commentOnPost = /* GraphQL */ `
-mutation CommentOnPost(
-    $postId: ID!
-    $userId: ID!
-    $comment: String!
-  ) {
-    createComment(input: {postId: $postId, userId: $userId, comment: $comment}) {
-      id
-      userId
-      postId
-      user{
-          id
-          name
-      }
-      entryId
-      createdAt
-      updatedAt
-    }
-    updatePost( input: {id: $postId}){
-      id
-            ownerId
-      owner {
-        id
-        shortId
-        name
-      }
-      content
-      likes {
-        items {
-          id
-          userId
-          user{
-            name
-            id
-          }
-          postId
-          entryId
-          createdAt
-        }
-
-      }
-      comments {
-        items {
-          id
-          userId
-          user{
-            name
-            id
-          }
-          postId
-          entryId
-          comment
-          createdAt
-        }
-
-      }
-      broadcasts{
-        items{
-          id
-          postId
-          ownerId
-          channelId
-        }
-      }
-
-      createdAt
-      updatedAt
-      delta
-    }
-    listBrodcastByPost( postId: $postId){
-      items {
-        id
-        postId
-        channelId
-        createdAt
-        updatedAt
-      }
-    }
-  }
-`;
-
-export const likePost = /* GraphQL */ `
-mutation LikePost(
-    $postId: ID!
-    $userId: ID!
-  ) {
-    createLike(input: {postId: $postId, userId: $userId}) {
-      id
-      userId
-      postId
-      user{
-          id
-          name
-      }
-      entryId
-      createdAt
-      updatedAt
-    }
-    updatePost( input: {id: $postId}){
-      id
-            ownerId
-      owner {
-        id
-        shortId
-        name
-      }
-      content
-      likes {
-        items {
-          id
-          userId
-          user{
-            name
-            id
-          }
-          postId
-          entryId
-          createdAt
-        }
-
-      }
-      comments {
-        items {
-          id
-          userId
-          user{
-            name
-            id
-          }
-          postId
-          entryId
-          comment
-          createdAt
-        }
-
-      }
-      broadcasts{
-        items{
-          id
-          postId
-          ownerId
-          channelId
-        }
-      }
-
-      createdAt
-      updatedAt
-      delta
-    }
-    listBrodcastByPost( postId: $postId){
-      items {
-        id
-        postId
-        channelId
-        createdAt
-        updatedAt
-      }
-    }
-  }
-`;
-
-export const unlikePost = /* GraphQL */ `
-  mutation UnlikePost(
-    $likeId: ID!
-    $postId: ID!
-  ) {
-    deleteLike(input: {id: $likeId}) {
-      id
-      userId
-      postId
-      user{
-            name
-          }
-      entryId
-      createdAt
-      updatedAt
-    }
-    updatePost( input: {id: $postId}){
-      id
-            ownerId
-      owner {
-        id
-        shortId
-        name
-      }
-      content
-      likes {
-        items {
-          id
-          userId
-          user{
-            name
-            id
-          }
-          postId
-          entryId
-          createdAt
-        }
-
-      }
-      comments {
-        items {
-          id
-          userId
-          user{
-            name
-            id
-          }
-          postId
-          entryId
-          comment
-          createdAt
-        }
-
-      }
-      broadcasts{
-        items{
-          id
-          postId
-          ownerId
-          channelId
-        }
-      }
-
-      createdAt
-      updatedAt
-      delta
-    }
-    listBrodcastByPost( postId: $postId){
-      items {
-        id
-        postId
-        channelId
-        createdAt
-        updatedAt
-      }
-    } 
-  }
-`;
-
-
-export const uncommentOnPost = /* GraphQL */ `
-  mutation UncommentOnPost(
-    $commentId: ID!
-    $postId: ID!
-  ) {
-    deleteLike(input: {id: $likeId}) {
-      id
-      userId
-      postId
-      entryId
-      createdAt
-      updatedAt
-    }
-    updatePost( input: {id: $postId}){
-      id
-            ownerId
-      createdAt
-      updatedAt
-      delta
-      content
-      comments{
-        items{
-          userId
-          comment
-          createdAt
-          user{
-            name
-          }
-        }
-      }
-      likes{
-        items{
-          userId
-          user{
-            name
-          }
-        }
-      }
-      broadcasts{
-        items{
-          id
-          postId
-          ownerId
-          channelId
-        }
-      }
-    }
-  }
-`;
-
 export const createPost = /* GraphQL */ `
   mutation CreatePost(
     $input: CreatePostInput!
+    $condition: ModelPostConditionInput
   ) {
-    createPost( input: $input){
+    createPost(input: $input, condition: $condition) {
       id
-            ownerId
+      ownerId
       owner {
         id
         shortId
         name
-      }
-      createdAt
-      updatedAt
-      delta
-      content
-      comments{
-        items{
-          userId
-          user{
-            name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
             id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
+      content
+      likes {
+        items {
+          postId
+          userId
+          user {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          userName
+          createdAt
+          updatedAt
+          delta
+        }
+        nextToken
+      }
+      comments {
+        items {
+          postId
+          userId
+          user {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
           }
           comment
           createdAt
+          updatedAt
+          delta
         }
+        nextToken
       }
-      likes{
-        items{
-          userId
-          user{
-            name
-            id
-          }
-        }
-      }
-      broadcasts{
-        items{
-          id
+      broadcasts {
+        items {
           postId
+          post {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
           ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
           channelId
+          channel {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          createdAt
+          updatedAt
+          updatedBy
+          delta
         }
+        nextToken
       }
+      createdAt
+      updatedAt
+      updatedBy
+      delta
     }
-
   }
 `;
-
 export const updatePost = /* GraphQL */ `
   mutation UpdatePost(
     $input: UpdatePostInput!
@@ -349,44 +167,154 @@ export const updatePost = /* GraphQL */ `
   ) {
     updatePost(input: $input, condition: $condition) {
       id
-            ownerId
+      ownerId
       owner {
         id
         shortId
         name
-      }
-      createdAt
-      updatedAt
-      delta
-      content
-      comments{
-        items{
-          userId
-          user{
-            name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
             id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
+      content
+      likes {
+        items {
+          postId
+          userId
+          user {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          userName
+          createdAt
+          updatedAt
+          delta
+        }
+        nextToken
+      }
+      comments {
+        items {
+          postId
+          userId
+          user {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
           }
           comment
           createdAt
+          updatedAt
+          delta
         }
+        nextToken
       }
-      likes{
-        items{
-          user{
-            name
-            id
-          }
-          userId
-        }
-      }
-      broadcasts{
-        items{
-          id
+      broadcasts {
+        items {
           postId
+          post {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
           ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
           channelId
+          channel {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          createdAt
+          updatedAt
+          updatedBy
+          delta
         }
+        nextToken
       }
+      createdAt
+      updatedAt
+      updatedBy
+      delta
     }
   }
 `;
@@ -397,9 +325,153 @@ export const deletePost = /* GraphQL */ `
   ) {
     deletePost(input: $input, condition: $condition) {
       id
+      ownerId
+      owner {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
             ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
+      content
+      likes {
+        items {
+          postId
+          userId
+          user {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          userName
+          createdAt
+          updatedAt
+          delta
+        }
+        nextToken
+      }
+      comments {
+        items {
+          postId
+          userId
+          user {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          comment
+          createdAt
+          updatedAt
+          delta
+        }
+        nextToken
+      }
+      broadcasts {
+        items {
+          postId
+          post {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          channelId
+          channel {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          createdAt
+          updatedAt
+          updatedBy
+          delta
+        }
+        nextToken
+      }
       createdAt
       updatedAt
+      updatedBy
       delta
     }
   }
@@ -410,13 +482,60 @@ export const createLike = /* GraphQL */ `
     $condition: ModelLikeConditionInput
   ) {
     createLike(input: $input, condition: $condition) {
-      id
-      userId
       postId
+      userId
+      user {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
       userName
-      entryId
       createdAt
       updatedAt
+      delta
     }
   }
 `;
@@ -426,13 +545,60 @@ export const updateLike = /* GraphQL */ `
     $condition: ModelLikeConditionInput
   ) {
     updateLike(input: $input, condition: $condition) {
-      id
-      userId
       postId
+      userId
+      user {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
       userName
-      entryId
       createdAt
       updatedAt
+      delta
     }
   }
 `;
@@ -442,13 +608,60 @@ export const deleteLike = /* GraphQL */ `
     $condition: ModelLikeConditionInput
   ) {
     deleteLike(input: $input, condition: $condition) {
-      id
-      userId
       postId
+      userId
+      user {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
       userName
-      entryId
       createdAt
       updatedAt
+      delta
     }
   }
 `;
@@ -458,13 +671,60 @@ export const createComment = /* GraphQL */ `
     $condition: ModelCommentConditionInput
   ) {
     createComment(input: $input, condition: $condition) {
-      id
-      userId
       postId
-      entryId
+      userId
+      user {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
       comment
       createdAt
       updatedAt
+      delta
     }
   }
 `;
@@ -474,13 +734,60 @@ export const updateComment = /* GraphQL */ `
     $condition: ModelCommentConditionInput
   ) {
     updateComment(input: $input, condition: $condition) {
-      id
-      userId
       postId
-      entryId
+      userId
+      user {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
       comment
       createdAt
       updatedAt
+      delta
     }
   }
 `;
@@ -490,52 +797,60 @@ export const deleteComment = /* GraphQL */ `
     $condition: ModelCommentConditionInput
   ) {
     deleteComment(input: $input, condition: $condition) {
-      id
-      userId
       postId
-      entryId
+      userId
+      user {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
       comment
       createdAt
       updatedAt
-    }
-  }
-`;
-export const createEntry = /* GraphQL */ `
-  mutation CreateEntry(
-    $input: CreateEntryInput!
-    $condition: ModelEntryConditionInput
-  ) {
-    createEntry(input: $input, condition: $condition) {
-      id
-      postId
-      content
-      index
-    }
-  }
-`;
-export const updateEntry = /* GraphQL */ `
-  mutation UpdateEntry(
-    $input: UpdateEntryInput!
-    $condition: ModelEntryConditionInput
-  ) {
-    updateEntry(input: $input, condition: $condition) {
-      id
-      postId
-      content
-      index
-    }
-  }
-`;
-export const deleteEntry = /* GraphQL */ `
-  mutation DeleteEntry(
-    $input: DeleteEntryInput!
-    $condition: ModelEntryConditionInput
-  ) {
-    deleteEntry(input: $input, condition: $condition) {
-      id
-      postId
-      content
-      index
+      delta
     }
   }
 `;
@@ -552,8 +867,91 @@ export const createUser = /* GraphQL */ `
       dos
       role
       shareDos
+      meetingIds
+      channels {
+        items {
+          channelId
+          channel {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          userId
+          createdAt
+          updatedAt
+          delta
+        }
+        nextToken
+      }
+      posts {
+        items {
+          id
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          content
+          likes {
+            nextToken
+          }
+          comments {
+            nextToken
+          }
+          broadcasts {
+            nextToken
+          }
+          createdAt
+          updatedAt
+          updatedBy
+          delta
+        }
+        nextToken
+      }
+      ownedChannels {
+        items {
+          id
+          shortId
+          name
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          createdAt
+          updatedAt
+          delta
+        }
+        nextToken
+      }
       createdAt
+      updatedBy
       updatedAt
+      delta
     }
   }
 `;
@@ -570,9 +968,91 @@ export const updateUser = /* GraphQL */ `
       dos
       role
       shareDos
-      
+      meetingIds
+      channels {
+        items {
+          channelId
+          channel {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          userId
+          createdAt
+          updatedAt
+          delta
+        }
+        nextToken
+      }
+      posts {
+        items {
+          id
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          content
+          likes {
+            nextToken
+          }
+          comments {
+            nextToken
+          }
+          broadcasts {
+            nextToken
+          }
+          createdAt
+          updatedAt
+          updatedBy
+          delta
+        }
+        nextToken
+      }
+      ownedChannels {
+        items {
+          id
+          shortId
+          name
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          createdAt
+          updatedAt
+          delta
+        }
+        nextToken
+      }
       createdAt
+      updatedBy
       updatedAt
+      delta
     }
   }
 `;
@@ -589,8 +1069,91 @@ export const deleteUser = /* GraphQL */ `
       dos
       role
       shareDos
+      meetingIds
+      channels {
+        items {
+          channelId
+          channel {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          userId
+          createdAt
+          updatedAt
+          delta
+        }
+        nextToken
+      }
+      posts {
+        items {
+          id
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          content
+          likes {
+            nextToken
+          }
+          comments {
+            nextToken
+          }
+          broadcasts {
+            nextToken
+          }
+          createdAt
+          updatedAt
+          updatedBy
+          delta
+        }
+        nextToken
+      }
+      ownedChannels {
+        items {
+          id
+          shortId
+          name
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          createdAt
+          updatedAt
+          delta
+        }
+        nextToken
+      }
       createdAt
+      updatedBy
       updatedAt
+      delta
     }
   }
 `;
@@ -604,8 +1167,57 @@ export const createChannel = /* GraphQL */ `
       shortId
       name
       ownerId
+      owner {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
       createdAt
       updatedAt
+      delta
     }
   }
 `;
@@ -619,8 +1231,57 @@ export const updateChannel = /* GraphQL */ `
       shortId
       name
       ownerId
+      owner {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
       createdAt
       updatedAt
+      delta
     }
   }
 `;
@@ -634,8 +1295,57 @@ export const deleteChannel = /* GraphQL */ `
       shortId
       name
       ownerId
+      owner {
+        id
+        shortId
+        name
+        email
+        dos
+        role
+        shareDos
+        meetingIds
+        channels {
+          items {
+            channelId
+            userId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        posts {
+          items {
+            id
+            ownerId
+            content
+            createdAt
+            updatedAt
+            updatedBy
+            delta
+          }
+          nextToken
+        }
+        ownedChannels {
+          items {
+            id
+            shortId
+            name
+            ownerId
+            createdAt
+            updatedAt
+            delta
+          }
+          nextToken
+        }
+        createdAt
+        updatedBy
+        updatedAt
+        delta
+      }
       createdAt
       updatedAt
+      delta
     }
   }
 `;
@@ -645,15 +1355,43 @@ export const createUserChannel = /* GraphQL */ `
     $condition: ModelUserChannelConditionInput
   ) {
     createUserChannel(input: $input, condition: $condition) {
-      id
       channelId
-      channel{
-        name
+      channel {
         id
+        shortId
+        name
+        ownerId
+        owner {
+          id
+          shortId
+          name
+          email
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
+          createdAt
+          updatedBy
+          updatedAt
+          delta
+        }
+        createdAt
+        updatedAt
+        delta
       }
       userId
       createdAt
       updatedAt
+      delta
     }
   }
 `;
@@ -663,11 +1401,43 @@ export const updateUserChannel = /* GraphQL */ `
     $condition: ModelUserChannelConditionInput
   ) {
     updateUserChannel(input: $input, condition: $condition) {
-      id
       channelId
+      channel {
+        id
+        shortId
+        name
+        ownerId
+        owner {
+          id
+          shortId
+          name
+          email
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
+          createdAt
+          updatedBy
+          updatedAt
+          delta
+        }
+        createdAt
+        updatedAt
+        delta
+      }
       userId
       createdAt
       updatedAt
+      delta
     }
   }
 `;
@@ -677,14 +1447,48 @@ export const deleteUserChannel = /* GraphQL */ `
     $condition: ModelUserChannelConditionInput
   ) {
     deleteUserChannel(input: $input, condition: $condition) {
-      id
       channelId
+      channel {
+        id
+        shortId
+        name
+        ownerId
+        owner {
+          id
+          shortId
+          name
+          email
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          ownedChannels {
+            nextToken
+          }
+          createdAt
+          updatedBy
+          updatedAt
+          delta
+        }
+        createdAt
+        updatedAt
+        delta
+      }
       userId
       createdAt
       updatedAt
+      delta
     }
   }
 `;
+
+
 export const createBroadcast = /* GraphQL */ `
   mutation CreateBroadcast(
     $input: CreateBroadcastInput!
@@ -698,7 +1502,7 @@ export const createBroadcast = /* GraphQL */ `
       ownerId
       post {
         id
-                ownerId
+        ownerId
         owner {
           id
           name
@@ -706,30 +1510,29 @@ export const createBroadcast = /* GraphQL */ `
         content
         likes {
           items {
-            id
+            postId
             userId
             user{
               name
               id
             }
-            postId
-            entryId
             createdAt
+            updatedAt
           }
 
         }
         comments {
           items {
-            id
             userId
             user{
               name
               id
             }
             postId
-            entryId
+            
             comment
             createdAt
+            updatedAt
           }
 
         }
@@ -752,30 +1555,30 @@ export const createBroadcast = /* GraphQL */ `
       content
       likes {
         items {
-          id
           userId
           user{
             name
             id
           }
           postId
-          entryId
+          
           createdAt
+          updatedAt
         }
 
       }
       comments {
         items {
-          id
           userId
           user{
             name
             id
           }
           postId
-          entryId
+          
           comment
           createdAt
+          updatedAt
         }
 
       }
@@ -807,7 +1610,7 @@ export const updateBroadcast = /* GraphQL */ `
       ownerId
       post {
         id
-                ownerId
+        ownerId
         owner {
           id
           name
@@ -815,28 +1618,26 @@ export const updateBroadcast = /* GraphQL */ `
         content
         likes {
           items {
-            id
             userId
             user{
               name
               id
             }
             postId
-            entryId
+            
             createdAt
           }
 
         }
         comments {
           items {
-            id
             userId
             user{
               name
               id
             }
             postId
-            entryId
+            
             comment
             createdAt
           }
@@ -852,7 +1653,7 @@ export const updateBroadcast = /* GraphQL */ `
     }
     updatePost( input: {id: $postId}){
       id
-            ownerId
+      ownerId
       owner {
         id
         shortId
@@ -861,28 +1662,26 @@ export const updateBroadcast = /* GraphQL */ `
       content
       likes {
         items {
-          id
           userId
           user{
             name
             id
           }
           postId
-          entryId
+          
           createdAt
         }
 
       }
       comments {
         items {
-          id
           userId
           user{
             name
             id
           }
           postId
-          entryId
+          
           comment
           createdAt
         }
@@ -916,7 +1715,7 @@ export const deleteBroadcast = /* GraphQL */ `
       ownerId
       post {
         id
-                ownerId
+        ownerId
         owner {
           id
           name
@@ -924,28 +1723,26 @@ export const deleteBroadcast = /* GraphQL */ `
         content
         likes {
           items {
-            id
             userId
             user{
               name
               id
             }
             postId
-            entryId
+            
             createdAt
           }
 
         }
         comments {
           items {
-            id
             userId
             user{
               name
               id
             }
             postId
-            entryId
+            
             comment
             createdAt
           }
@@ -961,7 +1758,7 @@ export const deleteBroadcast = /* GraphQL */ `
     }
     updatePost( input: {id: $postId}){
       id
-            ownerId
+      ownerId
       owner {
         id
         shortId
@@ -970,28 +1767,26 @@ export const deleteBroadcast = /* GraphQL */ `
       content
       likes {
         items {
-          id
           userId
           user{
             name
             id
           }
           postId
-          entryId
+          
           createdAt
         }
 
       }
       comments {
         items {
-          id
           userId
           user{
             name
             id
           }
           postId
-          entryId
+          
           comment
           createdAt
         }
@@ -1009,6 +1804,280 @@ export const deleteBroadcast = /* GraphQL */ `
       createdAt
       updatedAt
       delta
+    }
+  }
+`;
+
+export const likePost = /* GraphQL */ `
+mutation LikePost(
+    $postId: ID!
+    $userId: ID!
+  ) {
+    createLike(input: {postId: $postId, userId: $userId}) {
+      userId
+      postId
+      user{
+          id
+          name
+      }
+      createdAt
+      updatedAt
+    }
+    updatePost( input: {id: $postId}){
+      id
+      ownerId
+      owner {
+        id
+        shortId
+        name
+      }
+      content
+      likes {
+        items {
+          postId
+          userId
+          user{
+            name
+            id
+          }
+          createdAt
+        }
+
+      }
+      comments {
+        items {
+          postId
+          userId
+          user{
+            name
+            id
+          }
+          comment
+          createdAt
+        }
+
+      }
+      broadcasts{
+        items{
+          id
+          postId
+          ownerId
+          channelId
+        }
+      }
+
+      createdAt
+      updatedAt
+      delta
+    }
+    listBroadcastByPost( postId: $postId){
+      items {
+        id
+        postId
+        channelId
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
+export const unlikePost = /* GraphQL */ `
+  mutation UnlikePost(
+    $postId: ID!
+    $userId: ID!
+  ) {
+    deleteLike(input: {postId: $postId, userId: $userId}) {
+      userId
+      postId
+      user{
+        name
+      }
+  
+      createdAt
+      updatedAt
+    }
+    updatePost( input: {id: $postId}){
+      id
+      ownerId
+      owner {
+        id
+        shortId
+        name
+      }
+      content
+      likes {
+        items {
+          userId
+          user{
+            name
+            id
+          }
+          postId        
+          createdAt
+        }
+
+      }
+      comments {
+        items {
+          userId
+          user{
+            name
+            id
+          }
+          postId
+          comment
+          createdAt
+        }
+
+      }
+      broadcasts{
+        items{
+          postId
+          ownerId
+          channelId
+        }
+      }
+
+      createdAt
+      updatedAt
+      delta
+    }
+    listBroadcastByPost( postId: $postId){
+      items {
+        id
+        postId
+        channelId
+        createdAt
+        updatedAt
+      }
+    } 
+  }
+`;
+
+
+export const commentOnPost = /* GraphQL */ `
+mutation CommentOnPost(
+    $postId: ID!
+    $userId: ID!
+    $comment: String!
+  ) {
+    createComment(input: {postId: $postId, userId: $userId, comment: $comment}) {
+      userId
+      postId
+      user{
+          id
+          name
+      }
+      createdAt
+      updatedAt
+    }
+    updatePost( input: {id: $postId}){
+      id
+      ownerId
+      owner {
+        id
+        shortId
+        name
+      }
+      content
+      likes {
+        items {
+          postId
+          userId
+          user{
+            name
+            id
+          }
+          createdAt
+          updatedAt
+        }
+
+      }
+      comments {
+        items {
+          postId
+          userId
+          user{
+            name
+            id
+          }
+          comment
+          createdAt
+          updatedAt
+        }
+
+      }
+      broadcasts{
+        items{
+          id
+          postId
+          ownerId
+          channelId
+        }
+      }
+
+      createdAt
+      updatedAt
+      delta
+    }
+    listBroadcastByPost( postId: $postId){
+      items {
+        id
+        postId
+        channelId
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+export const uncommentOnPost = /* GraphQL */ `
+  mutation UncommentOnPost(
+    $postId: ID!
+    $createdAt: String!
+  ) {
+    deleteComment(input: {postId: $postId, createdAt: $createdAt}) {
+      postId
+      userId
+      createdAt
+      updatedAt
+    }
+    updatePost( input: {id: $postId}){
+      id
+      ownerId
+      createdAt
+      updatedAt
+      delta
+      content
+      comments{
+        items{
+          postId
+          userId
+          comment
+          createdAt
+          user{
+            name
+          }
+        }
+      }
+      likes{
+        items{
+          postId
+          userId
+          user{
+            name
+          }
+        }
+      }
+      broadcasts{
+        items{
+          id
+          postId
+          ownerId
+          channelId
+        }
+      }
     }
   }
 `;

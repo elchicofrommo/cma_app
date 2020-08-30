@@ -23,7 +23,7 @@ import Svg, {
 import { useColors } from "../hooks/useColors";
 import { connect, } from "react-redux";
 
-import { store } from '../components/store'
+import { store } from '../redux/store'
 import log from "../util/Logging"
 import { signUp, signIn, getUserDetails } from '../util/auth'
 

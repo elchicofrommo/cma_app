@@ -6,7 +6,7 @@ import useCachedResources, {APP_STATE} from './hooks/useCachedResources';
 import useSubscriptions from './hooks/useSubscriptions';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import links from './navigation/LinkingConfiguration';
-import { store } from './components/store'
+import { store } from './redux/store'
 import {useColors} from './hooks/useColors';
 import {useLayout} from './hooks/useLayout';
 import { Provider, shallowEqual, useSelector  } from 'react-redux';

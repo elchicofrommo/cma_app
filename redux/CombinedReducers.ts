@@ -8,7 +8,7 @@ import {AppState} from "../types/AppState";
 import {User, Post, Broadcast,} from '../types/circles.'
 import log from '../util/Logging'
 
-const GUEST_USER = {
+export const GUEST_USER = {
   role: "guest",
   name: "guest",
   shortId: "none",
@@ -16,7 +16,7 @@ const GUEST_USER = {
   meetingIds: []
 }
 
-const NEW_USER = {
+export const NEW_USER = {
   role: 'new',
   name: '',
   shortId: 'new',
@@ -24,8 +24,8 @@ const NEW_USER = {
   meetingIds: []
 }
 
-const INITIAL_STATE: AppState = {
-  operatingUser: undefined, 
+export const INITIAL_STATE: AppState = {
+  operatingUser: {...NEW_USER}, 
   currentTheme: 6,
   posts: [],
   broadcastsByChannel: new Map<string, Broadcast[]>(),
@@ -53,7 +53,7 @@ function logState(state){
 //  log.info(`GR: state is:${JSON.stringify(state, null, 2)} \n`)
 }
 const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
-  log.info(`in general reducer action observed:${action.type}`)
+  log.info(`in general reducer action observed: ${action.type}`)
   let newState : AppState = {...state};
 
   switch (action.type) {

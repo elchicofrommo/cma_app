@@ -319,7 +319,7 @@ function CommentsComponent({ comments, mode }: { comments: Comment[], mode: Post
     const comment = comments[comments.length - 1]
     const remaining = comments.length - 1;
     let dateTimeString = ""
-    const createdAt = moment(comment.createdAt * 1000)
+    const createdAt = moment(comment.createdAt)
     const duration = moment.duration(createdAt.diff(moment()))
     if (duration.days() > 1) {
       dateTimeString = createdAt.format(`MM/DD/YYYY`)
@@ -390,7 +390,7 @@ function CommentsComponent({ comments, mode }: { comments: Comment[], mode: Post
     const toReturn = comments.map((comment: Comment) => {
       log.verbose(`comment ${comment.comment} and the date created is ${comment.createdAt}`)
       let dateTimeString = ""
-      const createdAt = moment(comment.createdAt * 1000)
+      const createdAt = moment(comment.createdAt)
       const duration = moment.duration(createdAt.diff(moment()))
       if (duration.days() > 1) {
         dateTimeString = createdAt.format(`MM/DD/YYYY`)

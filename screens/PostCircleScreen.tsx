@@ -9,7 +9,7 @@ import {
 } from "react-native";
 
 import { shallowEqual, useSelector } from "react-redux";
-import { store } from "../components/store";
+import { store } from "../redux/store";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import log from "../util/Logging"
 import { PostShareModal} from "../components/PostShareModal"

@@ -50,7 +50,6 @@ function defaultPost(user: User) :Post {
     id: "new",
     ownerId: user.id,
     owner: user,
-    createdAt: Date.now(),
     title: moment().format("MMMM Do YYYY"),
     comments: {
       items: []

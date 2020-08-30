@@ -1,5 +1,5 @@
 import { shallowEqual, useSelector } from "react-redux";
-import {store} from "../components/store"
+import {store} from "../redux/store"
 
 const tintColor = '#2f95dc';
 const blueOrange = {

@@ -44,13 +44,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { Themes, useColors } from "../hooks/useColors";
 import { connect, } from "react-redux";
 
-import { store } from '../components/store'
+import { store } from '../redux/store'
 import log from "../util/Logging"
 
 import { Auth, } from "aws-amplify";
 
 import mutateApi, { CreateUserInput, UpdateUserInput } from '../api/mutate'
-import queryApi from '../api/fetch'
+import queryApi from '../api/query'
 import { User, Channel, UserChannel, Post, Broadcast, Meeting } from '../types/circles.'
 
 

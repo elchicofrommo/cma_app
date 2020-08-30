@@ -5,12 +5,12 @@ export type Post = {
   id?: string,
   ownerId: string,
   owner?: User,
-  createdAt?: number,
+  createdAt?: string,
   content: string,
   likes?: NestedArray<Like>,
   comments?: NestedArray<Comment>,
   broadcasts?: NestedArray<Broadcast>,
-  lastUpdatedAt?: number
+  updatedAt?: number
 }
 
 export type User = {
@@ -21,21 +21,20 @@ export type User = {
   dos?: number,
   role?: string,
   shareDos?: boolean,
-  createdAt?: number,
+  createdAt?: string,
+  updatedAt?: string
   channels?: NestedArray<UserChannel>,
   posts?: NestedArray<Post>,
   ownedChannels?: NestedArray<Channel>,
-  lastUpdatedAt?: number,
   meetingIds?: string[]
 }
 
 export type Like = {
-  id?: string,
   userId: string,
   user?: User,
   postId?: string,
-  createdAt?: number,
-  updatedAt?: number,
+  createdAt?: string,
+  updatedAt?: string,
 }
 
 export type ChannelDetails = Channel & {
@@ -43,23 +42,21 @@ export type ChannelDetails = Channel & {
 }
 
 export type UserChannel = {
-  id?: string,
   channelId: string,
   channel: Channel,
   userId: string,
   user?: User,
-  createdAt?: number,
-  updatedAt?: number,
+  createdAt?: string,
+  updatedAt?: string,
 }
 
 export type Comment = {
-  id?: string,
   userId: string,
   user?: User,
   postId?: string,
   comment: string,
-  createdAt?: number,
-  updatedAt?: number,
+  createdAt?: string,
+  updatedAt?: string,
 }
 
 export type Channel = {
@@ -70,20 +67,20 @@ export type Channel = {
   owner?: User,
   broadcasts?: NestedArray<Broadcast>,
   subscriptions?: NestedArray<UserChannel>,
-  createdAt?: number,
-  updatedAt?: number,
+  createdAt?: string,
+  updatedAt?: string,
 }
 
 export type Broadcast = {
-  id?: string,
+  id: string,
   postId: string,
   post?: Post,
   ownerId: string,
   owner?: User,
   channelId: string,
   channel?: Channel,
-  createdAt?: number,
-  updatedAt?: number,
+  createdAt?: string,
+  updatedAt?: string,
 }
 
 export type Meeting ={

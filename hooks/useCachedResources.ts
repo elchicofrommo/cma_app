@@ -4,7 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { DataStore, Predicates } from "@aws-amplify/datastore";
 import axios from 'axios';
-import { store } from '../components/store'
+import { store } from '../redux/store'
 import { DailyReaders, AuthDetail } from "../models/index";
 import { authorize, getUserDetails, Role } from '../util/auth'
 import { User } from '../types/circles.'
@@ -76,7 +76,10 @@ export default function useCachedResources() {
       // soundcloud details
       try {
         const filtered = await promises[0]
-        store.dispatch({ type: "SOUNDCLOUD_DETAILS", data: filtered })
+        if(filtered.error)
+          store.dispatch({ type: "SOUNDCLOUD_DETAILS", data: { description: "Could not get track details. " } })
+        else
+          store.dispatch({ type: "SOUNDCLOUD_DETAILS", data: filtered })
       } catch (err) {
         store.dispatch({ type: "SOUNDCLOUD_DETAILS", data: { description: "Could not get track details. " } })
         appLog.info("could not get soundcloud details ", { error: err })
@@ -86,8 +89,11 @@ export default function useCachedResources() {
       try {
         const tracks = await promises[1]
         appLog.info(`got CMA soundcloud tracks ${tracks.length}`)
-
-        store.dispatch({ type: "SOUNDCLOUD_TRACKS", data: tracks })
+        if(tracks.error)
+          store.dispatch({ type: "SOUNDCLOUD_TRACKS", data: [] })
+        else 
+          store.dispatch({ type: "SOUNDCLOUD_TRACKS", data: tracks })
+        
       } catch (err) {
 
         store.dispatch({ type: "SOUNDCLOUD_TRACKS", data: [] })

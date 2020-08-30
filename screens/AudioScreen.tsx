@@ -69,7 +69,7 @@ export default function SpeakerScreenStack() {
 const TrackDetails = memo(({ track, state = PlayStates.INITAL, playerCallback , index}:
   { track: any, state: PlayStates, playerCallback: Function, index: number }) => {
 
-  log.info(`new PlayerComponent past memo input is track:${track.state} and state:${state}`)
+  //log.info(`new PlayerComponent past memo input is track:${track.state} and state:${state}`)
 
 
   const duration = moment.duration(track.duration)
@@ -244,10 +244,10 @@ function SpeakerScreen(props) {
     }
   }
 
-  log.info(`tracks and details are null? ${tracks == undefined} ${details == undefined}`)
-  //console.log(`${JSON.stringify(tracks)}`)
+  //log.info(`soundcloud details`, {tracks, details})
+
   function renderTrackDetails({ item: track, index }) {
-    // log.info(`playing track ${playingTrack?.id} and this track id ${track.id}`)
+     //log.info(`this track id ${track.id}`)
     let state = PlayStates.INITAL;
     if (playingTrack?.id == track.id) {
       state = playingTrack.state
@@ -261,7 +261,7 @@ function SpeakerScreen(props) {
     <Logo style={{ flex: 1, marginLeft: -10, marginRight: -30, }} />
 
     <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 * layout.scale.width }}>
-      <Text style={{ color: Colors.primaryContrast, fontFamily: 'opensans', fontSize: 13 * layout.scale.width }}>{details.description}</Text>
+      <Text style={{ color: Colors.primaryContrast, fontFamily: 'opensans', fontSize: 13 * layout.scale.width }}>{details.error? details.error: details.description}</Text>
     </View>
   </View>
   return (

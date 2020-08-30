@@ -2,7 +2,8 @@
 import * as React from 'react';
 
 import { User,  UserChannel } from '../types/circles.'
-import fetchApi from '../api/fetch'
+
+import subApi from '../api/subscription'
 import { shallowEqual, useSelector  } from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 import { AppState } from 'react-native';
@@ -29,9 +30,9 @@ export default function useSubscriptions() {
         if(user && user.role!="guest"){
 
             const subs = [];
-            subs.push(fetchApi.subscribeToMyPosts(user))
+            subs.push(subApi.subscribeToMyPosts(user))
             userChannels.forEach(userChannel=>{
-              subs.push(fetchApi.subscribeToBroadcastChannel(userChannel.channelId))
+              subs.push(subApi.subscribeToBroadcastChannel(userChannel.channelId))
             })
             return ()=>{
               log.info(`unsubscribing to everything`)

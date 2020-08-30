@@ -1,9 +1,6 @@
 import { API, graphqlOperation as gql } from "@aws-amplify/api";
 import * as queries from "../graphql/queries";
-import * as subscriptions from "../graphql/subscriptions";
-import { store } from "../components/store"
 import log from "../util/Logging"
-import { shallowEqual, useSelector } from "react-redux";
 import {
     User,
     UserChannel,
@@ -14,158 +11,6 @@ import {
     ChannelDetails
 } from "../types/circles.";
 
-async function fetchAllUsers(): Promise<Array<User>> {
-    log.info(`fetchAllUsers start`);
-
-    try {
-        log.info(`#### about to run the query against the api`);
-
-        type ListUsersResults = {
-            listUsers: NestedArray<User>
-        };
-
-        const firstStageResult = (await API.graphql(
-            gql(queries.listUsersShort, {
-                limit: 50,
-            })
-        )) as { data: ListUsersResults };
-
-        return firstStageResult.data.listUsers.items || [];
-    } catch (err) {
-        log.info(`fetchAllUSers error:  `, { err });
-        return []
-    }
-
-    log.info(`fetchAllUsers done`);
-}
-
-async function fetchAllPosts(): Promise<Array<Post>> {
-    log.info(`fetchAllPosts start`);
-
-    try {
-        log.info(`#### about to run the query against the api`);
-        type ListPostResult = {
-            listPosts: NestedArray<Post>
-        };
-
-        const firstStageResult = (await API.graphql(
-            gql(queries.listShortPosts, {
-                limit: 50,
-            })
-        )) as { data: ListPostResult };
-
-
-        return firstStageResult.data.listPosts.items || [];
-    } catch (err) {
-        log.info(`fetchAllPosts error:  `, { err });
-        return []
-    }
-
-    log.info(`fetchAllPosts done`);
-
-}
-
-async function fetchAllChannels(): Promise<Array<Channel>> {
-    log.info(`fetchAllChannels`);
-    type ListChannelsResult = {
-        listChannels: NestedArray<Channel>;
-    };
-    const result = (await API.graphql(gql(queries.listChannels))) as {
-        data: ListChannelsResult;
-    };
-
-    log.info(`fetchAllChannels done `);
-    return result.data.listChannels.items || [];
-}
-
-
-
-async function handlePostEvent(event) {
-
-
-    type PostEvent = Post & { delta: string }
-
-
-    let post: PostEvent = event.value.data.subscribeToMyPosts;
-    log.info(
-        `observed an event on PostSubscription `, { post }
-    );
-    //if it is   then fetch the whole thing
-    if (post.delta === "CREATE") {
-        store.dispatch({ type: "ADD_POST", post })
-    } else if (post.delta === "UPDATE") {
-        store.dispatch({ type: "UPDATE_POST", post })
-    } else {
-        store.dispatch({ type: "DELETE_POST", post })
-    }
-
-}
-
-async function handleBroadcastEvent(event) {
-    log.info(`observed event on broadcast subscription:`, { value: event.value })
-
-    type BroadcastEvent = Broadcast & { delta: string }
-
-
-    let broadcast: BroadcastEvent = event.value.data.subscribeToBroadcastChannel;
-    log.info(
-        `observed an event on PostSubscription `, { broadcast }
-    );
-
-    //if it is create then fetch the whole thing
-    if (broadcast.delta === "CREATE") {
-        store.dispatch({ type: "ADD_BROADCAST", broadcast })
-    } else if (broadcast.delta === "UPDATE") {
-        store.dispatch({ type: "UPDATE_BROADCAST", broadcast })
-    } else {
-        store.dispatch({ type: "DELETE_BROADCAST", broadcast })
-    }
-
-}
-
-function subscribeToMyPosts(operatingUser: User) {
-    log.info(`subscribing to my post for ${operatingUser?.id}`)
-    if (operatingUser) {
-        let postSub: any = API.graphql(
-            gql(subscriptions.subscribeToMyPosts, { ownerId: operatingUser.id })
-        );
-        log.info(`got subscription object for ${operatingUser?.id}`)
-        postSub = postSub.subscribe({ next: handlePostEvent, complete: log.info, error: log.info });
-        log.info(`completed subscription for ${operatingUser?.id}`)
-        return () => {
-            log.info(`unsubscribing to posts for user ${operatingUser?.id}`)
-            try {
-                postSub.unsubscribe();
-            } catch (err) {
-                log.info(`could not unsubscribe, probably becasue the connection was closed due to timeout. `)
-            }
-        }
-    } else {
-        return undefined;
-    }
-}
-
-function subscribeToBroadcastChannel(channelId: string) {
-    log.info(`subscribing to broadcast channel for ${channelId}`)
-    if (channelId) {
-        let broadcastSub: any = API.graphql(
-            gql(subscriptions.subscribeToBroadcastChannel, { channelId })
-        );
-        log.info(`got subscription object for ${channelId}`)
-        broadcastSub = broadcastSub.subscribe({ next: handleBroadcastEvent, complete: log.info, error: log.info,  });
-        log.info(`completed subscription for ${channelId}`)
-        return () => {
-            log.info(`unsubscribing to broadcast channel ${channelId}`)
-            try {
-                broadcastSub.unsubscribe();
-            } catch (err) {
-                log.info(`could not unsubscribe, probably becasue the connection was closed due to timeout. `)
-            }
-        }
-    } else {
-        return undefined;
-    }
-}
 ///// Section for fetching data for operating
 
 async function fetchOperatingUser(userId):
@@ -302,7 +147,7 @@ async function fetchBroadcastPost(user: User, mySubChannels: UserChannel[]): Pro
             promises.push(
                 API.graphql(
                     gql(queries.listBroadcastByChannel, {
-                        channelId: channel.channelId, filter: {ownerId: {ne: user.id}}
+                        channelId: channel.channelId, filter: { ownerId: { ne: user.id } }
                     })
                 )
             );
@@ -347,7 +192,7 @@ async function getAuthDetails(id: string): Promise<User> {
         getUser: User
     }
     const authResult = (await API.graphql(
-        gql(queries.getUser, {id })
+        gql(queries.getUser, { id })
     )) as { data: AuthDetailResult }
 
     return authResult.data.getUser
@@ -395,17 +240,13 @@ async function fetchChannelDetails(channelId: string): Promise<ChannelDetails> {
     return detail;
 }
 
+
 export default {
     getAuthDetails,
     fetchMySubChannels,
     fetchBroadcastPost,
     fetchPosts,
-    fetchAllUsers,
-    fetchAllChannels,
-    fetchAllPosts,
     fetchOperatingUser,
     fetchOwnedChannels,
-    subscribeToMyPosts,
-    subscribeToBroadcastChannel,
-    fetchChannelDetails
+    fetchChannelDetails,
 }

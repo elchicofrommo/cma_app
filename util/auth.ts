@@ -2,10 +2,10 @@
 import { Auth, } from "aws-amplify";
 import mutateApi, { CreateUserInput, } from '../api/mutate'
 import apiGateway from '../api/apiGateway'
-import { store } from '../components/store'
+import { store } from '../redux/store'
 import { User, Channel, UserChannel, Post, Broadcast, } from '../types/circles.'
-import log from "../util/Logging"
-import queryApi from '../api/fetch'
+import log from "./Logging"
+import queryApi from '../api/query'
 
 export type UserDetailResult = {
 
@@ -54,7 +54,7 @@ export async function authorize(): Promise<AuthorizeResult> {
 }
 export async function signUp(email: string, password: string, name: string): Promise<{ error?: string }> {
     try {
-
+        log.verbose(`logging in  `, { email, password, name });
         const signup = await Auth.signUp(email, password);
         log.verbose(`sign up response `, { signup });
 

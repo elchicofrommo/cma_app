@@ -16,7 +16,7 @@ FlatList,
 import log from "../util/Logging"
 import { connect } from "react-redux";
 import mutateApi from "../api/mutate";
-import fetchApi  from "../api/fetch";
+import fetchApi  from "../api/query";
 import {
   HeaderBackButton,
 } from "@react-navigation/stack";
@@ -25,7 +25,7 @@ import {useColors} from '../hooks/useColors'
 import {useLayout} from '../hooks/useLayout'
 
 import Button from '../components/Button'
-import {store} from '../components/store'
+import {store} from '../redux/store'
 import {
 
 } from "@expo/vector-icons";
@@ -96,7 +96,7 @@ log.info(`rendering CircleAdminScreen`)
         })
 
     }else{
-      const subscribePromise = mutateApi.subscribeToChannel(operatingUser, input, userChannels)
+      const subscribePromise = fetch.subscribeToChannel(operatingUser, input, userChannels)
       store.dispatch(()=>{
         subscribePromise.then(async (result)=>{
           await new Promise((resolve, reject)=>{store.dispatch({type: "SUBSCRIBE_CHANNEL", data: result}); resolve()})
