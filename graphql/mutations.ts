@@ -2,6 +2,84 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const listBroadcastByPost = /* GraphQL */ `
+  mutation ListBroadcastByPost($postId: ID, $limit: Int, $nextToken: String) {
+    listBroadcastByPost(postId: $postId, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        postId
+        post {
+          id
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          content
+          likes {
+            nextToken
+          }
+          comments {
+            nextToken
+          }
+          broadcasts {
+            nextToken
+          }
+          createdAt
+          updatedAt
+          updatedBy
+          delta
+        }
+        ownerId
+        owner {
+          id
+          shortId
+          name
+          email
+          dos
+          role
+          shareDos
+          meetingIds
+          channels {
+            nextToken
+          }
+          posts {
+            nextToken
+          }
+          createdAt
+          updatedBy
+          updatedAt
+          delta
+        }
+        channelId
+        channel {
+          id
+          name
+          shortId
+          ownerIds
+          createdAt
+          updatedAt
+          delta
+        }
+        createdAt
+        updatedAt
+        updatedBy
+        delta
+      }
+      nextToken
+    }
+  }
+`;
 export const createPost = /* GraphQL */ `
   mutation CreatePost(
     $input: CreatePostInput!
@@ -37,18 +115,6 @@ export const createPost = /* GraphQL */ `
             createdAt
             updatedAt
             updatedBy
-            delta
-          }
-          nextToken
-        }
-        ownedChannels {
-          items {
-            id
-            shortId
-            name
-            ownerId
-            createdAt
-            updatedAt
             delta
           }
           nextToken
@@ -111,6 +177,7 @@ export const createPost = /* GraphQL */ `
       }
       broadcasts {
         items {
+          id
           postId
           post {
             id
@@ -139,9 +206,9 @@ export const createPost = /* GraphQL */ `
           channelId
           channel {
             id
-            shortId
             name
-            ownerId
+            shortId
+            ownerIds
             createdAt
             updatedAt
             delta
@@ -199,18 +266,6 @@ export const updatePost = /* GraphQL */ `
           }
           nextToken
         }
-        ownedChannels {
-          items {
-            id
-            shortId
-            name
-            ownerId
-            createdAt
-            updatedAt
-            delta
-          }
-          nextToken
-        }
         createdAt
         updatedBy
         updatedAt
@@ -269,6 +324,7 @@ export const updatePost = /* GraphQL */ `
       }
       broadcasts {
         items {
+          id
           postId
           post {
             id
@@ -297,9 +353,9 @@ export const updatePost = /* GraphQL */ `
           channelId
           channel {
             id
-            shortId
             name
-            ownerId
+            shortId
+            ownerIds
             createdAt
             updatedAt
             delta
@@ -357,18 +413,6 @@ export const deletePost = /* GraphQL */ `
           }
           nextToken
         }
-        ownedChannels {
-          items {
-            id
-            shortId
-            name
-            ownerId
-            createdAt
-            updatedAt
-            delta
-          }
-          nextToken
-        }
         createdAt
         updatedBy
         updatedAt
@@ -427,6 +471,7 @@ export const deletePost = /* GraphQL */ `
       }
       broadcasts {
         items {
+          id
           postId
           post {
             id
@@ -455,9 +500,9 @@ export const deletePost = /* GraphQL */ `
           channelId
           channel {
             id
-            shortId
             name
-            ownerId
+            shortId
+            ownerIds
             createdAt
             updatedAt
             delta
@@ -515,18 +560,6 @@ export const createLike = /* GraphQL */ `
           }
           nextToken
         }
-        ownedChannels {
-          items {
-            id
-            shortId
-            name
-            ownerId
-            createdAt
-            updatedAt
-            delta
-          }
-          nextToken
-        }
         createdAt
         updatedBy
         updatedAt
@@ -574,18 +607,6 @@ export const updateLike = /* GraphQL */ `
             createdAt
             updatedAt
             updatedBy
-            delta
-          }
-          nextToken
-        }
-        ownedChannels {
-          items {
-            id
-            shortId
-            name
-            ownerId
-            createdAt
-            updatedAt
             delta
           }
           nextToken
@@ -641,18 +662,6 @@ export const deleteLike = /* GraphQL */ `
           }
           nextToken
         }
-        ownedChannels {
-          items {
-            id
-            shortId
-            name
-            ownerId
-            createdAt
-            updatedAt
-            delta
-          }
-          nextToken
-        }
         createdAt
         updatedBy
         updatedAt
@@ -700,18 +709,6 @@ export const createComment = /* GraphQL */ `
             createdAt
             updatedAt
             updatedBy
-            delta
-          }
-          nextToken
-        }
-        ownedChannels {
-          items {
-            id
-            shortId
-            name
-            ownerId
-            createdAt
-            updatedAt
             delta
           }
           nextToken
@@ -767,18 +764,6 @@ export const updateComment = /* GraphQL */ `
           }
           nextToken
         }
-        ownedChannels {
-          items {
-            id
-            shortId
-            name
-            ownerId
-            createdAt
-            updatedAt
-            delta
-          }
-          nextToken
-        }
         createdAt
         updatedBy
         updatedAt
@@ -830,18 +815,6 @@ export const deleteComment = /* GraphQL */ `
           }
           nextToken
         }
-        ownedChannels {
-          items {
-            id
-            shortId
-            name
-            ownerId
-            createdAt
-            updatedAt
-            delta
-          }
-          nextToken
-        }
         createdAt
         updatedBy
         updatedAt
@@ -873,9 +846,9 @@ export const createUser = /* GraphQL */ `
           channelId
           channel {
             id
-            shortId
             name
-            ownerId
+            shortId
+            ownerIds
             createdAt
             updatedAt
             delta
@@ -918,32 +891,6 @@ export const createUser = /* GraphQL */ `
           createdAt
           updatedAt
           updatedBy
-          delta
-        }
-        nextToken
-      }
-      ownedChannels {
-        items {
-          id
-          shortId
-          name
-          ownerId
-          owner {
-            id
-            shortId
-            name
-            email
-            dos
-            role
-            shareDos
-            meetingIds
-            createdAt
-            updatedBy
-            updatedAt
-            delta
-          }
-          createdAt
-          updatedAt
           delta
         }
         nextToken
@@ -974,9 +921,9 @@ export const updateUser = /* GraphQL */ `
           channelId
           channel {
             id
-            shortId
             name
-            ownerId
+            shortId
+            ownerIds
             createdAt
             updatedAt
             delta
@@ -1019,32 +966,6 @@ export const updateUser = /* GraphQL */ `
           createdAt
           updatedAt
           updatedBy
-          delta
-        }
-        nextToken
-      }
-      ownedChannels {
-        items {
-          id
-          shortId
-          name
-          ownerId
-          owner {
-            id
-            shortId
-            name
-            email
-            dos
-            role
-            shareDos
-            meetingIds
-            createdAt
-            updatedBy
-            updatedAt
-            delta
-          }
-          createdAt
-          updatedAt
           delta
         }
         nextToken
@@ -1075,9 +996,9 @@ export const deleteUser = /* GraphQL */ `
           channelId
           channel {
             id
-            shortId
             name
-            ownerId
+            shortId
+            ownerIds
             createdAt
             updatedAt
             delta
@@ -1124,32 +1045,6 @@ export const deleteUser = /* GraphQL */ `
         }
         nextToken
       }
-      ownedChannels {
-        items {
-          id
-          shortId
-          name
-          ownerId
-          owner {
-            id
-            shortId
-            name
-            email
-            dos
-            role
-            shareDos
-            meetingIds
-            createdAt
-            updatedBy
-            updatedAt
-            delta
-          }
-          createdAt
-          updatedAt
-          delta
-        }
-        nextToken
-      }
       createdAt
       updatedBy
       updatedAt
@@ -1164,57 +1059,9 @@ export const createChannel = /* GraphQL */ `
   ) {
     createChannel(input: $input, condition: $condition) {
       id
-      shortId
       name
-      ownerId
-      owner {
-        id
-        shortId
-        name
-        email
-        dos
-        role
-        shareDos
-        meetingIds
-        channels {
-          items {
-            channelId
-            userId
-            createdAt
-            updatedAt
-            delta
-          }
-          nextToken
-        }
-        posts {
-          items {
-            id
-            ownerId
-            content
-            createdAt
-            updatedAt
-            updatedBy
-            delta
-          }
-          nextToken
-        }
-        ownedChannels {
-          items {
-            id
-            shortId
-            name
-            ownerId
-            createdAt
-            updatedAt
-            delta
-          }
-          nextToken
-        }
-        createdAt
-        updatedBy
-        updatedAt
-        delta
-      }
+      shortId
+      ownerIds
       createdAt
       updatedAt
       delta
@@ -1228,57 +1075,9 @@ export const updateChannel = /* GraphQL */ `
   ) {
     updateChannel(input: $input, condition: $condition) {
       id
-      shortId
       name
-      ownerId
-      owner {
-        id
-        shortId
-        name
-        email
-        dos
-        role
-        shareDos
-        meetingIds
-        channels {
-          items {
-            channelId
-            userId
-            createdAt
-            updatedAt
-            delta
-          }
-          nextToken
-        }
-        posts {
-          items {
-            id
-            ownerId
-            content
-            createdAt
-            updatedAt
-            updatedBy
-            delta
-          }
-          nextToken
-        }
-        ownedChannels {
-          items {
-            id
-            shortId
-            name
-            ownerId
-            createdAt
-            updatedAt
-            delta
-          }
-          nextToken
-        }
-        createdAt
-        updatedBy
-        updatedAt
-        delta
-      }
+      shortId
+      ownerIds
       createdAt
       updatedAt
       delta
@@ -1292,98 +1091,27 @@ export const deleteChannel = /* GraphQL */ `
   ) {
     deleteChannel(input: $input, condition: $condition) {
       id
-      shortId
       name
-      ownerId
-      owner {
-        id
-        shortId
-        name
-        email
-        dos
-        role
-        shareDos
-        meetingIds
-        channels {
-          items {
-            channelId
-            userId
-            createdAt
-            updatedAt
-            delta
-          }
-          nextToken
-        }
-        posts {
-          items {
-            id
-            ownerId
-            content
-            createdAt
-            updatedAt
-            updatedBy
-            delta
-          }
-          nextToken
-        }
-        ownedChannels {
-          items {
-            id
-            shortId
-            name
-            ownerId
-            createdAt
-            updatedAt
-            delta
-          }
-          nextToken
-        }
-        createdAt
-        updatedBy
-        updatedAt
-        delta
-      }
+      shortId
+      ownerIds
       createdAt
       updatedAt
       delta
     }
   }
 `;
-export const createUserChannel = /* GraphQL */ `
-  mutation CreateUserChannel(
-    $input: CreateUserChannelInput!
-    $condition: ModelUserChannelConditionInput
+export const createChannelMember = /* GraphQL */ `
+  mutation CreateChannelMember(
+    $input: CreateChannelMemberInput!
+    $condition: ModelChannelMemberConditionInput
   ) {
-    createUserChannel(input: $input, condition: $condition) {
+    createChannelMember(input: $input, condition: $condition) {
       channelId
       channel {
         id
-        shortId
         name
-        ownerId
-        owner {
-          id
-          shortId
-          name
-          email
-          dos
-          role
-          shareDos
-          meetingIds
-          channels {
-            nextToken
-          }
-          posts {
-            nextToken
-          }
-          ownedChannels {
-            nextToken
-          }
-          createdAt
-          updatedBy
-          updatedAt
-          delta
-        }
+        shortId
+        ownerIds
         createdAt
         updatedAt
         delta
@@ -1395,41 +1123,18 @@ export const createUserChannel = /* GraphQL */ `
     }
   }
 `;
-export const updateUserChannel = /* GraphQL */ `
-  mutation UpdateUserChannel(
-    $input: UpdateUserChannelInput!
-    $condition: ModelUserChannelConditionInput
+export const updateChannelMember = /* GraphQL */ `
+  mutation UpdateChannelMember(
+    $input: UpdateChannelMemberInput!
+    $condition: ModelChannelMemberConditionInput
   ) {
-    updateUserChannel(input: $input, condition: $condition) {
+    updateChannelMember(input: $input, condition: $condition) {
       channelId
       channel {
         id
-        shortId
         name
-        ownerId
-        owner {
-          id
-          shortId
-          name
-          email
-          dos
-          role
-          shareDos
-          meetingIds
-          channels {
-            nextToken
-          }
-          posts {
-            nextToken
-          }
-          ownedChannels {
-            nextToken
-          }
-          createdAt
-          updatedBy
-          updatedAt
-          delta
-        }
+        shortId
+        ownerIds
         createdAt
         updatedAt
         delta
@@ -1441,41 +1146,18 @@ export const updateUserChannel = /* GraphQL */ `
     }
   }
 `;
-export const deleteUserChannel = /* GraphQL */ `
-  mutation DeleteUserChannel(
-    $input: DeleteUserChannelInput!
-    $condition: ModelUserChannelConditionInput
+export const deleteChannelMember = /* GraphQL */ `
+  mutation DeleteChannelMember(
+    $input: DeleteChannelMemberInput!
+    $condition: ModelChannelMemberConditionInput
   ) {
-    deleteUserChannel(input: $input, condition: $condition) {
+    deleteChannelMember(input: $input, condition: $condition) {
       channelId
       channel {
         id
-        shortId
         name
-        ownerId
-        owner {
-          id
-          shortId
-          name
-          email
-          dos
-          role
-          shareDos
-          meetingIds
-          channels {
-            nextToken
-          }
-          posts {
-            nextToken
-          }
-          ownedChannels {
-            nextToken
-          }
-          createdAt
-          updatedBy
-          updatedAt
-          delta
-        }
+        shortId
+        ownerIds
         createdAt
         updatedAt
         delta
@@ -1487,6 +1169,9 @@ export const deleteUserChannel = /* GraphQL */ `
     }
   }
 `;
+
+
+/************************************/
 
 
 export const createBroadcast = /* GraphQL */ `

@@ -2253,9 +2253,9 @@ export const listChannels = /* GraphQL */ `
     }
   }
 `;
-export const getUserChannel = /* GraphQL */ `
-  query GetUserChannel($id: ID!) {
-    getUserChannel(id: $id) {
+export const getChannelMember = /* GraphQL */ `
+  query GetChannelMember($id: ID!) {
+    getChannelMember(id: $id) {
       id
       channelId
       userId
@@ -2264,13 +2264,13 @@ export const getUserChannel = /* GraphQL */ `
     }
   }
 `;
-export const listUserChannels = /* GraphQL */ `
-  query ListUserChannels(
-    $filter: ModelUserChannelFilterInput
+export const listChannelMembers = /* GraphQL */ `
+  query ListChannelMembers(
+    $filter: ModelChannelMemberFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listUserChannels(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listChannelMembers(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
         channelId
@@ -2628,7 +2628,7 @@ export const listUserByChannel = /* GraphQL */ `
     $channelId: ID
     $userId: ModelIDKeyConditionInput
     $sortDirection: ModelSortDirection
-    $filter: ModelUserChannelFilterInput
+    $filter: ModelChannelMemberFilterInput
     $limit: Int
     $nextToken: String
   ) {
@@ -2656,7 +2656,7 @@ export const listChannelByUser = /* GraphQL */ `
     $userId: ID
     $channelId: ModelIDKeyConditionInput
     $sortDirection: ModelSortDirection
-    $filter: ModelUserChannelFilterInput
+    $filter: ModelChannelMemberFilterInput
     $limit: Int
     $nextToken: String
   ) {

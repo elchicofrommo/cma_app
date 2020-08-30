@@ -51,7 +51,7 @@ import { Auth, } from "aws-amplify";
 
 import mutateApi, { CreateUserInput, UpdateUserInput } from '../api/mutate'
 import queryApi from '../api/query'
-import { User, Channel, UserChannel, Post, Broadcast, Meeting } from '../types/circles.'
+import { User, Channel, ChannelMember, Post, Broadcast, Meeting } from '../types/circles.'
 
 
 import { useLayout } from '../hooks/useLayout'
@@ -61,7 +61,7 @@ export type SignInResult = {
 
   operatingUser?: User,
   ownedChannels?: Channel[],
-  userChannels?: UserChannel[],
+  channelMembers?: ChannelMember[],
   posts?: Post[],
   broadcastMap?: Map<string, Broadcast[]>,
   meetings?: string[]
@@ -118,12 +118,12 @@ export async function getUserDetails(email: string, jwtToken: string): Promise<S
     const opResults = await queryApi.fetchOperatingUser(authResults.id)
     log.info(`successful sign in, now dispatching save auth `);
 
-    const broadcastsByChannel = await queryApi.fetchBroadcastPost(opResults.user, opResults.userChannels);
+    const broadcastsByChannel = await queryApi.fetchBroadcastPost(opResults.user, opResults.channelMembers);
     log.info(`broadcastByChannel`, { broadcastsByChannel })
     const signInResult = {
       operatingUser: opResults.user,
       posts: opResults.posts, ownedChannels: opResults.channels, 
-      userChannels: opResults.userChannels, broadcastsByChannel,
+      channelMembers: opResults.channelMembers, broadcastsByChannel,
 
     }
 

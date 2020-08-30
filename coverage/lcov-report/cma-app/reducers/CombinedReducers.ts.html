@@ -1046,7 +1046,7 @@ export const INITIAL_STATE: AppState = {
   posts: [],
   broadcastsByChannel: new Map&lt;string, Broadcast[]&gt;(),
   ownedChannels: [],
-  userChannels: [],
+  channelMembers: [],
   meetings: [],
   meetingsLoading: false,
   homegroup: undefined,
@@ -1077,8 +1077,8 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState =&gt; {
 <span class="branch-0 cbranch-no" title="branch not covered" >    case "CREATE_CHANNEL":</span>
 <span class="cstat-no" title="statement not covered" >      newState.ownedChannels = [...newState.ownedChannels]</span>
 <span class="cstat-no" title="statement not covered" >      newState.ownedChannels.push(action.data.ownedChannel);</span>
-<span class="cstat-no" title="statement not covered" >      newState.userChannels = [...newState.userChannels];</span>
-<span class="cstat-no" title="statement not covered" >      newState.userChannels.push(action.data.subscribedChannel)</span>
+<span class="cstat-no" title="statement not covered" >      newState.channelMembers = [...newState.channelMembers];</span>
+<span class="cstat-no" title="statement not covered" >      newState.channelMembers.push(action.data.subscribedChannel)</span>
       let map: Map&lt;string, Broadcast[]&gt; = <span class="cstat-no" title="statement not covered" >new Map(newState.broadcastsByChannel);</span>
 <span class="cstat-no" title="statement not covered" >      map.set(action.data.ownedChannel.id, [])</span>
 <span class="cstat-no" title="statement not covered" >      newState.broadcastsByChannel = map;</span>
@@ -1096,8 +1096,8 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState =&gt; {
 &nbsp;
 <span class="branch-3 cbranch-no" title="branch not covered" >    case "SUBSCRIBE_CHANNEL": {</span>
 <span class="cstat-no" title="statement not covered" >      log.info(`subscribe channel data is ${JSON.stringify(action.data)}`)</span>
-<span class="cstat-no" title="statement not covered" >      newState.userChannels = [...newState.userChannels];</span>
-<span class="cstat-no" title="statement not covered" >      newState.userChannels.push(action.data)</span>
+<span class="cstat-no" title="statement not covered" >      newState.channelMembers = [...newState.channelMembers];</span>
+<span class="cstat-no" title="statement not covered" >      newState.channelMembers.push(action.data)</span>
       let map: Map&lt;string, Broadcast[]&gt; = <span class="cstat-no" title="statement not covered" >new Map(newState.broadcastsByChannel);</span>
 <span class="cstat-no" title="statement not covered" >      map.set(action.data.channelId, [])</span>
 <span class="cstat-no" title="statement not covered" >      newState.broadcastsByChannel = map;</span>
@@ -1119,15 +1119,15 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState =&gt; {
 <span class="branch-6 cbranch-no" title="branch not covered" >    case "ADD_OWNED_CHANNEL": {</span>
       const ownedChannels = <span class="cstat-no" title="statement not covered" >[...newState.ownedChannels]</span>
 <span class="cstat-no" title="statement not covered" >      ownedChannels.push(action.ownedChannel)</span>
-      const userChannels = <span class="cstat-no" title="statement not covered" >[...newState.userChannels]</span>
-<span class="cstat-no" title="statement not covered" >      userChannels.push(action.subscribedChannel);</span>
+      const channelMembers = <span class="cstat-no" title="statement not covered" >[...newState.channelMembers]</span>
+<span class="cstat-no" title="statement not covered" >      channelMembers.push(action.subscribedChannel);</span>
 &nbsp;
       let map: Map&lt;string, Broadcast[]&gt; = <span class="cstat-no" title="statement not covered" >new Map(newState.broadcastsByChannel);</span>
 <span class="cstat-no" title="statement not covered" >      map.set(action.ownedChannel.id, [])</span>
 <span class="cstat-no" title="statement not covered" >      newState.broadcastsByChannel = map;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      newState.ownedChannels = ownedChannels</span>
-<span class="cstat-no" title="statement not covered" >      newState.userChannels = userChannels;</span>
+<span class="cstat-no" title="statement not covered" >      newState.channelMembers = channelMembers;</span>
 <span class="cstat-no" title="statement not covered" >      return newState;</span>
 <span class="cstat-no" title="statement not covered" >      break;</span>
     }
@@ -1136,7 +1136,7 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState =&gt; {
 <span class="cstat-no" title="statement not covered" >      newState.operatingUser = action.data.operatingUser</span>
 <span class="cstat-no" title="statement not covered" >      newState.posts = action.data.posts</span>
 <span class="cstat-no" title="statement not covered" >      newState.ownedChannels = action.data.ownedChannels</span>
-<span class="cstat-no" title="statement not covered" >      newState.userChannels = action.data.userChannels</span>
+<span class="cstat-no" title="statement not covered" >      newState.channelMembers = action.data.channelMembers</span>
 <span class="cstat-no" title="statement not covered" >      newState.broadcastsByChannel = action.data.broadcastsByChannel</span>
 <span class="cstat-no" title="statement not covered" >      saveAuth(newState);</span>
     //  log.info(`saved auth with the followign: ${JSON.stringify(action.data, null, 2)}`)

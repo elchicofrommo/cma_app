@@ -884,7 +884,7 @@ import log from "../util/Logging"
 import { shallowEqual, useSelector } from "react-redux";
 import {
     User,
-    UserChannel,
+    ChannelMember,
     Post,
     Broadcast,
     NestedArray,
@@ -1050,7 +1050,7 @@ async function fetchOperatingUser(userId):
     Promise&lt;{
         user: User,
         channels: Channel[],
-        userChannels: UserChannel[],
+        channelMembers: ChannelMember[],
         posts: Post[]
     } | undefined&gt; {
 &nbsp;
@@ -1061,7 +1061,7 @@ async function fetchOperatingUser(userId):
         type GetOperatingUserResult = {
             getUser: Omit&lt;User, 'meetingIds'&gt; &amp; { meetingIds: any };
             listChannelByOwner: NestedArray&lt;Channel&gt;;
-            listChannelByUser: NestedArray&lt;UserChannel&gt;;
+            listChannelByUser: NestedArray&lt;ChannelMember&gt;;
             listPostByOwner: NestedArray&lt;Post&gt;;
         };
 &nbsp;
@@ -1084,7 +1084,7 @@ async function fetchOperatingUser(userId):
 &nbsp;
         const tempMyOwnedChannels: NestedArray&lt;Channel&gt; =
             firstStageResult.data?.listChannelByOwner;
-        const tempMyChannels: NestedArray&lt;UserChannel&gt; =
+        const tempMyChannels: NestedArray&lt;ChannelMember&gt; =
             firstStageResult.data?.listChannelByUser;
         const tempMyPosts: NestedArray&lt;Post&gt; =
             firstStageResult.data?.listPostByOwner;
@@ -1096,7 +1096,7 @@ async function fetchOperatingUser(userId):
             return {
                 channels: tempMyOwnedChannels.items,
                 posts: tempMyPosts.items,
-                userChannels: tempMyChannels.items,
+                channelMembers: tempMyChannels.items,
                 user: userResult,
             }
         } catch (err) {
@@ -1164,7 +1164,7 @@ async function <span class="fstat-no" title="function not covered" >fetchPosts(<
     }
 }
 &nbsp;
-async function <span class="fstat-no" title="function not covered" >fetchBroadcastPost(</span>user: User, mySubChannels: UserChannel[]): Promise&lt;Map&lt;string, Broadcast[]&gt;&gt; {
+async function <span class="fstat-no" title="function not covered" >fetchBroadcastPost(</span>user: User, mySubChannels: ChannelMember[]): Promise&lt;Map&lt;string, Broadcast[]&gt;&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        if (mySubChannels.length === 0) {</span>
@@ -1231,21 +1231,21 @@ async function <span class="fstat-no" title="function not covered" >getAuthDetai
 <span class="cstat-no" title="statement not covered" >    return authResult.data.getUser</span>
 }
 &nbsp;
-async function <span class="fstat-no" title="function not covered" >fetchMySubChannels(</span>operatingUser: User): Promise&lt;UserChannel[]&gt; {
+async function <span class="fstat-no" title="function not covered" >fetchMySubChannels(</span>operatingUser: User): Promise&lt;ChannelMember[]&gt; {
 <span class="cstat-no" title="statement not covered" >    log.info(`fetchMySubchannels start for id ${operatingUser.id}`);</span>
 <span class="cstat-no" title="statement not covered" >    if (!operatingUser) {</span>
 <span class="cstat-no" title="statement not covered" >        log.info(`fetchMySubchannels setting to empty list`);</span>
 <span class="cstat-no" title="statement not covered" >        return ([]);</span>
     }
 &nbsp;
-    type ListUserChannelResults = {
-        listChannelByUser: NestedArray&lt;UserChannel&gt;;
+    type ListChannelMemberResults = {
+        listChannelByUser: NestedArray&lt;ChannelMember&gt;;
     };
     const broadcastResult = <span class="cstat-no" title="statement not covered" >(await API.graphql(</span>
         gql(queries.listChannelByUser, {
             userId: operatingUser.id,
         })
-    )) as { data: ListUserChannelResults };
+    )) as { data: ListChannelMemberResults };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    log.info(`fetchMySubchannels done `);</span>
 <span class="cstat-no" title="statement not covered" >    return (broadcastResult.data.listChannelByUser.items);</span>

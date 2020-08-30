@@ -30,7 +30,7 @@ export const INITIAL_STATE: AppState = {
   posts: [],
   broadcastsByChannel: new Map<string, Broadcast[]>(),
   ownedChannels: [],
-  userChannels: [],
+  channelMembers: [],
   meetings: [],
   meetingsLoading: false,
   homegroup: undefined,
@@ -61,8 +61,8 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
     case "CREATE_CHANNEL":
       newState.ownedChannels = [...newState.ownedChannels]
       newState.ownedChannels.push(action.data.ownedChannel);
-      newState.userChannels = [...newState.userChannels];
-      newState.userChannels.push(action.data.subscribedChannel)
+      newState.channelMembers = [...newState.channelMembers];
+      newState.channelMembers.push(action.data.subscribedChannel)
       let map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
       map.set(action.data.ownedChannel.id, [])
       newState.broadcastsByChannel = map;
@@ -80,8 +80,8 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
 
     case "SUBSCRIBE_CHANNEL": {
       log.info(`subscribe channel data is ${JSON.stringify(action.data)}`)
-      newState.userChannels = [...newState.userChannels];
-      newState.userChannels.push(action.data)
+      newState.channelMembers = [...newState.channelMembers];
+      newState.channelMembers.push(action.data)
       let map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
       map.set(action.data.channelId, [])
       newState.broadcastsByChannel = map;
@@ -103,15 +103,15 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
     case "ADD_OWNED_CHANNEL": {
       const ownedChannels = [...newState.ownedChannels]
       ownedChannels.push(action.ownedChannel)
-      const userChannels = [...newState.userChannels]
-      userChannels.push(action.subscribedChannel);
+      const channelMembers = [...newState.channelMembers]
+      channelMembers.push(action.subscribedChannel);
 
       let map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
       map.set(action.ownedChannel.id, [])
       newState.broadcastsByChannel = map;
 
       newState.ownedChannels = ownedChannels
-      newState.userChannels = userChannels;
+      newState.channelMembers = channelMembers;
       return newState;
       break;
     }
@@ -120,7 +120,7 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       newState.operatingUser = action.data.operatingUser
       newState.posts = action.data.posts
       newState.ownedChannels = action.data.ownedChannels
-      newState.userChannels = action.data.userChannels
+      newState.channelMembers = action.data.channelMembers
       newState.broadcastsByChannel = action.data.broadcastsByChannel
       saveAuth(newState);
     //  log.info(`saved auth with the followign: ${JSON.stringify(action.data, null, 2)}`)

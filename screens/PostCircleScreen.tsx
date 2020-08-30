@@ -15,7 +15,7 @@ import log from "../util/Logging"
 import { PostShareModal} from "../components/PostShareModal"
 import {
   User,
-  UserChannel,
+  ChannelMember,
   Post,
   Broadcast,
 } from "../types/circles.";
@@ -47,13 +47,13 @@ function PostCircleScreen({ route, navigation, ...props }) {
   const styles = useStyles();
   const {colors: Colors} = useColors()
   const Layout = useLayout();
-  const originalUserChannels: UserChannel[] = useSelector(
-    (state) => state.general.userChannels,
+  const originalChannelMembers: ChannelMember[] = useSelector(
+    (state) => state.general.channelMembers,
     shallowEqual
   );
   // push "journal" as the first user channel
 
-  const journalChannel: UserChannel = {
+  const journalChannel: ChannelMember = {
     id: "journal",
     channelId: "journal",
     channel: {
@@ -65,17 +65,17 @@ function PostCircleScreen({ route, navigation, ...props }) {
     },
     userId: user.id,
   }
-  let userChannels: UserChannel[] = [journalChannel]
-  userChannels = userChannels.concat(originalUserChannels)
+  let channelMembers: ChannelMember[] = [journalChannel]
+  channelMembers = channelMembers.concat(originalChannelMembers)
   //const [modalHeight, setModalHeight] = useState(0)
 
 
-  async function sharePost(userChannel: UserChannel, broadcastId: string){
+  async function sharePost(channelMember: ChannelMember, broadcastId: string){
 
     log.info(`placeholder for share post, broacast id is ${broadcastId}`)
     let results;
     if(!broadcastId){
-      results = await mutateApi.createBroadcast(postToShare.id, userChannel.channelId, user.id)
+      results = await mutateApi.createBroadcast(postToShare.id, channelMember.channelId, user.id)
       results = results.data.createBroadcast
    //   store.dispatch({type: "BROADCAST_POST", broadcast:results })
       store.dispatch({type: "SET_BANNER", banner: {message: `Post shared`, status: "info"}})
@@ -95,18 +95,18 @@ function PostCircleScreen({ route, navigation, ...props }) {
 
       setCurrentPosts(personalPosts)
     }else{
-      log.info(`setting post list for`, { userChannel: userChannels[currentIndex].channel.name})
-      const posts: Post[] = broadcasts.get(userChannels[currentIndex].channelId)
+      log.info(`setting post list for`, { channelMember: channelMembers[currentIndex].channel.name})
+      const posts: Post[] = broadcasts.get(channelMembers[currentIndex].channelId)
       .map((broadcast) => broadcast.post)
       setCurrentPosts(posts)
     }
   },[broadcasts, currentIndex, personalPosts])
 
-  function renderUserChannel({
+  function renderChannelMember({
     item,
     index,
   }: {
-    item: UserChannel;
+    item: ChannelMember;
     index: number;
   }) {
     
@@ -199,8 +199,8 @@ function PostCircleScreen({ route, navigation, ...props }) {
           locations={[0, 0.05, 0.5, 0.95, 1]}
         />
         <Carousel
-          data={userChannels}
-          renderItem={renderUserChannel}
+          data={channelMembers}
+          renderItem={renderChannelMember}
           layout={`default`}
           sliderWidth={Layout.window.width -70}
           itemWidth={(Layout.window.width - 70) / 1.2}
@@ -219,7 +219,7 @@ function PostCircleScreen({ route, navigation, ...props }) {
           slideInterpolatedStyle={animatedStyles2}
         /><Pagination
             
-              dotsLength={userChannels.length}
+              dotsLength={channelMembers.length}
               activeDotIndex={currentIndex}
               containerStyle={{
                 alignSelf: 'center', 
@@ -246,7 +246,7 @@ function PostCircleScreen({ route, navigation, ...props }) {
   </View>
       <PostList
         postData={currentPosts}
-        channelId={currentIndex!=0 ? userChannels[currentIndex].channelId: undefined }
+        channelId={currentIndex!=0 ? channelMembers[currentIndex].channelId: undefined }
         action={(input)=>{setShowModal(true); setPostToShare(input)}}
         navigation={navigation}
       />

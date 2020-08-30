@@ -909,7 +909,7 @@ import shortid from "shortid";
 import log from "../util/Logging"
 import {
     User,
-    UserChannel,
+    ChannelMember,
     Post,
     Comment,
     Like,
@@ -1072,8 +1072,8 @@ async function deleteUser({userName}: {userName: string}) {
  * @param operatingUser User that you are subscribing for 
  * @param channelName The name to give the channel
  */
-async function <span class="fstat-no" title="function not covered" >createChannel(</span>operatingUser: User, channelName: string, userChannels: UserChannel[]) 
-: Promise&lt;{ownedChannel: Channel, subscribedChannel: UserChannel}&gt;{
+async function <span class="fstat-no" title="function not covered" >createChannel(</span>operatingUser: User, channelName: string, channelMembers: ChannelMember[]) 
+: Promise&lt;{ownedChannel: Channel, subscribedChannel: ChannelMember}&gt;{
 <span class="cstat-no" title="statement not covered" >    log.info(`createChannel start`);</span>
 <span class="cstat-no" title="statement not covered" >    if (!operatingUser) {</span>
 <span class="cstat-no" title="statement not covered" >        alert(`only users can create channels`);</span>
@@ -1105,7 +1105,7 @@ async function <span class="fstat-no" title="function not covered" >createChanne
 <span class="cstat-no" title="statement not covered" >    log.info(`createChannel done:`, {results})</span>
 <span class="cstat-no" title="statement not covered" >    log.info(`now subscribing:`);</span>
 &nbsp;
-    const subscribeResults = <span class="cstat-no" title="statement not covered" >await subscribeToChannel(operatingUser, channel.id, userChannels)</span>
+    const subscribeResults = <span class="cstat-no" title="statement not covered" >await subscribeToChannel(operatingUser, channel.id, channelMembers)</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return {ownedChannel: results.data.createChannel, subscribedChannel: subscribeResults}</span>
         
@@ -1118,7 +1118,7 @@ async function <span class="fstat-no" title="function not covered" >createChanne
  * subscribes a user to a channel to listen to posts broadcast on that channel
  */
 async function <span class="fstat-no" title="function not covered" >subscribeToChannel(</span>operatingUser: User, channelId: 
-    string, userChannels: UserChannel[]) : Promise&lt;UserChannel&gt;{
+    string, channelMembers: ChannelMember[]) : Promise&lt;ChannelMember&gt;{
 <span class="cstat-no" title="statement not covered" >    log.info(`subscribeToChannel start, operatingUser is`, {operatingUser})</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (!operatingUser || channelId === "") {</span>
@@ -1126,39 +1126,39 @@ async function <span class="fstat-no" title="function not covered" >subscribeToC
 <span class="cstat-no" title="statement not covered" >      return;</span>
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    log.info(`trying to join ${channelId} the user channels I'm subscribed to  ${JSON.stringify(userChannels, null, 2)}`)</span>
-<span class="cstat-no" title="statement not covered" >    if (userChannels?.filter(<span class="fstat-no" title="function not covered" >(e</span>ntry) =&gt; <span class="cstat-no" title="statement not covered" >entry.channelId === channelId)</span>.length &gt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >    log.info(`trying to join ${channelId} the user channels I'm subscribed to  ${JSON.stringify(channelMembers, null, 2)}`)</span>
+<span class="cstat-no" title="statement not covered" >    if (channelMembers?.filter(<span class="fstat-no" title="function not covered" >(e</span>ntry) =&gt; <span class="cstat-no" title="statement not covered" >entry.channelId === channelId)</span>.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >      throw({error: "You already subscribe to this channel"});</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
     }
     
-    const userChannel: any = <span class="cstat-no" title="statement not covered" >await API.graphql(</span>
+    const channelMember: any = <span class="cstat-no" title="statement not covered" >await API.graphql(</span>
       gql(queries.getChannel, { id: channelId })
     );
 <span class="cstat-no" title="statement not covered" >    log.info(</span>
-      `resutls from userchannel query: `, {userChannel}
+      `resutls from userchannel query: `, {channelMember}
     );
-<span class="cstat-no" title="statement not covered" >    if(!userChannel.data.getChannel){</span>
+<span class="cstat-no" title="statement not covered" >    if(!channelMember.data.getChannel){</span>
 <span class="cstat-no" title="statement not covered" >        throw({error: "This Circle Code does not exist. Check your code and try again."})</span>
     }
 &nbsp;
-    type CreateUserChannel ={
-        createUserChannel: UserChannel
+    type CreateChannelMember ={
+        createChannelMember: ChannelMember
     }
     const results = <span class="cstat-no" title="statement not covered" >await API.graphql(</span>
-      gql(mutate.createUserChannel, {
+      gql(mutate.createChannelMember, {
         input: {
           channelId: channelId,
           userId: operatingUser.id,
         },
       })
-    ) as {data: CreateUserChannel}
+    ) as {data: CreateChannelMember}
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    log.info(</span>
       `subscribeToChannel done, result is `, {results}
     );
     
-<span class="cstat-no" title="statement not covered" >    return results.data.createUserChannel</span>
+<span class="cstat-no" title="statement not covered" >    return results.data.createChannelMember</span>
   }
 &nbsp;
 async function <span class="fstat-no" title="function not covered" >createPost(</span>operatingUser: User, input: string): Promise&lt;Post&gt; {

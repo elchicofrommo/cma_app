@@ -1,4 +1,4 @@
-import {User, Post, Channel, UserChannel, Broadcast, Meeting} from './circles.'
+import {User, Post, Channel, ChannelMember, Broadcast, Meeting} from './circles.'
 
 export type AppState = {
     email?: string,
@@ -7,7 +7,7 @@ export type AppState = {
     posts: Post[],
     broadcastsByChannel: Map<string, Broadcast[]>,
     ownedChannels: Channel[],
-    userChannels: UserChannel[],
+    channelMembers: ChannelMember[],
     closeMeetings: Meeting[],
     closeMeetingsLoading: boolean,
     meetings: Meeting[] ,

@@ -29,13 +29,13 @@ import {store} from '../redux/store'
 import {
 
 } from "@expo/vector-icons";
-import {User, UserChannel, ChannelDetails, Channel} from '../types/circles.'
+import {User, ChannelMember, ChannelDetails, Channel} from '../types/circles.'
 
 
 
 function CircleAdminScreen({
-  route, navigation,operatingUser,userChannels, ownedChannels, ...props
-}: {operatingUser: User, userChannels: UserChannel[], route: any, navigation: any, ownedChannels: Channel[]}) {
+  route, navigation,operatingUser,channelMembers, ownedChannels, ...props
+}: {operatingUser: User, channelMembers: ChannelMember[], route: any, navigation: any, ownedChannels: Channel[]}) {
 
 
 log.info(`rendering CircleAdminScreen`)
@@ -58,8 +58,8 @@ log.info(`rendering CircleAdminScreen`)
   useEffect(()=>{
     async function getChannelDetails(){
       const promises = [];
-      userChannels.forEach(userChannel=>{
-        promises.push(fetchApi.fetchChannelDetails(userChannel.channelId))
+      channelMembers.forEach(channelMember=>{
+        promises.push(fetchApi.fetchChannelDetails(channelMember.channelId))
       })
 
       const results: ChannelDetails[] = await Promise.all(promises);
@@ -71,13 +71,13 @@ log.info(`rendering CircleAdminScreen`)
     setIsLoading(true);
     getChannelDetails()
     
-  }, [userChannels])
+  }, [channelMembers])
 
   async function readyAction(){
     if(isJournal){
       setInput(undefined);
 
-        const createPromise = mutateApi.createChannel(operatingUser, input, userChannels)
+        const createPromise = mutateApi.createChannel(operatingUser, input, channelMembers)
         store.dispatch(()=>{
           createPromise
           .then(async (createResult)=>{
@@ -96,7 +96,7 @@ log.info(`rendering CircleAdminScreen`)
         })
 
     }else{
-      const subscribePromise = fetch.subscribeToChannel(operatingUser, input, userChannels)
+      const subscribePromise = fetch.subscribeToChannel(operatingUser, input, channelMembers)
       store.dispatch(()=>{
         subscribePromise.then(async (result)=>{
           await new Promise((resolve, reject)=>{store.dispatch({type: "SUBSCRIBE_CHANNEL", data: result}); resolve()})
@@ -155,7 +155,7 @@ log.info(`rendering CircleAdminScreen`)
   }, []);
 
 
-  function renderUserChannel({item: channel, index}:{item: ChannelDetails, index: number}){
+  function renderChannelMember({item: channel, index}:{item: ChannelDetails, index: number}){
     log.info(`rendering `, {channel})
     const iOwn = channel.ownerId == operatingUser.id;
     return (
@@ -249,7 +249,7 @@ log.info(`rendering CircleAdminScreen`)
         </View>
         <FlatList
           data={channelDetails}
-          renderItem={renderUserChannel}
+          renderItem={renderChannelMember}
           keyExtractor={(item, index)=>`${index}`}
         >
 
@@ -412,9 +412,9 @@ function useStyles(){
 
 export default connect(  
   function mapStateToProps(state, ownProps) {
-  const { operatingUser, userChannels, ownedChannels } = state.general;
-log.info(`userChannels is`, {userChannels})
-  return { operatingUser, userChannels: userChannels, ownedChannels };
+  const { operatingUser, channelMembers, ownedChannels } = state.general;
+log.info(`channelMembers is`, {channelMembers})
+  return { operatingUser, channelMembers: channelMembers, ownedChannels };
   },
   function mapDispatchToProps(dispatch) {
     return {

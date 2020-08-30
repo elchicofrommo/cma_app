@@ -912,9 +912,9 @@ export const onDeleteChannel = /* GraphQL */ `
     }
   }
 `;
-export const onCreateUserChannel = /* GraphQL */ `
-  subscription OnCreateUserChannel {
-    onCreateUserChannel {
+export const onCreateChannelMember = /* GraphQL */ `
+  subscription OnCreateChannelMember {
+    onCreateChannelMember {
       id
       channelId
       channel {
@@ -974,9 +974,9 @@ export const onCreateUserChannel = /* GraphQL */ `
     }
   }
 `;
-export const onUpdateUserChannel = /* GraphQL */ `
-  subscription OnUpdateUserChannel {
-    onUpdateUserChannel {
+export const onUpdateChannelMember = /* GraphQL */ `
+  subscription OnUpdateChannelMember {
+    onUpdateChannelMember {
       id
       channelId
       channel {
@@ -1036,9 +1036,9 @@ export const onUpdateUserChannel = /* GraphQL */ `
     }
   }
 `;
-export const onDeleteUserChannel = /* GraphQL */ `
-  subscription OnDeleteUserChannel {
-    onDeleteUserChannel {
+export const onDeleteChannelMember = /* GraphQL */ `
+  subscription OnDeleteChannelMember {
+    onDeleteChannelMember {
       id
       channelId
       channel {

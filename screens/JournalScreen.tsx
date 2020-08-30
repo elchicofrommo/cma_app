@@ -22,7 +22,7 @@ import mutateApi from "../api/mutate";
 import {
   Post,
   User,
-  UserChannel,
+  ChannelMember,
 } from "../types/circles.";
 import { SafeAreaView } from "react-native-safe-area-context";
 function JournalScreen({
@@ -35,7 +35,7 @@ function JournalScreen({
 }: {
   posts: Post[];
   operatingUser: User;
-  subscribedChannels: UserChannel[];
+  subscribedChannels: ChannelMember[];
   route: any;
   navigation: any;
 }) {
@@ -46,9 +46,9 @@ function JournalScreen({
   log.info(`should be rendering my posts:`, {posts} )
   const Layout = useLayout();
   const {colors: Colors} = useColors();
-  async function sharePost(userChannel: UserChannel){
+  async function sharePost(channelMember: ChannelMember){
 
-    const results = await mutateApi.createBroadcast(postToShare.id, userChannel.channelId, postToShare.ownerId)
+    const results = await mutateApi.createBroadcast(postToShare.id, channelMember.channelId, postToShare.ownerId)
     log.info(`results from broadcast are:`, {results})
     store.dispatch({type: "SET_BANNER", banner: {message: "Post shared", status: "info"}})
   }
@@ -80,11 +80,11 @@ function JournalScreen({
               <View style={{width: 50, height: 5, backgroundColor: Colors.primary1, borderRadius: 5, borderColor: Colors.primary1}}></View>
             </View>
             <Text style={{ paddingHorizontal: 10, fontFamily: 'opensans', color: Colors.primary1, fontSize: 21 * Layout.scale.width}}>Your Circles</Text>
-            {subscribedChannels.map((userChannel: UserChannel)=>{
+            {subscribedChannels.map((channelMember: ChannelMember)=>{
               return(
-                <View key={userChannel.id} style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 3,}}>
-                  <Text style={{ flex: 1, fontSize:17}}>{userChannel.channel.name}</Text>
-                  <TouchableWithoutFeedback style={{flex: 2, backgroundColor: 'yellow'}} onPress={()=>sharePost(userChannel)}>
+                <View key={channelMember.id} style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 3,}}>
+                  <Text style={{ flex: 1, fontSize:17}}>{channelMember.channel.name}</Text>
+                  <TouchableWithoutFeedback style={{flex: 2, backgroundColor: 'yellow'}} onPress={()=>sharePost(channelMember)}>
                     <Text style={{fontSize:17, width: 80}}>Share</Text>
                   </TouchableWithoutFeedback>
                 </View>
@@ -114,7 +114,7 @@ function useStyles(){
 
 JournalScreen = connect(
   function mapStateToProps(state, ownProps) {
-    const { posts, operatingUser, userChannels: subscribedChannels } = state.general;
+    const { posts, operatingUser, channelMembers: subscribedChannels } = state.general;
     log.info(`JournalScreen connect observed redux change`);
 
     return {

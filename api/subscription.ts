@@ -6,7 +6,7 @@ import log from "../util/Logging"
 import {
     User,
     Channel,
-    UserChannel,
+    ChannelMember,
     Post,
     Broadcast,
 } from "../types/circles.";
@@ -101,7 +101,7 @@ function subscribeToBroadcastChannel(channelId: string, callback= handleBroadcas
  * subscribes a user to a channel to listen to posts broadcast on that channel
  */
 async function subscribeToChannel(operatingUser: User, channelId:
-    string, userChannels: UserChannel[]): Promise<UserChannel> {
+    string, channelMembers: ChannelMember[]): Promise<ChannelMember> {
     log.info(`subscribeToChannel start, operatingUser is`, { operatingUser })
 
     if (!operatingUser || channelId === "") {
@@ -109,39 +109,39 @@ async function subscribeToChannel(operatingUser: User, channelId:
         return;
     }
 
-    log.info(`trying to join ${channelId} the user channels I'm subscribed to  ${JSON.stringify(userChannels, null, 2)}`)
-    if (userChannels?.filter((entry) => entry.channelId === channelId).length > 0) {
+    log.info(`trying to join ${channelId} the user channels I'm subscribed to  ${JSON.stringify(channelMembers, null, 2)}`)
+    if (channelMembers?.filter((entry) => entry.channelId === channelId).length > 0) {
         throw ({ error: "You already subscribe to this channel" });
         return;
     }
 
-    const userChannel: any = await API.graphql(
+    const channelMember: any = await API.graphql(
         gql(queries.getChannel, { id: channelId })
     );
     log.info(
-        `resutls from userchannel query: `, { userChannel }
+        `resutls from userchannel query: `, { channelMember }
     );
-    if (!userChannel.data.getChannel) {
+    if (!channelMember.data.getChannel) {
         throw ({ error: "This Circle Code does not exist. Check your code and try again." })
     }
 
-    type CreateUserChannel = {
-        createUserChannel: UserChannel
+    type CreateChannelMember = {
+        createChannelMember: ChannelMember
     }
     const results = await API.graphql(
-        gql(mutate.createUserChannel, {
+        gql(mutate.createChannelMember, {
             input: {
                 channelId: channelId,
                 userId: operatingUser.id,
             },
         })
-    ) as { data: CreateUserChannel }
+    ) as { data: CreateChannelMember }
 
     log.info(
         `subscribeToChannel done, result is `, { results }
     );
 
-    return results.data.createUserChannel
+    return results.data.createChannelMember
 }
 
 export default {

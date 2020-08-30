@@ -3,7 +3,7 @@ import { Auth, } from "aws-amplify";
 import mutateApi, { CreateUserInput, } from '../api/mutate'
 import apiGateway from '../api/apiGateway'
 import { store } from '../redux/store'
-import { User, Channel, UserChannel, Post, Broadcast, } from '../types/circles.'
+import { User, Channel, ChannelMember, Post, Broadcast, } from '../types/circles.'
 import log from "./Logging"
 import queryApi from '../api/query'
 
@@ -11,7 +11,7 @@ export type UserDetailResult = {
 
     operatingUser?: User,
     ownedChannels?: Channel[],
-    userChannels?: UserChannel[],
+    channelMembers?: ChannelMember[],
     posts?: Post[],
     broadcastMap?: Map<string, Broadcast[]>,
     meetings?: string[]
@@ -142,12 +142,12 @@ export async function getUserDetails(id: string): Promise<UserDetailResult> {
         const opResults = await queryApi.fetchOperatingUser(authResults.id)
         log.info(`successful retrevial of operating user `);
 
-        const broadcastsByChannel = await queryApi.fetchBroadcastPost(opResults.user, opResults.userChannels);
+        const broadcastsByChannel = await queryApi.fetchBroadcastPost(opResults.user, opResults.channelMembers);
         log.info(`broadcastByChannel`, { broadcastsByChannel })
         const userResult = {
             operatingUser: opResults.user,
             posts: opResults.posts, ownedChannels: opResults.channels,
-            userChannels: opResults.userChannels, broadcastsByChannel,
+            channelMembers: opResults.channelMembers, broadcastsByChannel,
 
         }
 

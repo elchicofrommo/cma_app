@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import {
 
-    UserChannel,
+    ChannelMember,
     Post,
   } from "../types/circles.";
   import {useColors} from "../hooks/useColors";
@@ -30,7 +30,7 @@ export function PostShareModal({postId, isVisible, shareCallback, dismissCallbac
     const {colors: Colors} = useColors()
     const Layout = useLayout()
 
-    const userChannels = useSelector((state)=>state.general.userChannels)
+    const channelMembers = useSelector((state)=>state.general.channelMembers)
     return(
         <Modal
         isVisible={isVisible}
@@ -51,15 +51,15 @@ export function PostShareModal({postId, isVisible, shareCallback, dismissCallbac
               <View style={{width: 50, height: 5, backgroundColor: Colors.primary1, borderRadius: 5, borderColor: Colors.primary1}}></View>
             </View>
             <Text style={{ paddingHorizontal: 10, paddingTop: 10, fontFamily: 'opensans', color: Colors.primary1, fontSize: 21 * Layout.scale.width}}>Your Circles</Text>
-            {userChannels.map((userChannel: UserChannel)=>{
+            {channelMembers.map((channelMember: ChannelMember)=>{
               const broadcast = post?.broadcasts.items.filter(
-                broadcast=>broadcast.channelId===userChannel.channelId
+                broadcast=>broadcast.channelId===channelMember.channelId
               )
               const isBroadcastAlready = broadcast?.length > 0
               return(
-                <View key={userChannel.id} style={{flexDirection: 'row', justifyContent: 'flex-start', paddingHorizontal: 10, paddingVertical: 5,}}>
-                  <Text style={{flex: 3, fontSize:17}}>{userChannel.channel.name}</Text>
-                  <TouchableWithoutFeedback onPress={()=>shareCallback(userChannel, isBroadcastAlready? broadcast[0].id: undefined)} >
+                <View key={channelMember.id} style={{flexDirection: 'row', justifyContent: 'flex-start', paddingHorizontal: 10, paddingVertical: 5,}}>
+                  <Text style={{flex: 3, fontSize:17}}>{channelMember.channel.name}</Text>
+                  <TouchableWithoutFeedback onPress={()=>shareCallback(channelMember, isBroadcastAlready? broadcast[0].id: undefined)} >
                     <View style={[{ backgroundColor: isBroadcastAlready? '#f36468': 'green', borderRadius: 17, padding: 5,},shadow]}>
                      <Text style={[{fontSize:17, width: 80, textAlign: 'center', color: 'white'} ,{color: 'white'}]}>{isBroadcastAlready?"Unshare": "Share"}</Text>
                     </View>

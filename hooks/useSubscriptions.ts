@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 
-import { User,  UserChannel } from '../types/circles.'
+import { User,  ChannelMember } from '../types/circles.'
 
 import subApi from '../api/subscription'
 import { shallowEqual, useSelector  } from 'react-redux';
@@ -12,7 +12,7 @@ import log from '../util/Logging'
 export default function useSubscriptions() {
 
   const user : User = useSelector  (state=>state.general.operatingUser, shallowEqual ) 
-  const userChannels: UserChannel[] = useSelector( state=>state.general.userChannels, shallowEqual)
+  const channelMembers: ChannelMember[] = useSelector( state=>state.general.channelMembers, shallowEqual)
   const [connected, setConnected] = React.useState(true)
   const [appState, setAppState] = React.useState(AppState.currentState)
   
@@ -31,8 +31,8 @@ export default function useSubscriptions() {
 
             const subs = [];
             subs.push(subApi.subscribeToMyPosts(user))
-            userChannels.forEach(userChannel=>{
-              subs.push(subApi.subscribeToBroadcastChannel(userChannel.channelId))
+            channelMembers.forEach(channelMember=>{
+              subs.push(subApi.subscribeToBroadcastChannel(channelMember.channelId))
             })
             return ()=>{
               log.info(`unsubscribing to everything`)
@@ -46,6 +46,6 @@ export default function useSubscriptions() {
         cleanup = listenForPosts(user)
     if(cleanup)
         return cleanup
-  }, [user, connected, appState, userChannels])
+  }, [user, connected, appState, channelMembers])
 }
 

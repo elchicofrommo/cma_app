@@ -1,6 +1,6 @@
 import shortid from 'shortid'
 import mutateCircles from '../api/mutate'
-import { User, Post, Channel, UserChannel } from '../types/circles.'
+import { User, Post, Channel, ChannelMember } from '../types/circles.'
 
 
 const emailDomain = "@nowhere.com"
@@ -8,7 +8,7 @@ const emailDomain = "@nowhere.com"
 export type OperatingUser = {
     user: User,
     channels: Channel[],
-    userChannels: UserChannel[],
+    channelMembers: ChannelMember[],
     posts: Post[]
 }
 

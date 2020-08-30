@@ -3,7 +3,7 @@ import * as queries from "../graphql/queries";
 import log from "../util/Logging"
 import {
     User,
-    UserChannel,
+    ChannelMember,
     Post,
     Broadcast,
     NestedArray,
@@ -17,7 +17,7 @@ async function fetchOperatingUser(userId):
     Promise<{
         user: User,
         channels: Channel[],
-        userChannels: UserChannel[],
+        channelMembers: ChannelMember[],
         posts: Post[]
     } | undefined> {
 
@@ -28,7 +28,7 @@ async function fetchOperatingUser(userId):
         type GetOperatingUserResult = {
             getUser: Omit<User, 'meetingIds'> & { meetingIds: any };
             listChannelByOwner: NestedArray<Channel>;
-            listChannelByUser: NestedArray<UserChannel>;
+            listChannelByUser: NestedArray<ChannelMember>;
             listPostByOwner: NestedArray<Post>;
         };
 
@@ -51,7 +51,7 @@ async function fetchOperatingUser(userId):
 
         const tempMyOwnedChannels: NestedArray<Channel> =
             firstStageResult.data?.listChannelByOwner;
-        const tempMyChannels: NestedArray<UserChannel> =
+        const tempMyChannels: NestedArray<ChannelMember> =
             firstStageResult.data?.listChannelByUser;
         const tempMyPosts: NestedArray<Post> =
             firstStageResult.data?.listPostByOwner;
@@ -63,7 +63,7 @@ async function fetchOperatingUser(userId):
             return {
                 channels: tempMyOwnedChannels.items,
                 posts: tempMyPosts.items,
-                userChannels: tempMyChannels.items,
+                channelMembers: tempMyChannels.items,
                 user: userResult,
             }
         } catch (err) {
@@ -131,7 +131,7 @@ async function fetchPosts(operatingUser: User): Promise<Post[]> {
     }
 }
 
-async function fetchBroadcastPost(user: User, mySubChannels: UserChannel[]): Promise<Map<string, Broadcast[]>> {
+async function fetchBroadcastPost(user: User, mySubChannels: ChannelMember[]): Promise<Map<string, Broadcast[]>> {
     try {
 
         if (mySubChannels.length === 0) {
@@ -198,21 +198,21 @@ async function getAuthDetails(id: string): Promise<User> {
     return authResult.data.getUser
 }
 
-async function fetchMySubChannels(operatingUser: User): Promise<UserChannel[]> {
+async function fetchMySubChannels(operatingUser: User): Promise<ChannelMember[]> {
     log.info(`fetchMySubchannels start for id ${operatingUser.id}`);
     if (!operatingUser) {
         log.info(`fetchMySubchannels setting to empty list`);
         return ([]);
     }
 
-    type ListUserChannelResults = {
-        listChannelByUser: NestedArray<UserChannel>;
+    type ListChannelMemberResults = {
+        listChannelByUser: NestedArray<ChannelMember>;
     };
     const broadcastResult = (await API.graphql(
         gql(queries.listChannelByUser, {
             userId: operatingUser.id,
         })
-    )) as { data: ListUserChannelResults };
+    )) as { data: ListChannelMemberResults };
 
     log.info(`fetchMySubchannels done `);
     return (broadcastResult.data.listChannelByUser.items);

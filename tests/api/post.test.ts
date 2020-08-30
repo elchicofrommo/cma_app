@@ -5,7 +5,7 @@ const config = require('../../aws-exports-test.js')
 
 
 
-import { User, Post, Broadcast, Channel, UserChannel, Meeting, NestedArray, Like, Comment } from '../../types/circles.'
+import { User, Post, Broadcast, Channel, ChannelMember, Meeting, NestedArray, Like, Comment } from '../../types/circles.'
 import mutateCircles from '../../api/mutate'
 import fetchCircles from '../../api/query'
 import fetchAllCircles from '../../api/queryAll'

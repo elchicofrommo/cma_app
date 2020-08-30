@@ -23,9 +23,8 @@ export type User = {
   shareDos?: boolean,
   createdAt?: string,
   updatedAt?: string
-  channels?: NestedArray<UserChannel>,
+  channels?: NestedArray<ChannelMember>,
   posts?: NestedArray<Post>,
-  ownedChannels?: NestedArray<Channel>,
   meetingIds?: string[]
 }
 
@@ -41,7 +40,7 @@ export type ChannelDetails = Channel & {
   subscribedUsers?: User[]
 }
 
-export type UserChannel = {
+export type ChannelMember = {
   channelId: string,
   channel: Channel,
   userId: string,
@@ -61,12 +60,11 @@ export type Comment = {
 
 export type Channel = {
   id?: string,
-  shortId: string,
+  shortId?: string,
   name: string,
-  ownerId: string,
-  owner?: User,
+  ownerIds: [string],
   broadcasts?: NestedArray<Broadcast>,
-  subscriptions?: NestedArray<UserChannel>,
+  subscriptions?: NestedArray<ChannelMember>,
   createdAt?: string,
   updatedAt?: string,
 }

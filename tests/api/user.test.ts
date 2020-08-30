@@ -6,7 +6,7 @@ const config = require('../../aws-exports-test.js')
 
 
 import shortid from 'shortid'
-import { User, Post, Broadcast, Channel, UserChannel, Meeting, NestedArray } from '../../types/circles.'
+import { User, Post, Broadcast, Channel, ChannelMember, Meeting, NestedArray } from '../../types/circles.'
 import mutateCircles from '../../api/mutate'
 import fetchCircles from '../../api/query'
 import { store } from '../../redux/store'
@@ -88,7 +88,7 @@ describe("tests for fetchOperatingUser: new users", () => {
     validateUserResponse(user1, opu.user)
     expect(opu.channels).toHaveLength(0);
     expect(opu.posts).toHaveLength(0);
-    expect(opu.userChannels).toHaveLength(0)
+    expect(opu.channelMembers).toHaveLength(0)
     operatingUsers.push(opu)
   })
   mTest('fetchOperatingUser for user2', async () => {
@@ -98,7 +98,7 @@ describe("tests for fetchOperatingUser: new users", () => {
     validateUserResponse(user2, opu.user)
     expect(opu.channels).toHaveLength(0);
     expect(opu.posts).toHaveLength(0);
-    expect(opu.userChannels).toHaveLength(0)
+    expect(opu.channelMembers).toHaveLength(0)
     operatingUsers.push(opu)
   })
   mTest('fetchOperatingUser for user3', async () => {
@@ -109,7 +109,7 @@ describe("tests for fetchOperatingUser: new users", () => {
     validateUserResponse(user3, opu.user)
     expect(opu.channels).toHaveLength(0);
     expect(opu.posts).toHaveLength(0);
-    expect(opu.userChannels).toHaveLength(0)
+    expect(opu.channelMembers).toHaveLength(0)
     operatingUsers.push(opu)
 
   })

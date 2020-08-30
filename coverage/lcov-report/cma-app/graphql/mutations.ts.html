@@ -2725,12 +2725,12 @@ export const deleteChannel = /* GraphQL */ `
     }
   }
 `;
-export const createUserChannel = /* GraphQL */ `
-  mutation CreateUserChannel(
-    $input: CreateUserChannelInput!
-    $condition: ModelUserChannelConditionInput
+export const createChannelMember = /* GraphQL */ `
+  mutation CreateChannelMember(
+    $input: CreateChannelMemberInput!
+    $condition: ModelChannelMemberConditionInput
   ) {
-    createUserChannel(input: $input, condition: $condition) {
+    createChannelMember(input: $input, condition: $condition) {
       id
       channelId
       channel{
@@ -2743,12 +2743,12 @@ export const createUserChannel = /* GraphQL */ `
     }
   }
 `;
-export const updateUserChannel = /* GraphQL */ `
-  mutation UpdateUserChannel(
-    $input: UpdateUserChannelInput!
-    $condition: ModelUserChannelConditionInput
+export const updateChannelMember = /* GraphQL */ `
+  mutation UpdateChannelMember(
+    $input: UpdateChannelMemberInput!
+    $condition: ModelChannelMemberConditionInput
   ) {
-    updateUserChannel(input: $input, condition: $condition) {
+    updateChannelMember(input: $input, condition: $condition) {
       id
       channelId
       userId
@@ -2757,12 +2757,12 @@ export const updateUserChannel = /* GraphQL */ `
     }
   }
 `;
-export const deleteUserChannel = /* GraphQL */ `
-  mutation DeleteUserChannel(
-    $input: DeleteUserChannelInput!
-    $condition: ModelUserChannelConditionInput
+export const deleteChannelMember = /* GraphQL */ `
+  mutation DeleteChannelMember(
+    $input: DeleteChannelMemberInput!
+    $condition: ModelChannelMemberConditionInput
   ) {
-    deleteUserChannel(input: $input, condition: $condition) {
+    deleteChannelMember(input: $input, condition: $condition) {
       id
       channelId
       userId

@@ -5,7 +5,7 @@ import shortid from "shortid";
 import log from "../util/Logging"
 import {
     User,
-    UserChannel,
+    ChannelMember,
     Post,
     Comment,
     Like,
@@ -226,8 +226,8 @@ async function deleteUser({ id }: { id: string }) {
  * @param operatingUser User that you are subscribing for 
  * @param channelName The name to give the channel
  */
-async function createChannel(operatingUser: User, channelName: string, userChannels: UserChannel[])
-    : Promise<{ ownedChannel: Channel, subscribedChannel: UserChannel }> {
+async function createChannel(operatingUser: User, channelName: string, channelMembers: ChannelMember[])
+    : Promise<{ ownedChannel: Channel, subscribedChannel: ChannelMember }> {
     log.info(`createChannel start`);
     if (!operatingUser) {
         alert(`only users can create channels`);
@@ -239,13 +239,11 @@ async function createChannel(operatingUser: User, channelName: string, userChann
         return;
     }
 
-    const id = shortid.generate();
 
     const channel: Channel = {
         id: shortid.generate().substring(0, 6),
         name: channelName,
-        ownerId: operatingUser.id,
-        shortId: shortid.generate().substring(0, 6),
+        ownerIds: [operatingUser.id],
     };
 
 
@@ -259,7 +257,7 @@ async function createChannel(operatingUser: User, channelName: string, userChann
     log.info(`createChannel done:`, { results })
     log.info(`now subscribing:`);
 
-    const subscribeResults = await subscribeToChannel(operatingUser, channel.id, userChannels)
+    const subscribeResults = await subscribeToChannel(operatingUser, channel.id, channelMembers)
 
     return { ownedChannel: results.data.createChannel, subscribedChannel: subscribeResults }
 
