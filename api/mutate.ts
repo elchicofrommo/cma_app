@@ -265,6 +265,49 @@ async function createChannel(operatingUser: User, channelName: string, channelMe
 
 }
 
+
+/**
+ * subscribes a user to a channel to listen to gratitudes broadcast on that channel
+ */
+async function subscribeToChannel(operatingUser: User, channelId: 
+    string) : Promise<ChannelMember>{
+    log.info(`subscribeToChannel start, operatingUser is`, {operatingUser})
+
+    if (!operatingUser || channelId === "") {
+      throw({error: "System Error: You must specify both user id and channel id"});
+      return;
+    }
+  
+    const channel: any = await API.graphql(
+      gql(queries.getChannel, { id: channelId })
+    );
+    log.info(
+      `resutls from userchannel query: `, {channel}
+    );
+    if(!channel.data.getChannel){
+        throw({error: "This Circle Code does not exist. Check your code and try again."})
+    }
+
+    type CreateChannelMember = {
+        createChannelMember: ChannelMember
+    }
+    const results = await API.graphql(
+      gql(mutate.createChannelMember, {
+        input: {
+          channelId: channelId,
+          userId: operatingUser.id,
+        },
+      })
+    ) as {data: CreateChannelMember}
+
+    log.info(
+      `subscribeToChannel done, result is `, {results}
+    );
+    
+    return results.data.createChannelMember
+  }
+
+
 async function createPost(operatingUser: User, input: string): Promise<Post | { error: string }> {
 
     if (!operatingUser) {
@@ -439,5 +482,6 @@ export default {
     likePost,
     unlikePost,
     commentOnPost,
-    uncommentOnPost
+    uncommentOnPost,
+    subscribeToChannel,
 }
