@@ -13,13 +13,7 @@ import {
 
 ///// Section for fetching data for operating
 
-async function fetchOperatingUser(userId):
-    Promise<{
-        user: User,
-        channels: Channel[],
-        channelMembers: ChannelMember[],
-        posts: Post[]
-    } | undefined> {
+async function fetchUser(userId:string): Promise<User| undefined> {
 
     if (!userId) {
         return undefined
@@ -27,8 +21,6 @@ async function fetchOperatingUser(userId):
     try {
         type GetOperatingUserResult = {
             getUser: Omit<User, 'meetingIds'> & { meetingIds: any };
-            listChannelByOwner: NestedArray<Channel>;
-            listChannelByUser: NestedArray<ChannelMember>;
             listPostByOwner: NestedArray<Post>;
         };
 
@@ -49,23 +41,14 @@ async function fetchOperatingUser(userId):
 
         const userResult: User = firstStageResult.data.getUser;
 
-        const tempMyOwnedChannels: NestedArray<Channel> =
-            firstStageResult.data?.listChannelByOwner;
-        const tempMyChannels: NestedArray<ChannelMember> =
-            firstStageResult.data?.listChannelByUser;
         const tempMyPosts: NestedArray<Post> =
             firstStageResult.data?.listPostByOwner;
 
         try {
 
-            log.info(`fetchOperatingUser done:`, { userResult, tempMyChannels, tempMyPosts, tempMyOwnedChannels })
+            log.info(`fetchOperatingUser done:`, { userResult,  tempMyPosts})
 
-            return {
-                channels: tempMyOwnedChannels.items,
-                posts: tempMyPosts.items,
-                channelMembers: tempMyChannels.items,
-                user: userResult,
-            }
+            return userResult
         } catch (err) {
             log.error(`could not destructure because of ${err}`);
             return undefined
@@ -77,30 +60,6 @@ async function fetchOperatingUser(userId):
     log.info(`fetchOperatingUser done`);
 }
 
-async function fetchOwnedChannels(operatingUser: User): Promise<Array<Channel>> {
-    log.info(`fetchMyOwnedChannels start for user ${operatingUser.id}`);
-    if (!operatingUser) {
-        log.info(`fetchMyOwnedChannels setting to empy list`);
-        return []
-
-    }
-
-    type ListChannelResult = {
-        listChannelByOwner: {
-            items: Channel[];
-        };
-    };
-
-    const firstStageResult = (await API.graphql(
-        gql(queries.listChannelByOwner, {
-            ownerId: operatingUser.id,
-            limit: 50,
-        })
-    )) as { data: ListChannelResult };
-
-    return firstStageResult.data.listChannelByOwner.items
-
-}
 
 async function fetchPosts(operatingUser: User): Promise<Post[]> {
     log.info(`fetchMyPosts start for user: ${operatingUser.id}`);
@@ -131,10 +90,10 @@ async function fetchPosts(operatingUser: User): Promise<Post[]> {
     }
 }
 
-async function fetchBroadcastPost(user: User, mySubChannels: ChannelMember[]): Promise<Map<string, Broadcast[]>> {
+async function fetchBroadcastPost(user: User): Promise<Map<string, Broadcast[]>> {
     try {
 
-        if (mySubChannels.length === 0) {
+        if (user.channels.items.length === 0) {
             log.info(`fetchMyBroadcastPost setting to empty list `);
             return (new Map<string, Broadcast[]>());
         }
@@ -142,12 +101,12 @@ async function fetchBroadcastPost(user: User, mySubChannels: ChannelMember[]): P
 
         const promises = [];
         const broadcastByChannel = new Map<string, Broadcast[]>();
-        mySubChannels.forEach((channel) => {
-            broadcastByChannel.set(channel.channelId, []);
+        user.channels.items.forEach((membership: ChannelMember) => {
+            broadcastByChannel.set(membership.channelId, []);
             promises.push(
                 API.graphql(
                     gql(queries.listBroadcastByChannel, {
-                        channelId: channel.channelId, filter: { ownerId: { ne: user.id } }
+                        channelId: membership.channelId
                     })
                 )
             );
@@ -198,32 +157,9 @@ async function getAuthDetails(id: string): Promise<User> {
     return authResult.data.getUser
 }
 
-async function fetchMySubChannels(operatingUser: User): Promise<ChannelMember[]> {
-    log.info(`fetchMySubchannels start for id ${operatingUser.id}`);
-    if (!operatingUser) {
-        log.info(`fetchMySubchannels setting to empty list`);
-        return ([]);
-    }
-
-    type ListChannelMemberResults = {
-        listChannelByUser: NestedArray<ChannelMember>;
-    };
-    const broadcastResult = (await API.graphql(
-        gql(queries.listChannelByUser, {
-            userId: operatingUser.id,
-        })
-    )) as { data: ListChannelMemberResults };
-
-    log.info(`fetchMySubchannels done `);
-    return (broadcastResult.data.listChannelByUser.items);
-
-}
 
 async function fetchChannelDetails(channelId: string): Promise<ChannelDetails> {
-    type getChannelResult = {
-        getChannel: Channel
 
-    }
 
     type ChannelDetailResults = {
         getChannel: Channel,
@@ -243,10 +179,8 @@ async function fetchChannelDetails(channelId: string): Promise<ChannelDetails> {
 
 export default {
     getAuthDetails,
-    fetchMySubChannels,
     fetchBroadcastPost,
     fetchPosts,
-    fetchOperatingUser,
-    fetchOwnedChannels,
+    fetchUser: fetchUser,
     fetchChannelDetails,
 }

@@ -115,7 +115,7 @@ export async function getUserDetails(email: string, jwtToken: string): Promise<S
   try{
     const authResults = await queryApi.getAuthDetails(email)
     //  log.info(`authResults are ${JSON.stringify(result, null, 2)} next get auth details`)
-    const opResults = await queryApi.fetchOperatingUser(authResults.id)
+    const opResults = await queryApi.fetchUser(authResults.id)
     log.info(`successful sign in, now dispatching save auth `);
 
     const broadcastsByChannel = await queryApi.fetchBroadcastPost(opResults.user, opResults.channelMembers);

@@ -1117,17 +1117,8 @@ export const listBroadcastByChannel = /* GraphQL */ `
           ownerId
           owner {
             id
-            shortId
             name
             email
-            dos
-            role
-            shareDos
-            meetingIds
-            createdAt
-            updatedBy
-            updatedAt
-            delta
           }
           content
           likes {
@@ -1147,33 +1138,12 @@ export const listBroadcastByChannel = /* GraphQL */ `
         ownerId
         owner {
           id
-          shortId
           name
-          email
-          dos
-          role
-          shareDos
-          meetingIds
-          channels {
-            nextToken
-          }
-          posts {
-            nextToken
-          }
-          createdAt
-          updatedBy
-          updatedAt
-          delta
         }
         channelId
         channel {
           id
           name
-          shortId
-          ownerIds
-          createdAt
-          updatedAt
-          delta
         }
         createdAt
         updatedAt
@@ -1214,29 +1184,7 @@ export const listShortPosts = /* GraphQL */ `
 export const getOperatingUser = /* GraphQL */ `
 
   query GetOperationalUser($id: ID!) {
-    listChannelByOwner(
-      ownerId: $id
-      limit: 50
-    ){
-      items{
-        id
-        name
-      }
-    }
-    listChannelByUser(
-      userId: $id
-      limit: 50
-    ){
-      items{
-        channelId
-        channel{
-          name
-        }
-        userId
-        createdAt
-        updatedAt
-      }
-    }
+
     listPostByOwner(
       ownerId: $id,
       sortDirection: DESC,
@@ -1291,10 +1239,66 @@ export const getOperatingUser = /* GraphQL */ `
       email
       dos
       role
-      meetingIds
       shareDos
+      meetingIds
+      channels {
+        items {
+          channelId
+          channel {
+            id
+            name
+            shortId
+            ownerIds
+            createdAt
+            updatedAt
+            delta
+          }
+          userId
+          createdAt
+          updatedAt
+          delta
+        }
+        nextToken
+      }
+      posts {
+        items {
+          id
+          ownerId
+          owner {
+            id
+            shortId
+            name
+            email
+            dos
+            role
+            shareDos
+            meetingIds
+            createdAt
+            updatedBy
+            updatedAt
+            delta
+          }
+          content
+          likes {
+            nextToken
+          }
+          comments {
+            nextToken
+          }
+          broadcasts {
+            nextToken
+          }
+          createdAt
+          updatedAt
+          updatedBy
+          delta
+        }
+        nextToken
+      }
       createdAt
+      updatedBy
       updatedAt
+      delta
     }
   }
 `;

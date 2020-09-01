@@ -15,7 +15,7 @@ export type Post = {
 
 export type User = {
   id?: string,
-  shortId: string,
+  shortId?: string,
   name: string,
   email: string,
   dos?: number,

@@ -5,12 +5,7 @@ import { User, Post, Channel, ChannelMember } from '../types/circles.'
 
 const emailDomain = "@nowhere.com"
 
-export type OperatingUser = {
-    user: User,
-    channels: Channel[],
-    channelMembers: ChannelMember[],
-    posts: Post[]
-}
+
 
 export async function createTestUsers(numberToCreate): Promise<User[]> {
     const userPromises = []
@@ -24,7 +19,7 @@ export async function createTestUsers(numberToCreate): Promise<User[]> {
 export async function destroyTestUsers(users: User[]) {
     const destroyPromises = []
     users.forEach((user) => {
-        destroyPromises.push(mutateCircles.deleteUser({ userName: user.id }))
+        destroyPromises.push(mutateCircles.deleteUser({ id: user.id }))
     })
     return await Promise.all(destroyPromises)
 }

@@ -16,7 +16,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 const DocumentStack = createStackNavigator();
 
-export default function DocumentScreenStack(props){
+export default function ResourcesScreenStack(props){
   log.info(`rendering docuemnt screenstack,`)
 
 
@@ -24,7 +24,7 @@ export default function DocumentScreenStack(props){
     <DocumentStack.Navigator>
       <DocumentStack.Screen 
         name="documents"
-        component={DocumentScreen} 
+        component={ResourcesScreen} 
         options={({navigation, routes})=>({
           title:"",
 
@@ -43,7 +43,7 @@ export default function DocumentScreenStack(props){
 }
 
 
-function DocumentScreen({navigation, ...props}) {
+function ResourcesScreen({navigation, ...props}) {
   log.info(`rendering documentscreen`)
   const documents : {} = useSelector((state)=>{
     return state.general.paths
@@ -64,7 +64,7 @@ function DocumentScreen({navigation, ...props}) {
         <OptionButton
           icon="md-school"
           label={value[0]}
-          onPress={()=>navigation.navigate("documentBrowser", {links: value[1]})}
+          onPress={()=>navigation.navigate("resourceListing", {links: value[1]})}
         />
           )
         })

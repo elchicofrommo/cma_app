@@ -1,5 +1,4 @@
 
-import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
@@ -9,29 +8,9 @@ import {useColors} from '../hooks/useColors';
 import log from "../util/Logging"
 
 
-export default function DocumentBrowserScreen({navigation, route}){
+export default function ResourceListingScreen({navigation, route}){
   const { links } = route.params;
 
-
-  log.info(`rendering DocumentBrowserScreen`)
-  const buttons = [];
-  links.forEach(entry=>{
-    const URI = encodeURI(`${entry.link}`)
-    buttons.push(
-        <OptionButton
-            label={entry.label}
-            key={URI}
-            onPress={() => {
-              log.info(`opening up ${URI}`)
-              try{
-                WebBrowser.openBrowserAsync(`${URI}`)
-              }catch(err){
-                log.info("could not open up file because of " + err)
-              }
-            }}
-        />
-    )
-  })
   const styles = useStyles();
   return (
     <View style={styles.container}>

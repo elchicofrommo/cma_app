@@ -221,13 +221,13 @@ async function deleteUser({ id }: { id: string }) {
 
 }
 /**
- * This function will create a channle for this user then subscribe to it as all
+ * This function will create a channel for this user then subscribe to it as all
  * owned channles should autoamtically get a subscriptoin
  * @param operatingUser User that you are subscribing for 
  * @param channelName The name to give the channel
  */
-async function createChannel(operatingUser: User, channelName: string, channelMembers: ChannelMember[])
-    : Promise<{ ownedChannel: Channel, subscribedChannel: ChannelMember }> {
+async function createChannel(operatingUser: User, channelName: string)
+    : Promise<{ channel: Channel, membership: ChannelMember }> {
     log.info(`createChannel start`);
     if (!operatingUser) {
         alert(`only users can create channels`);
@@ -257,9 +257,9 @@ async function createChannel(operatingUser: User, channelName: string, channelMe
     log.info(`createChannel done:`, { results })
     log.info(`now subscribing:`);
 
-    const subscribeResults = await subscribeToChannel(operatingUser, channel.id, channelMembers)
+    const subscribeResults = await subscribeToChannel(operatingUser, channel.id)
 
-    return { ownedChannel: results.data.createChannel, subscribedChannel: subscribeResults }
+    return { channel: results.data.createChannel, membership: subscribeResults }
 
 
 
@@ -308,6 +308,51 @@ async function subscribeToChannel(operatingUser: User, channelId:
   }
 
 
+/**
+ * subscribes a user to a channel to listen to gratitudes broadcast on that channel
+ */
+async function unsubscribeToChannel(operatingUser: User, channel: 
+    Channel) : Promise<ChannelMember>{
+    log.verbose(`unsubscribeToChannel start, `, {operatingUser, channel})
+
+    if (!operatingUser || !channel ) {
+      throw({error: "System Error: You must specify both user and channel"});
+    }
+  
+    const channelResult: any = await API.graphql(
+      gql(queries.getChannel, { id: channel.id })
+    );
+    log.verbose(
+      `resutls from userchannel query: `, {channelResult}
+    );
+    if(!channelResult.data.getChannel){
+        throw({error: "This Circle Code does not exist. Check your code and try again."})
+    }
+
+
+    if(channelResult.data.getChannel.ownerIds.includes(operatingUser.id)){
+        throw({error: "You cannot unsubscribe while being an owner. "})
+    }
+
+    type DeleteChannelMember = {
+        deleteChannelMember: ChannelMember
+    }
+    const results = await API.graphql(
+      gql(mutate.deleteChannelMember, {
+        input: {
+          channelId: channel.id,
+          userId: operatingUser.id,
+        },
+      })
+    ) as {data: DeleteChannelMember}
+
+    log.verbose(
+      `unsubscribe  done, result is `, {results}
+    );
+    
+    return results.data.deleteChannelMember
+  }
+
 async function createPost(operatingUser: User, input: string): Promise<Post | { error: string }> {
 
     if (!operatingUser) {
@@ -349,9 +394,11 @@ async function createPost(operatingUser: User, input: string): Promise<Post | { 
     }
 }
 
-async function createBroadcast(postId: string, channelId: string, ownerId: string) {
-    if (postId === "" || channelId === "") {
-        alert("must specify both post id and channel id");
+async function createBroadcast(post: Post, channel: Channel, owner: User) :
+    Promise<Broadcast>
+{
+    if (!post || !channel || !owner) {
+        throw(`required field not provided post:${post} channel:${channel} owner:${owner}`);
         return;
     }
 
@@ -360,17 +407,17 @@ async function createBroadcast(postId: string, channelId: string, ownerId: strin
     const results = await API.graphql(
         gql(mutate.createBroadcast, {
             input: {
-                postId,
-                channelId,
-                ownerId
-            }, postId
-        })
-    );
-
+                postId: post.id,
+                channelId: channel.id,
+                ownerId: owner.id
+            }, postId: post.id
+        }) 
+    ) as {data: any}
+    const broadcast = results.data.createBroadcast
     log.info(
-        `broadcastPost done, results are `, { results }
+        `broadcastPost done, results are `, { broadcast}
     );
-    return results;
+    return broadcast;
 
 }
 
@@ -396,7 +443,7 @@ async function deleteBroadcast(id: string) {
 }
 
 async function deletePost(post: Post) {
-    log.verbose(`deletePost start for id:`, { post });
+    log.info(`deletePost start for id:`, { post });
     if (!post) {
         alert(`cannot delete null post`);
         return;
@@ -467,6 +514,22 @@ async function deleteLike(postId, userId) {
     )
 }
 
+async function deleteChannel(id) {
+    return API.graphql(
+        gql(mutate.deleteChannel, {
+            input: { id },
+        })
+    )
+}
+
+async function deleteChannelMember({userId, channelId}: {userId: string, channelId: string}){
+    return API.graphql(
+        gql(mutate.deleteChannelMember, {
+            input: { userId, channelId },
+        })
+    )
+}
+
 export default {
 
     deleteComment,
@@ -484,4 +547,7 @@ export default {
     commentOnPost,
     uncommentOnPost,
     subscribeToChannel,
+    unsubscribeToChannel,
+    deleteChannel,
+    deleteChannelMember,
 }

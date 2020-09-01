@@ -39,7 +39,7 @@ const DetailsMenu = ({operatingUser, showDetail, authenticated, detail, ...props
     const [offset, setOffset] = useState(new Animated.Value(layout.safeBottom + 40 * layout.scale.height))
 
 
-    if (showDetail) {
+    if (!showDetail) {
         log.info(`going to 0`)
         Animated.timing(offset, {
             toValue: 0,
@@ -139,13 +139,9 @@ function useStyles(){
 
 export default connect(
     function mapStateToProps(state, ownProps) {
-        log.info(`DetailsMenu connect observed redux change, detail ${state.general.meetingDetail}`)
 
         return {
-            detail: state.general.meetingDetail,
-            showDetail: state.general.showDetail,
-            authenticated: state.general.operatingUser.role!="guest",
-            operatingUser: state.general.operatingUser
+
         };
     },
     function mapDispatchToProps(dispatch) {
@@ -158,7 +154,7 @@ export default connect(
                     let meetingString = meetingList.join(",");
                     const removeMeetingResult = await mutate.updateUser({
                         id: operatingUser.id,
-                        meetingIds: meetingList.join(',')
+                        meetingIds: meetingList
                     })
                     operatingUser.meetingIds = meetingList
                     log.info(`results from setting meetings is ${JSON.stringify(removeMeetingResult, null, 2)}`)
@@ -176,7 +172,7 @@ export default connect(
                     meetingList.push(data.id)
                     const addMeetingResult = await mutate.updateUser({
                         id: operatingUser.id,
-                        meetingIds: meetingList.join(',')
+                        meetingIds: meetingList
                     })
                     operatingUser.meetingIds = meetingList
                     log.info(`results from setting meetings is ${JSON.stringify(addMeetingResult, null, 2)}`)

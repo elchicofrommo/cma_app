@@ -381,6 +381,8 @@ export  function MeetingSearchScreen({ navigation, ...props }) {
     else 
       setMeetingListHeight(maxListHeight)
   }, [maxListHeight, filteredMeetingData])
+
+  
   return (
     <LinearGradient style={[styles.container,]}
       colors={[Colors.primary1, Colors.primary2]}

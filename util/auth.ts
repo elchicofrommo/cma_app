@@ -10,11 +10,7 @@ import queryApi from '../api/query'
 export type UserDetailResult = {
 
     operatingUser?: User,
-    ownedChannels?: Channel[],
-    channelMembers?: ChannelMember[],
-    posts?: Post[],
     broadcastMap?: Map<string, Broadcast[]>,
-    meetings?: string[]
     error?: string,
 
 }
@@ -25,7 +21,7 @@ export enum Role {
 
 export type AuthorizeResult = {
     userName?: string,
-    role: Role,
+    role?: Role,
     email?: string,
     error?: string
 }
@@ -137,23 +133,20 @@ export async function signIn(email: string, password: string): Promise<Authorize
 export async function getUserDetails(id: string): Promise<UserDetailResult> {
 
     try {
-        const authResults = await queryApi.getAuthDetails(id)
-        log.verbose(`authResults are`, { authResults })
-        const opResults = await queryApi.fetchOperatingUser(authResults.id)
+
+        const user = await queryApi.fetchUser(id)
         log.info(`successful retrevial of operating user `);
 
-        const broadcastsByChannel = await queryApi.fetchBroadcastPost(opResults.user, opResults.channelMembers);
+        const broadcastsByChannel = await queryApi.fetchBroadcastPost(user);
         log.info(`broadcastByChannel`, { broadcastsByChannel })
         const userResult = {
-            operatingUser: opResults.user,
-            posts: opResults.posts, ownedChannels: opResults.channels,
-            channelMembers: opResults.channelMembers, broadcastsByChannel,
-
+            operatingUser: user,
+            broadcastsByChannel,
         }
 
         store.dispatch({ type: "SAVE_AUTH", data: userResult });
 
-        const meetingDetails = await apiGateway.getMeetingDetails(opResults.user)
+        const meetingDetails = await apiGateway.getMeetingDetails(user)
         store.dispatch({ type: 'SYNC_MEETINGS', data: meetingDetails })
 
         return userResult

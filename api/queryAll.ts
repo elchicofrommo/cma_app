@@ -9,6 +9,7 @@ import {
     Like,
     NestedArray,
     Channel,
+    ChannelMember,
     Comment
 } from "../types/circles.";
 import PostCircleScreen from "../screens/PostCircleScreen";
@@ -141,10 +142,28 @@ async function fetchAllChannels(): Promise<Array<Channel>> {
     return result.data.listChannels.items || [];
 }
 
+/**
+* Warning: Massive potental performance and cost implications using this method. 
+* Do you really want to get all ChannelMembers?
+*/
+async function fetchAllChannelMembers(): Promise<Array<ChannelMember>> {
+    log.info(`fetchAllChannels`);
+    type ListChannelMembersResult = {
+        listChannelMembers: NestedArray<ChannelMember>;
+    };
+    const result = (await API.graphql(gql(queries.listChannelMembers))) as {
+        data: ListChannelMembersResult;
+    };
+
+    log.info(`fetchAllChannels done `);
+    return result.data.listChannelMembers.items || [];
+}
+
 export default {
     fetchAllLikes,
     fetchAllComments,
     fetchAllUsers,
     fetchAllChannels,
+    fetchAllChannelMembers,
     fetchAllPosts,
 }

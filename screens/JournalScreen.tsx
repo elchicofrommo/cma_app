@@ -140,10 +140,7 @@ JournalScreen = connect(
         log.info(`set detail data is `);
         dispatch({ type: "SET_DETAIL", meetingDetail: data });
       },
-      dispatchRegisterSubmenu: (data) => {
-        log.info("registering post submenu");
-        dispatch({ type: "REGISTER_SUBMENU", data });
-      },
+
     };
   }
 )(JournalScreen);

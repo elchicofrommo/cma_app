@@ -211,18 +211,27 @@ describe("Tests centered on creation, updating (via like/comment), query for and
 
   mTest("happy path adding comments to post", async()=>{
 
-    let results = await mutateCircles.commentOnPost({post: userPosts[0][0], user: users[1], comment: `comment 1 by ${users[1].name}`})
+    let results = await mutateCircles.commentOnPost({post: userPosts[0][0], 
+      user: users[1], comment: `comment 1 by ${users[1].name}`})
 
     expect(results.comments.items).toHaveLength(1)
     expect(results.comments.items[0].userId).toBe(users[1].id)
     expect(results.comments.items[0].comment).toBe(`comment 1 by ${users[1].name}`)
     userPosts[0][0] = results
 
-    results = await mutateCircles.commentOnPost({post: userPosts[0][1], user: users[1], comment: `comment 1 by ${users[2].name}`})
+    results = await mutateCircles.commentOnPost({post: userPosts[0][1], 
+      user: users[1], comment: `comment 1 by ${users[1].name}`})
     
     expect(results.comments.items).toHaveLength(1)
     expect(results.comments.items[0].userId).toBe(users[1].id)
-    expect(results.comments.items[0].comment).toBe(`comment 1 by ${users[2].name}`)
+    expect(results.comments.items[0].comment).toBe(`comment 1 by ${users[1].name}`)
+
+    results = await mutateCircles.commentOnPost({post: userPosts[0][1], 
+      user: users[2], comment: `comment 2 by ${users[2].name}`})
+    
+    expect(results.comments.items).toHaveLength(2)
+    expect(results.comments.items[1].userId).toBe(users[2].id)
+    expect(results.comments.items[1].comment).toBe(`comment 2 by ${users[2].name}`)
     userPosts[0][1] = results
   })
 
@@ -246,9 +255,9 @@ describe("Tests centered on creation, updating (via like/comment), query for and
 
     commentHolder = userPosts[0][1].comments.items[0]
     let result = await mutateCircles.uncommentOnPost({post: userPosts[0][1], comment: userPosts[0][1].comments.items[0]})
-    expect(result.comments.items).toHaveLength(0)
+    expect(result.comments.items).toHaveLength(1)
 
-    userPosts[0][0] = result
+    userPosts[0][1] = result
   })
 
   mTest("uncommenting with old comments should not generate errors", async()=>{
@@ -257,7 +266,37 @@ describe("Tests centered on creation, updating (via like/comment), query for and
     let result = await mutateCircles.uncommentOnPost({post: userPosts[0][1], comment: userPosts[0][1].comments.items[0]})
 
     expect(result.comments.items).toHaveLength(0)
-    userPosts[0][0] = result
+    userPosts[0][1] = result
+  })
+
+  mTest("delete post and verify all it's comments/likes are deleted", async()=>{
+    let allPosts = await fetchAllCircles.fetchAllPosts();
+    let allComments = await fetchAllCircles.fetchAllComments();
+    let allLikes = await fetchAllCircles.fetchAllLikes();
+    let fetchedPosts = await fetchCircles.fetchPosts(users[0])
+    let user = await fetchCircles.fetchUser(users[0].id)
+
+    expect(fetchedPosts).toHaveLength(user.posts.items.length)
+    expect(fetchedPosts).toHaveLength(userPosts[0].length)
+    expect(fetchedPosts[0].content).toBe(userPosts[0][0].content)
+    expect(fetchedPosts[1].content).toBe(userPosts[0][1].content)
+    expect(fetchedPosts[0].comments.items).toHaveLength(userPosts[0][0].comments.items.length)
+    expect(fetchedPosts[0].likes.items).toHaveLength(userPosts[0][0].likes.items.length)
+    expect(fetchedPosts[1].comments.items).toHaveLength(userPosts[0][1].comments.items.length)
+    expect(fetchedPosts[1].likes.items).toHaveLength(userPosts[0][1].likes.items.length)
+
+    await mutateCircles.deletePost(userPosts[0][0])
+    let p1 = await fetchAllCircles.fetchAllPosts();
+    let c1 = await fetchAllCircles.fetchAllComments();
+    let l1 = await fetchAllCircles.fetchAllLikes();
+
+    expect(l1).toHaveLength(allLikes.length - userPosts[0][0].likes.items.length)
+    expect(c1).toHaveLength(allComments.length - userPosts[0][0].comments.items.length)
+    expect(p1).toHaveLength(allPosts.length - 1)
+
+  })
+  mTest("final test, grabbing users from backend and validating state ", async()=>{
+    //let user = fetchCircles.fetchUser(userId)
   })
 })
 

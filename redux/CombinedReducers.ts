@@ -29,15 +29,9 @@ export const INITIAL_STATE: AppState = {
   currentTheme: 6,
   posts: [],
   broadcastsByChannel: new Map<string, Broadcast[]>(),
-  ownedChannels: [],
   channelMembers: [],
   meetings: [],
   meetingsLoading: false,
-  homegroup: undefined,
-  meetingDetail: undefined,
-  showDetail: false,
-  showEditor: false, 
-  showMenu: true,
   soundCloudDetails: undefined,
   soundCloudTracks: undefined,
   paths: undefined,
@@ -45,13 +39,11 @@ export const INITIAL_STATE: AppState = {
   readerDate: undefined,
   banner: undefined,
   soberietyFormat: 0,
-  submenus: {},
-
+  closeMeetings: [],
+  closeMeetingsLoading: false
 };
 
-function logState(state){
-//  log.info(`GR: state is:${JSON.stringify(state, null, 2)} \n`)
-}
+
 const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
   log.info(`in general reducer action observed: ${action.type}`)
   let newState : AppState = {...state};
@@ -59,8 +51,6 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
   switch (action.type) {
 
     case "CREATE_CHANNEL":
-      newState.ownedChannels = [...newState.ownedChannels]
-      newState.ownedChannels.push(action.data.ownedChannel);
       newState.channelMembers = [...newState.channelMembers];
       newState.channelMembers.push(action.data.subscribedChannel)
       let map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
@@ -100,27 +90,12 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       return newState
       break;
 
-    case "ADD_OWNED_CHANNEL": {
-      const ownedChannels = [...newState.ownedChannels]
-      ownedChannels.push(action.ownedChannel)
-      const channelMembers = [...newState.channelMembers]
-      channelMembers.push(action.subscribedChannel);
-
-      let map: Map<string, Broadcast[]> = new Map(newState.broadcastsByChannel);
-      map.set(action.ownedChannel.id, [])
-      newState.broadcastsByChannel = map;
-
-      newState.ownedChannels = ownedChannels
-      newState.channelMembers = channelMembers;
-      return newState;
-      break;
-    }
     case "SAVE_AUTH":
       log.info(`SAVE_AUTH`,  {data: action.data})
-      newState.operatingUser = action.data.operatingUser
-      newState.posts = action.data.posts
-      newState.ownedChannels = action.data.ownedChannels
-      newState.channelMembers = action.data.channelMembers
+      const user: User = action.data.operatingUser
+      newState.operatingUser = user
+      newState.posts = user.posts.items
+      newState.channelMembers = user.channels.items
       newState.broadcastsByChannel = action.data.broadcastsByChannel
       saveAuth(newState);
     //  log.info(`saved auth with the followign: ${JSON.stringify(action.data, null, 2)}`)
@@ -143,24 +118,6 @@ const generalReducer = (state = INITIAL_STATE , action: any) : AppState => {
       return newState;
       break;
       
-
-    case "SHOW_DETAIL":
-      log.info(`in show detail, old: ${state.showDetail}`)
-      newState.showDetail = true
-      return newState;
-      break;
-    case "HIDE_DETAIL":
-      log.info(`in show detail, old: ${state.showDetail}`)
-      newState.showDetail = false
-      return newState;
-      break;
-    
-    case "SHOW_EDITOR":
-        log.info(`in show menu, old: ${state.showEditor}`)
-
-        return newState;
-        break;
-
     case "SET_THEME": 
       newState.currentTheme = action.theme;
       return newState;

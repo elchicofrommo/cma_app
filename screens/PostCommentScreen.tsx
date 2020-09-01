@@ -115,7 +115,6 @@ function PostEditorScreen({ route, navigation, entry=defaultEntry, ...props }) {
         log.info(`#####use effect in editor screen, `,{newEntry})
         
         setEntryEdit(newEntry);
-        props.dispatchRegisterSubmenu({ submenu: <EditorMenu key={'postEditor'} callback={startEntry}/>, name: "postEditor" })
         const showHolder = Platform.OS==='ios' ? Keyboard.addListener('keyboardWillShow', showKeyboard):
             Keyboard.addListener('keyboardDidShow', showKeyboard);
         const hideHolder = Platform.OS==='ios' ?  Keyboard.addListener('keyboardWillHide', hideKeyboard):
@@ -297,10 +296,7 @@ PostEditorScreen = connect(
                 })
             },
 
-            dispatchRegisterSubmenu: (data) => {
-                log.info("registering postEditor submenu")
-                dispatch({ type: "REGISTER_SUBMENU", data })
-            }
+
 
         }
     },

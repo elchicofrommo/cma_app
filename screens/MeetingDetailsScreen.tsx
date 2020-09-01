@@ -93,20 +93,6 @@ function DetailsScreen({ route, navigation, ...props }) {
         </MapView>)
     }, [meeting])
 
-    useFocusEffect(() => {
-
-        log.info('focus into details screen ')
-        try {
-            props.dispatchShowDetail(route.params);
-
-        } catch (e) {
-            log.info(`could not dispatch because of ${e}`)
-        }
-
-
-
-
-    }, [route.params])
 
     const latlong = {
         latitude: meeting.location.lat,
@@ -141,8 +127,13 @@ function DetailsScreen({ route, navigation, ...props }) {
                 </View>
                 {mapComponent}
             </View>
-            
-            <MeetingDetailMenu key={'meetingSubmenu'} />
+
+            <MeetingDetailMenu key={'meetingSubmenu'} 
+                detail={route.params}
+                showDetail={props.showDetail}
+                authenticated={props.authenticated}
+                operatingUser={props.operatingUser}
+            />
         </View>
     )
 }
@@ -211,27 +202,15 @@ DetailsScreen = connect(
         log.info(`DetailsScreen connect observed redux change, detail ${state.general.meetingDetail}`)
 
         return {
-
+            showDetail: state.general.showDetail,
+            authenticated: state.general.operatingUser.role!="guest",
+            operatingUser: state.general.operatingUser
         };
     },
     function mapDispatchToProps(dispatch) {
         return {
 
-            dispatchShowDetail: (data) => {
-                dispatch(async (d1) => {
-                    return new Promise(resolve => {
-                        log.info(`step 1`);
-                        dispatch({ type: "SET_DETAIL", meetingDetail: data })
-                        log.info(`step 3`);
-                        dispatch({ type: "SHOW_DETAIL" })
-                        resolve();
-                    })
-                })
-            },
-            dispatchSetDetail: (data) => {
-                log.info(`set detail data is `)
-                dispatch({ type: "SET_DETAIL", meetingDetail: data })
-            },
+
 
 
         }

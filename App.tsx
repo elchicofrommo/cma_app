@@ -15,17 +15,19 @@ import SigninScreenExperiments from './screens/SignInExperiments'
 import { AppLoading } from 'expo';
 import AppBanner from './components/AppBanner'
 import {SafeAreaProvider} from 'react-native-safe-area-context'
-import DocumentBrowserScreen from './screens/DocumentBrowserScreen'
+import ResourceListingScreen from './screens/ResourceListingScreen'
 import SettingsScreen from './screens/SettingsScreen'
 import {DetailsScreen} from './screens/MeetingDetailsScreen'
 import SplashScreen from './screens/SplashScreen'
 import EditorScreen from './screens/PostEditorScreen'
 import CircleAdminScreen from './screens/CircleAdminScreen'
+import ResourceWebView from './screens/ResourceWebView'
 import appLog from './util/Logging';
 
 import {InteractionManager} from 'react-native';
 import {Amplify} from "aws-amplify"
 import config from './aws-exports'
+
 
 Amplify.configure(config)
 
@@ -176,11 +178,21 @@ function AppStackStack({initialRoute}){
         })} />  
 
       <AppStack.Screen  
-        name="documentBrowser"
-        component={DocumentBrowserScreen} 
+        name="resourceListing"
+        component={ResourceListingScreen} 
         options={({navigation, route})=>({
 
           title: 'Formats',
+          headerStyle: styles.headerStyle,
+          headerTintColor: Colors.primary1,
+          headerTitleStyle: styles.headerTitle,    
+        })}/>
+      <AppStack.Screen  
+        name="resourceWebView"
+        component={ResourceWebView} 
+        options={({navigation, route})=>({
+
+          title: '',
           headerStyle: styles.headerStyle,
           headerTintColor: Colors.primary1,
           headerTitleStyle: styles.headerTitle,    
@@ -288,6 +300,7 @@ function useStyles(){
   
 
   export default function AppWrapper(){
+
     return(
       <Provider store={store} >
           <SafeAreaProvider>

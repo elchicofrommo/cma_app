@@ -1,11 +1,11 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React, {useState, useEffect, Fragment} from 'react';
-import { StyleSheet,Platform, Keyboard} from 'react-native';
+import { StyleSheet,Platform, Keyboard, View} from 'react-native';
 
 import {useColors} from '../hooks/useColors'
 
 import AudioScreen from '../screens/AudioScreen';
-import DocumentScreen from '../screens/DocumentScreen';
+import ResourcesScreen from '../screens/ResourcesScreen';
 import PostScreen from '../screens/PostScreen';
 import HomeScreen from '../screens/HomeScreen';
 
@@ -19,13 +19,14 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { faHeadphones, faHome, faBook, faChair} from '@fortawesome/free-solid-svg-icons'
 import { faPagelines} from '@fortawesome/free-brands-svg-icons'
 import MeetingSearchScreen from '../screens/MeetingSearchScreen';
+import { useLayout } from '../hooks/useLayout';
 
 
 
 function BottomTabNavigator({ navigation, route, ...props }) {
 
   const {colors: Colors} = useColors();
-
+  const layout = useLayout();
   // Set the header title on the parent stack navigator depending on the
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
@@ -57,15 +58,8 @@ function BottomTabNavigator({ navigation, route, ...props }) {
 
 
     log.info(`tab navigator visibility: ${visible}`)
-    const post = props.authenticated ? 
-      <BottomTab.Screen name="Circles" component={PostScreen}
-        options={{
-          tabBarIcon: ({ focused, color }) => 
-            <Fragment>
-                <MaterialCommunityIcons name="circle-outline" style={{color: color,marginLeft: 5, paddingTop: 3}}  size={25}/>
-                <MaterialCommunityIcons name="circle-outline" style={{color: color,marginLeft: -10, marginTop: -21}}  size={25}/>
-            </Fragment>,
-        }}/> : undefined
+
+      
     const display = Platform.OS==='android'? {display: visible? 'flex': 'none'}:{}
   return (
 
@@ -75,7 +69,7 @@ function BottomTabNavigator({ navigation, route, ...props }) {
     tabBarOptions={{
       activeTintColor: Colors.primary1,
       inactiveTintColor: 'gray',
-      showLabel: true,
+      showLabel: false,
       inactiveBackgroundColor: '#00000000',
       style: {
         borderTopWidth: 1,
@@ -106,6 +100,16 @@ function BottomTabNavigator({ navigation, route, ...props }) {
 
         }}
       />
+      <BottomTab.Screen name="Circles" component={PostScreen}
+
+        options={{
+          tabBarIcon: ({ focused, color }) => 
+            <View style={{height: 36 * layout.scale.width, width: 36* layout.scale.width, borderRadius: 18* layout.scale.width, backgroundColor: color}}>
+                <MaterialCommunityIcons name="circle-outline" style={{color: 'white',marginLeft: 5* layout.scale.width, marginTop: 4* layout.scale.width}}  size={20* layout.scale.width}/>
+                <MaterialCommunityIcons name="circle-outline" style={{color: 'white',marginLeft: 12* layout.scale.width, marginTop: -15* layout.scale.width}}  size={20* layout.scale.width}/>
+            </View>,
+          
+        }}/> 
       <BottomTab.Screen
         name="Speakers"
         component={AudioScreen}
@@ -113,10 +117,9 @@ function BottomTabNavigator({ navigation, route, ...props }) {
           tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faHeadphones} style={{color: color}}  size={25}/>,
         }}
       />
-      {post}
       <BottomTab.Screen
         name="Document"
-        component={DocumentScreen}
+        component={ResourcesScreen}
         options={{
           tabBarIcon: ({ focused, color }) => <FontAwesomeIcon icon={faBook} style={{color: color}}  size={25}/>,
         }}
